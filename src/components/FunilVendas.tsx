@@ -8,6 +8,7 @@ export function FunilVendas() {
   const [showNovoCliente, setShowNovoCliente] = useState(false);
 
   const etapas: EtapaFunil[] = [
+    'Novo Cliente',
     'Lead',
     'Contato Inicial',
     'Envio de Simulação',
@@ -18,6 +19,7 @@ export function FunilVendas() {
   ];
 
   const coresEtapas = {
+    'Novo Cliente': 'bg-indigo-100 text-indigo-700',
     'Lead': 'bg-gray-100 text-gray-700',
     'Contato Inicial': 'bg-blue-100 text-blue-700',
     'Envio de Simulação': 'bg-yellow-100 text-yellow-700',

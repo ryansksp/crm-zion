@@ -18,7 +18,7 @@ interface FormularioSimulacao {
 }
 
 export function Simulador() {
-  const { planos, clientes, adicionarSimulacao } = useApp();
+  const { planos, clientes, adicionarSimulacao, adicionarCliente } = useApp();
   const [formData, setFormData] = useState<FormularioSimulacao>({
     valorCredito: '120000',
     prazo: '240',
