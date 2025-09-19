@@ -219,3 +219,4 @@ export const useApp = () => {
     throw new Error('useApp deve ser usado dentro de AppProvider');
   }
   return context;
+}

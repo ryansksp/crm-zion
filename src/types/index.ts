@@ -14,6 +14,7 @@ export interface Cliente {
   grupoECota?: string;
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
+  userId: string;
 }
 
 export interface UserProfile {
