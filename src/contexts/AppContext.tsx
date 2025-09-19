@@ -1,5 +1,18 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { Cliente, PlanoEmbracon, Meta, Simulacao } from '../types';
+import { db } from '../firebaseConfig';
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+  query,
+  where,
+  addDoc,
+  deleteDoc
+} from 'firebase/firestore';
 
 interface AppState {
   clientes: Cliente[];
@@ -9,12 +22,12 @@ interface AppState {
 }
 
 interface AppContextType extends AppState {
-  adicionarCliente: (cliente: Omit<Cliente, 'id'>) => void;
-  atualizarCliente: (id: string, cliente: Partial<Cliente>) => void;
-  moverClienteEtapa: (id: string, novaEtapa: Cliente['etapa']) => void;
-  adicionarPlano: (plano: Omit<PlanoEmbracon, 'id'>) => void;
-  atualizarMetas: (metas: Partial<Meta>) => void;
-  adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => void;
+  adicionarCliente: (cliente: Omit<Cliente, 'id'>) => Promise<void>;
+  atualizarCliente: (id: string, cliente: Partial<Cliente>) => Promise<void>;
+  moverClienteEtapa: (id: string, novaEtapa: Cliente['etapa']) => Promise<void>;
+  adicionarPlano: (plano: Omit<PlanoEmbracon, 'id'>) => Promise<void>;
+  atualizarMetas: (metas: Partial<Meta>) => Promise<void>;
+  adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => Promise<void>;
   obterClientesAtivos: () => Cliente[];
   obterTaxaConversao: () => number;
 }
@@ -63,32 +76,48 @@ function appReducer(state: AppState, action: Action): AppState {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Carregar dados do localStorage
+  // Sincronizar dados com Firestore
   useEffect(() => {
-    const savedData = localStorage.getItem('cronos-pro-data');
-    if (savedData) {
-      dispatch({ type: 'SET_STATE', payload: JSON.parse(savedData) });
-    }
+    const unsubscribeClientes = onSnapshot(collection(db, 'clientes'), snapshot => {
+      const clientesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Cliente[];
+      dispatch({ type: 'SET_STATE', payload: { ...state, clientes: clientesData } });
+    });
+
+    const unsubscribePlanos = onSnapshot(collection(db, 'planos'), snapshot => {
+      const planosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PlanoEmbracon[];
+      dispatch({ type: 'SET_STATE', payload: { ...state, planos: planosData } });
+    });
+
+    const unsubscribeMetas = onSnapshot(doc(db, 'metas', 'meta'), docSnap => {
+      if (docSnap.exists()) {
+        const metasData = docSnap.data() as Meta;
+        dispatch({ type: 'SET_STATE', payload: { ...state, metas: metasData } });
+      }
+    });
+
+    const unsubscribeSimulacoes = onSnapshot(collection(db, 'simulacoes'), snapshot => {
+      const simulacoesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Simulacao[];
+      dispatch({ type: 'SET_STATE', payload: { ...state, simulacoes: simulacoesData } });
+    });
+
+    return () => {
+      unsubscribeClientes();
+      unsubscribePlanos();
+      unsubscribeMetas();
+      unsubscribeSimulacoes();
+    };
   }, []);
 
-  // Salvar dados no localStorage
-  useEffect(() => {
-    localStorage.setItem('cronos-pro-data', JSON.stringify(state));
-  }, [state]);
-
-  const adicionarCliente = (cliente: Omit<Cliente, 'id'>) => {
-    const novoCliente: Cliente = {
-      ...cliente,
-      id: Date.now().toString(),
-    };
-    dispatch({ type: 'ADICIONAR_CLIENTE', payload: novoCliente });
+  const adicionarCliente = async (cliente: Omit<Cliente, 'id'>) => {
+    await addDoc(collection(db, 'clientes'), cliente);
   };
 
-  const atualizarCliente = (id: string, cliente: Partial<Cliente>) => {
-    dispatch({ type: 'ATUALIZAR_CLIENTE', payload: { id, cliente } });
+  const atualizarCliente = async (id: string, cliente: Partial<Cliente>) => {
+    const clienteRef = doc(db, 'clientes', id);
+    await updateDoc(clienteRef, cliente);
   };
 
-  const moverClienteEtapa = (id: string, novaEtapa: Cliente['etapa']) => {
+  const moverClienteEtapa = async (id: string, novaEtapa: Cliente['etapa']) => {
     const updates: Partial<Cliente> = {
       etapa: novaEtapa,
       dataUltimaInteracao: new Date().toISOString()
@@ -98,27 +127,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updates.dataPerda = new Date().toISOString();
     }
 
-    atualizarCliente(id, updates);
+    await atualizarCliente(id, updates);
   };
 
-  const adicionarPlano = (plano: Omit<PlanoEmbracon, 'id'>) => {
-    const novoPlano: PlanoEmbracon = {
-      ...plano,
-      id: Date.now().toString(),
-    };
-    dispatch({ type: 'ADICIONAR_PLANO', payload: novoPlano });
+  const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id'>) => {
+    await addDoc(collection(db, 'planos'), plano);
   };
 
-  const atualizarMetas = (metas: Partial<Meta>) => {
-    dispatch({ type: 'ATUALIZAR_METAS', payload: metas });
+  const atualizarMetas = async (metas: Partial<Meta>) => {
+    const metasRef = doc(db, 'metas', 'meta');
+    await updateDoc(metasRef, metas);
   };
 
-  const adicionarSimulacao = (simulacao: Omit<Simulacao, 'id'>) => {
-    const novaSimulacao: Simulacao = {
-      ...simulacao,
-      id: Date.now().toString(),
-    };
-    dispatch({ type: 'ADICIONAR_SIMULACAO', payload: novaSimulacao });
+  const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
+    await addDoc(collection(db, 'simulacoes'), simulacao);
   };
 
   const obterClientesAtivos = () => {
