@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AppProvider } from './contexts/AppContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { FunilVendas } from './components/FunilVendas';
@@ -8,9 +9,15 @@ import { ClientesAtivos } from './components/ClientesAtivos';
 import { ClientesPerdidos } from './components/ClientesPerdidos';
 import { PainelDesempenho } from './components/PainelDesempenho';
 import { Configuracoes } from './components/Configuracoes';
+import { Login } from './components/Login';
 
-function App() {
+function AppContent() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  if (!user) {
+    return <Login />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -39,6 +46,14 @@ function App() {
         {renderContent()}
       </Layout>
     </AppProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

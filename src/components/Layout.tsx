@@ -1,5 +1,6 @@
 import React from 'react';
-import { Crown, Home, Target, Users, Settings, Calculator, XCircle } from 'lucide-react';
+import { Crown, Home, Target, Users, Settings, Calculator, XCircle, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,16 @@ const menuItems = [
 ];
 
 export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      alert('Erro ao fazer logout.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -30,13 +41,23 @@ export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
                 <p className="text-xs text-gray-500">CRM Embracon</p>
               </div>
             </div>
-            <div className="text-sm text-gray-600">
-              {new Date().toLocaleDateString('pt-BR', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                {new Date().toLocaleDateString('pt-BR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                title="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sair</span>
+              </button>
             </div>
           </div>
         </div>

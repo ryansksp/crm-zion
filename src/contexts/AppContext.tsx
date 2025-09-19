@@ -1,18 +1,8 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { Cliente, PlanoEmbracon, Meta, Simulacao } from '../types';
 import { db } from '../firebaseConfig';
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  onSnapshot,
-  query,
-  where,
-  addDoc,
-  deleteDoc
-} from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, query, where } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 
 interface AppState {
   clientes: Cliente[];
@@ -74,28 +64,34 @@ function appReducer(state: AppState, action: Action): AppState {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [state, dispatch] = useReducer(appReducer, initialState);
 
   // Sincronizar dados com Firestore
   useEffect(() => {
-    const unsubscribeClientes = onSnapshot(collection(db, 'clientes'), snapshot => {
+    if (!user) return;
+
+    const qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
+    const unsubscribeClientes = onSnapshot(qClientes, snapshot => {
       const clientesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Cliente[];
       dispatch({ type: 'SET_STATE', payload: { ...state, clientes: clientesData } });
     });
 
-    const unsubscribePlanos = onSnapshot(collection(db, 'planos'), snapshot => {
+    const qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
+    const unsubscribePlanos = onSnapshot(qPlanos, snapshot => {
       const planosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PlanoEmbracon[];
       dispatch({ type: 'SET_STATE', payload: { ...state, planos: planosData } });
     });
 
-    const unsubscribeMetas = onSnapshot(doc(db, 'metas', 'meta'), docSnap => {
+    const unsubscribeMetas = onSnapshot(doc(db, 'metas', user.uid), docSnap => {
       if (docSnap.exists()) {
         const metasData = docSnap.data() as Meta;
         dispatch({ type: 'SET_STATE', payload: { ...state, metas: metasData } });
       }
     });
 
-    const unsubscribeSimulacoes = onSnapshot(collection(db, 'simulacoes'), snapshot => {
+    const qSimulacoes = query(collection(db, 'simulacoes'), where('userId', '==', user.uid));
+    const unsubscribeSimulacoes = onSnapshot(qSimulacoes, snapshot => {
       const simulacoesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Simulacao[];
       dispatch({ type: 'SET_STATE', payload: { ...state, simulacoes: simulacoesData } });
     });
@@ -106,10 +102,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       unsubscribeMetas();
       unsubscribeSimulacoes();
     };
-  }, []);
+  }, [user]);
 
   const adicionarCliente = async (cliente: Omit<Cliente, 'id'>) => {
-    await addDoc(collection(db, 'clientes'), cliente);
+    await addDoc(collection(db, 'clientes'), { ...cliente, userId: user?.uid });
   };
 
   const atualizarCliente = async (id: string, cliente: Partial<Cliente>) => {
@@ -131,16 +127,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id'>) => {
-    await addDoc(collection(db, 'planos'), plano);
+    await addDoc(collection(db, 'planos'), { ...plano, userId: user?.uid });
   };
 
   const atualizarMetas = async (metas: Partial<Meta>) => {
-    const metasRef = doc(db, 'metas', 'meta');
+    const metasRef = doc(db, 'metas', user?.uid || 'default');
     await updateDoc(metasRef, metas);
   };
 
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
-    await addDoc(collection(db, 'simulacoes'), simulacao);
+    await addDoc(collection(db, 'simulacoes'), { ...simulacao, userId: user?.uid });
   };
 
   const obterClientesAtivos = () => {
