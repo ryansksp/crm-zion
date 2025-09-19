@@ -1,4 +1,4 @@
-export function formatCurrency(value) {
+export function formatCurrency(value: number) {
   if (isNaN(value)) return "R$ 0,00";
   return value.toLocaleString("pt-BR", {
     style: "currency",
@@ -6,9 +6,12 @@ export function formatCurrency(value) {
     minimumFractionDigits: 2,
   });
 }
-export function formatPercent(value) {
+export function formatPercent(value: string | number) {
   if (value === undefined || value === null || value === "") return "0%";
   let num = typeof value === "string" ? parseFloat(value.toString().replace(",", ".")) : value;
+  return `${num.toFixed(2)}%`;
+}
+
 export function parseNumber(value: string | number): number {
   if (typeof value === 'number') return value;
   if (!value) return 0;
@@ -19,6 +22,4 @@ export function parseNumber(value: string | number): number {
   const normalizedValue = cleanValue.replace(',', '.');
 
   return parseFloat(normalizedValue) || 0;
-}
-  return `${num.toFixed(2)}%`;
 }
