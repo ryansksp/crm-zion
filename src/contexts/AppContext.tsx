@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
-import { Cliente, PlanoEmbracon, Meta, Simulacao } from '../types';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
+import { Cliente, PlanoEmbracon, Meta, Simulacao, UserProfile } from '../types';
 import { db } from '../firebaseConfig';
-import { collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 interface AppState {
@@ -9,6 +9,7 @@ interface AppState {
   planos: PlanoEmbracon[];
   metas: Meta;
   simulacoes: Simulacao[];
+  userProfile: UserProfile | null;
 }
 
 interface AppContextType extends AppState {
@@ -20,26 +21,29 @@ interface AppContextType extends AppState {
   adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => Promise<void>;
   obterClientesAtivos: () => Cliente[];
   obterTaxaConversao: () => number;
+  carregarUserProfile: () => Promise<void>;
+  atualizarUserProfile: (profile: Partial<UserProfile>) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 type Action = 
-  | { type: 'SET_STATE'; payload: AppState }
+  | { type: 'SET_STATE'; payload: Omit<AppState, 'userProfile'> }
+  | { type: 'SET_USER_PROFILE'; payload: UserProfile | null }
   | { type: 'ADICIONAR_CLIENTE'; payload: Cliente }
   | { type: 'ATUALIZAR_CLIENTE'; payload: { id: string; cliente: Partial<Cliente> } }
   | { type: 'ADICIONAR_PLANO'; payload: PlanoEmbracon }
   | { type: 'ATUALIZAR_METAS'; payload: Partial<Meta> }
   | { type: 'ADICIONAR_SIMULACAO'; payload: Simulacao };
 
-const initialState: AppState = {
+const initialState: Omit<AppState, 'userProfile'> = {
   clientes: [],
   planos: [],
   metas: { mensal: 0, vendidoNoMes: 0, comissaoEstimada: 0 },
   simulacoes: []
 };
 
-function appReducer(state: AppState, action: Action): AppState {
+function appReducer(state: Omit<AppState, 'userProfile'>, action: Action): Omit<AppState, 'userProfile'> {
   switch (action.type) {
     case 'SET_STATE':
       return action.payload;
@@ -64,79 +68,119 @@ function appReducer(state: AppState, action: Action): AppState {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { user } = useAuth();
 
-  // Sincronizar dados com Firestore
+  // Carregar dados do localStorage
   useEffect(() => {
-    if (!user) return;
+    const savedData = localStorage.getItem('cronos-pro-data');
+    if (savedData) {
+      dispatch({ type: 'SET_STATE', payload: JSON.parse(savedData) });
+    }
+  }, []);
 
-    const qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
-    const unsubscribeClientes = onSnapshot(qClientes, snapshot => {
-      const clientesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Cliente[];
-      dispatch({ type: 'SET_STATE', payload: { ...state, clientes: clientesData } });
-    });
+  // Salvar dados no localStorage
+  useEffect(() => {
+    localStorage.setItem('cronos-pro-data', JSON.stringify(state));
+  }, [state]);
 
-    const qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
-    const unsubscribePlanos = onSnapshot(qPlanos, snapshot => {
-      const planosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PlanoEmbracon[];
-      dispatch({ type: 'SET_STATE', payload: { ...state, planos: planosData } });
-    });
+  // Carregar perfil do usuário do Firestore
+  const carregarUserProfile = async () => {
+    if (!user) {
+      setUserProfile(null);
+      return;
+    }
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setUserProfile(docSnap.data() as UserProfile);
+    } else {
+      // Criar perfil padrão se não existir
+      const defaultProfile: UserProfile = {
+        id: user.uid,
+        name: user.displayName || '',
+        email: user.email || '',
+        photoURL: user.photoURL || '',
+        phone: '',
+        accessLevel: 'Operador'
+      };
+      await setDoc(docRef, defaultProfile);
+      setUserProfile(defaultProfile);
+    }
+  };
 
-    const unsubscribeMetas = onSnapshot(doc(db, 'metas', user.uid), docSnap => {
-      if (docSnap.exists()) {
-        const metasData = docSnap.data() as Meta;
-        dispatch({ type: 'SET_STATE', payload: { ...state, metas: metasData } });
-      }
-    });
-
-    const qSimulacoes = query(collection(db, 'simulacoes'), where('userId', '==', user.uid));
-    const unsubscribeSimulacoes = onSnapshot(qSimulacoes, snapshot => {
-      const simulacoesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Simulacao[];
-      dispatch({ type: 'SET_STATE', payload: { ...state, simulacoes: simulacoesData } });
-    });
-
-    return () => {
-      unsubscribeClientes();
-      unsubscribePlanos();
-      unsubscribeMetas();
-      unsubscribeSimulacoes();
-    };
+  useEffect(() => {
+    carregarUserProfile();
   }, [user]);
 
+  // Carregar clientes do Firestore
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, 'clientes'), where('userId', '==', user.uid));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const clientesFirestore: Cliente[] = [];
+      querySnapshot.forEach((doc) => {
+        clientesFirestore.push(doc.data() as Cliente);
+      });
+      dispatch({ type: 'SET_STATE', payload: { ...state, clientes: clientesFirestore, planos: state.planos, metas: state.metas, simulacoes: state.simulacoes } });
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const atualizarUserProfile = async (profile: Partial<UserProfile>) => {
+    if (!user) return;
+    const docRef = doc(db, 'users', user.uid);
+    await updateDoc(docRef, profile);
+    setUserProfile(prev => prev ? { ...prev, ...profile } as UserProfile : null);
+  };
+
   const adicionarCliente = async (cliente: Omit<Cliente, 'id'>) => {
-    await addDoc(collection(db, 'clientes'), { ...cliente, userId: user?.uid });
+    if (!user) return;
+    const novoCliente: Cliente = {
+      ...cliente,
+      id: Date.now().toString(),
+      userId: user.uid
+    };
+    const docRef = doc(collection(db, 'clientes'));
+    await setDoc(docRef, novoCliente);
   };
 
   const atualizarCliente = async (id: string, cliente: Partial<Cliente>) => {
-    const clienteRef = doc(db, 'clientes', id);
-    await updateDoc(clienteRef, cliente);
+    if (!user) return;
+    const q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, cliente);
+    }
   };
 
   const moverClienteEtapa = async (id: string, novaEtapa: Cliente['etapa']) => {
-    const updates: Partial<Cliente> = {
-      etapa: novaEtapa,
-      dataUltimaInteracao: new Date().toISOString()
-    };
-
-    if (novaEtapa === 'Venda Perdida') {
-      updates.dataPerda = new Date().toISOString();
-    }
-
-    await atualizarCliente(id, updates);
+    await atualizarCliente(id, { 
+      etapa: novaEtapa, 
+      dataUltimaInteracao: new Date().toISOString() 
+    });
   };
 
   const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id'>) => {
-    await addDoc(collection(db, 'planos'), { ...plano, userId: user?.uid });
+    const novoPlano: PlanoEmbracon = {
+      ...plano,
+      id: Date.now().toString(),
+    };
+    dispatch({ type: 'ADICIONAR_PLANO', payload: novoPlano });
   };
 
   const atualizarMetas = async (metas: Partial<Meta>) => {
-    const metasRef = doc(db, 'metas', user?.uid || 'default');
-    await updateDoc(metasRef, metas);
+    dispatch({ type: 'ATUALIZAR_METAS', payload: metas });
   };
 
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
-    await addDoc(collection(db, 'simulacoes'), { ...simulacao, userId: user?.uid });
+    const novaSimulacao: Simulacao = {
+      ...simulacao,
+      id: Date.now().toString(),
+    };
+    dispatch({ type: 'ADICIONAR_SIMULACAO', payload: novaSimulacao });
   };
 
   const obterClientesAtivos = () => {
@@ -152,6 +196,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={{
       ...state,
+      userProfile,
       adicionarCliente,
       atualizarCliente,
       moverClienteEtapa,
@@ -159,7 +204,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       atualizarMetas,
       adicionarSimulacao,
       obterClientesAtivos,
-      obterTaxaConversao
+      obterTaxaConversao,
+      carregarUserProfile,
+      atualizarUserProfile
     }}>
       {children}
     </AppContext.Provider>
@@ -172,4 +219,3 @@ export const useApp = () => {
     throw new Error('useApp deve ser usado dentro de AppProvider');
   }
   return context;
-};

@@ -10,11 +10,19 @@ export interface Cliente {
   historico: Interacao[];
   simulacoes: Simulacao[];
   dataVenda?: string;
+  dataPerda?: string;
   grupoECota?: string;
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
-  motivoPerda?: string;
-  dataPerda?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  photoURL?: string;
+  phone?: string;
+  accessLevel: 'Operador' | 'Gerente' | 'Diretor';
 }
 
 export type EtapaFunil =

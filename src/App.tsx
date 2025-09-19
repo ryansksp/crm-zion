@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppProvider } from './contexts/AppContext';
+import { AppProvider, useApp } from './contexts/AppContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
@@ -10,14 +10,38 @@ import { ClientesPerdidos } from './components/ClientesPerdidos';
 import { PainelDesempenho } from './components/PainelDesempenho';
 import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
+import { Profile } from './components/Profile';
 
 function AppContent() {
   const { user } = useAuth();
+  const { userProfile } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (!user) {
     return <Login />;
   }
+
+  // Define accessible tabs based on accessLevel
+  const accessLevel = userProfile?.accessLevel || 'Operador';
+
+  const tabs = [
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'funil', label: 'Funil de Vendas' },
+    { key: 'simulador', label: 'Simulador' },
+    { key: 'clientes-ativos', label: 'Clientes Ativos' },
+    { key: 'clientes-perdidos', label: 'Clientes Perdidos' },
+    { key: 'desempenho', label: 'Painel de Desempenho' },
+    { key: 'configuracoes', label: 'Configurações' },
+    { key: 'profile', label: 'Perfil' }
+  ];
+
+  // Example: restrict 'configuracoes' tab to Gerente and Diretor only
+  const filteredTabs = tabs.filter(tab => {
+    if (tab.key === 'configuracoes' && accessLevel === 'Operador') {
+      return false;
+    }
+    return true;
+  });
 
   const renderContent = () => {
     switch (activeTab) {
@@ -35,6 +59,8 @@ function AppContent() {
         return <PainelDesempenho />;
       case 'configuracoes':
         return <Configuracoes />;
+      case 'profile':
+        return <Profile />;
       default:
         return <Dashboard />;
     }
@@ -42,7 +68,7 @@ function AppContent() {
 
   return (
     <AppProvider>
-      <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+      <Layout activeTab={activeTab} onTabChange={setActiveTab} tabs={filteredTabs}>
         {renderContent()}
       </Layout>
     </AppProvider>
