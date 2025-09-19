@@ -54,11 +54,14 @@ export function FunilVendas() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Funil de Vendas</h2>
           <p className="text-gray-600">Gerencie seu pipeline de clientes</p>
         </div>
+      </div>
+
+      <div className="flex justify-end mb-4">
         <button
           onClick={() => setShowNovoCliente(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
