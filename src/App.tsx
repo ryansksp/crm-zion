@@ -12,14 +12,24 @@ import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
 import { Profile } from './components/Profile';
 
+
 function AppContent() {
   const { user } = useAuth();
-  const { userProfile } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (!user) {
     return <Login />;
   }
+
+  return (
+    <AppProvider>
+      <AppContentInner activeTab={activeTab} setActiveTab={setActiveTab} />
+    </AppProvider>
+  );
+}
+
+function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
+  const { userProfile } = useApp();
 
   // Define accessible tabs based on accessLevel
   const accessLevel = userProfile?.accessLevel || 'Operador';
@@ -67,11 +77,9 @@ function AppContent() {
   };
 
   return (
-    <AppProvider>
-      <Layout activeTab={activeTab} onTabChange={setActiveTab} tabs={filteredTabs}>
-        {renderContent()}
-      </Layout>
-    </AppProvider>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab} tabs={filteredTabs}>
+      {renderContent()}
+    </Layout>
   );
 }
 
