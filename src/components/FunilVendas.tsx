@@ -68,16 +68,17 @@ export function FunilVendas() {
         </button>
       </div>
 
-      {/* Sales Pipeline - Compact Horizontal Layout */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      {/* Sales Pipeline - Vertical Split Layout */}
+      <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+        {/* Top row: Early stages */}
         <div className="flex items-start space-x-6 overflow-x-auto py-4">
-          {etapas.map((etapa, etapaIndex) => {
+          {etapas.slice(0, 4).map((etapa, etapaIndex) => {
             const clientesEtapa = clientes.filter(c => c.etapa === etapa);
             const totalValor = clientesEtapa.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
 
             return (
               <React.Fragment key={etapa}>
-                <div className="bg-gray-50 p-4 rounded-lg min-w-[240px] w-[240px] flex-shrink-0 flex flex-col max-h-[500px] border border-gray-200">
+                <div className="bg-gray-50 p-4 rounded-lg min-w-[240px] w-[240px] flex-shrink-0 flex flex-col max-h-[400px] border border-gray-200">
                   <div className="mb-4">
                     <h3 className="font-semibold text-gray-900 text-sm mb-2">{etapa}</h3>
                     <div className="space-y-1">
@@ -154,7 +155,102 @@ export function FunilVendas() {
                 </div>
 
                 {/* Arrow between stages */}
-                {etapaIndex < etapas.length - 1 && (
+                {etapaIndex < 3 && (
+                  <div className="flex items-center justify-center flex-shrink-0 mt-20">
+                    <ArrowRight className="w-5 h-5 text-gray-400" />
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {/* Bottom row: Later stages */}
+        <div className="flex items-start space-x-6 overflow-x-auto py-4">
+          {etapas.slice(4).map((etapa, etapaIndex) => {
+            const clientesEtapa = clientes.filter(c => c.etapa === etapa);
+            const totalValor = clientesEtapa.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+
+            return (
+              <React.Fragment key={etapa}>
+                <div className="bg-gray-50 p-4 rounded-lg min-w-[240px] w-[240px] flex-shrink-0 flex flex-col max-h-[400px] border border-gray-200">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-gray-900 text-sm mb-2">{etapa}</h3>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">Leads:</span>
+                        <span className="font-medium">{clientesEtapa.length}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">Valor:</span>
+                        <span className="font-medium">R$ {totalValor.toLocaleString('pt-BR')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 overflow-y-auto flex-grow">
+                    {clientesEtapa.map(cliente => {
+                      const dias = diasInatividade(cliente.dataUltimaInteracao);
+                      const inativo = dias > 3 && !['Venda Ganha', 'Venda Perdida'].includes(etapa);
+
+                      return (
+                        <div
+                          key={cliente.id}
+                          className="bg-white p-3 rounded-md shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex flex-col"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-medium text-gray-900 text-sm truncate">{cliente.nome}</h4>
+                            {inativo && (
+                              <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                            )}
+                          </div>
+
+                          <div className="space-y-1 text-xs text-gray-600 mb-2">
+                            <div className="flex items-center space-x-1">
+                              <DollarSign className="w-3 h-3" />
+                              <span className="font-medium">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Phone className="w-3 h-3" />
+                              <span className="truncate">{cliente.telefone}</span>
+                            </div>
+                          </div>
+
+                          {inativo && (
+                            <div className="text-xs text-orange-600 font-medium mb-2">
+                              {dias} dias sem interação
+                            </div>
+                          )}
+
+                          <div className="flex justify-between items-center mt-auto">
+                            <button
+                              disabled={etapaIndex === 0}
+                              onClick={() => moverClienteEtapa(cliente.id, etapas[etapaIndex - 1 + 4])}
+                              className={`p-1 rounded ${etapaIndex > 0 ? 'bg-blue-100 hover:bg-blue-200 text-blue-600' : 'opacity-50 cursor-not-allowed text-gray-400'}`}
+                              title="Mover para etapa anterior"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${coresEtapas[etapa]}`}>
+                              {etapaIndex + 5}
+                            </span>
+                            <button
+                              disabled={etapaIndex === etapas.length - 5}
+                              onClick={() => moverClienteEtapa(cliente.id, etapas[etapaIndex + 1 + 4])}
+                              className={`p-1 rounded ${etapaIndex < etapas.length - 5 ? 'bg-blue-100 hover:bg-blue-200 text-blue-600' : 'opacity-50 cursor-not-allowed text-gray-400'}`}
+                              title="Mover para próxima etapa"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Arrow between stages */}
+                {etapaIndex < etapas.length - 5 && (
                   <div className="flex items-center justify-center flex-shrink-0 mt-20">
                     <ArrowRight className="w-5 h-5 text-gray-400" />
                   </div>
