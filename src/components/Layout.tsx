@@ -20,7 +20,13 @@ export function Layout({ children, activeTab, onTabChange, tabs }: LayoutProps) 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">CRM Zion</h1>
+        <div className="flex items-center space-x-2">
+          <img src="/crown-icon.svg" alt="Coroa" className="w-6 h-6" />
+          <div>
+            <h1 className="text-xl font-bold">Zion Capital</h1>
+            <p className="text-xs text-gray-500">CRM</p>
+          </div>
+        </div>
         <nav className="flex items-center space-x-4">
           {tabs.map(tab => (
             <button
