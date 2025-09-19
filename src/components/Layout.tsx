@@ -19,15 +19,10 @@ export function Layout({ children, activeTab, onTabChange, tabs }: LayoutProps) 
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow p-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <img src="/crown-icon.svg" alt="Coroa" className="w-6 h-6" />
-          <div>
-            <h1 className="text-xl font-bold">Zion Capital</h1>
-            <p className="text-xs text-gray-500">CRM</p>
-          </div>
-        </div>
-        <nav className="flex items-center space-x-4">
+      <header className="bg-white shadow p-4 flex items-center space-x-4">
+        <h1 className="text-xl font-bold">Cronos Pro</h1>
+        <p className="text-sm text-gray-500">CRM Embracon</p>
+        <nav className="flex items-center space-x-4 ml-auto">
           {tabs.map(tab => (
             <button
               key={tab.key}
@@ -43,7 +38,7 @@ export function Layout({ children, activeTab, onTabChange, tabs }: LayoutProps) 
             onClick={logout}
             className="flex items-center space-x-1 text-red-600 hover:text-red-800 ml-4"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5 text-red-600" />
             <span>Sair</span>
           </button>
         </nav>
