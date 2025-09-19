@@ -6,7 +6,9 @@ export function PainelDesempenho() {
   const { clientes, metas, obterTaxaConversao } = useApp();
 
   const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
-  const totalVendido = metas.vendidoNoMes;
+  const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
+  const totalVendido = vendas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const totalPerdido = perdidos.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const progressoMeta = metas.mensal > 0 ? (totalVendido / metas.mensal) * 100 : 0;
 
   // Dados para o gráfico de conversão por etapa
@@ -108,10 +110,14 @@ export function PainelDesempenho() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4 text-center">
+        <div className="mt-6 grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-sm text-gray-600">Vendido</p>
             <p className="text-lg font-semibold">R$ {totalVendido.toLocaleString('pt-BR')}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Perdido</p>
+            <p className="text-lg font-semibold">R$ {totalPerdido.toLocaleString('pt-BR')}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Meta</p>

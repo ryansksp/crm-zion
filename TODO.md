@@ -1,8 +1,13 @@
-# TODO: Update Project to Match Provided Calculation Logic
+# TODO - Revisão do Funil de Vendas e Relatório no Dashboard
 
-## Tasks
-- [ ] Update src/utils/formatters.ts to match the provided formatters.js exactly
-- [ ] Update src/components/CalculatorForm.jsx to match the provided CalculatorForm.jsx (remove extra fields like antecipacao1, antecipacao2a12)
-- [ ] Update src/components/Calculator.jsx to match the provided Calculator.jsx (simplify to basic version without extra features)
-- [ ] Verify other components (ConsortiumResults.jsx, FinancingResults.jsx, ComparisonSummary.jsx) match the provided
-- [ ] Test the application to ensure financing simulation works correctly
+## Tarefas Pendentes
+
+- [x] Adicionar campo de valor no formulário de novo cliente no FunilVendas
+- [x] Alterar etapa inicial do cliente criado para "Lead"
+- [x] Melhorar a interface do FunilVendas para operações rápidas (layout, cores, espaçamento)
+- [x] Calcular e exibir total vendido no PainelDesempenho (soma valorCredito de "Venda Ganha")
+- [x] Calcular e exibir total perdido no PainelDesempenho (soma valorCredito de "Venda Perdida")
+
+## Progresso
+- [x] Análise inicial do código
+- [x] Plano aprovado pelo usuário

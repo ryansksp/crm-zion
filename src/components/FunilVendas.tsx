@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Plus, User, Phone, Calendar, AlertTriangle, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { Plus, User, Phone, Calendar, AlertTriangle, ChevronLeft, ChevronRight, ArrowRight, DollarSign } from 'lucide-react';
 import { EtapaFunil } from '../types';
 
 export function FunilVendas() {
@@ -42,7 +42,8 @@ export function FunilVendas() {
       telefone: formData.get('telefone') as string,
       email: formData.get('email') as string,
       planoInteresse: formData.get('planoInteresse') as string,
-      etapa: 'Novo Cliente',
+      valorCredito: parseFloat(formData.get('valorCredito') as string) || 0,
+      etapa: 'Lead',
       dataUltimaInteracao: new Date().toISOString(),
       historico: [],
       simulacoes: []
@@ -107,6 +108,10 @@ export function FunilVendas() {
                           <div className="flex items-center space-x-1">
                             <User className="w-3 h-3" />
                             <span>{cliente.planoInteresse}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <DollarSign className="w-3 h-3" />
+                            <span>R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar className="w-3 h-3" />
@@ -215,6 +220,18 @@ export function FunilVendas() {
                   name="planoInteresse"
                   required
                   placeholder="Ex: Plano Mais por Menos - Auto"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Valor da Venda</label>
+                <input
+                  type="number"
+                  name="valorCredito"
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Ex: 10000.00"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
