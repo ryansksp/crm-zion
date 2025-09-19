@@ -11,6 +11,7 @@ const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
   { id: 'funil', label: 'Funil de Vendas', icon: Target },
   { id: 'simulador', label: 'Simulador', icon: Calculator },
+  { id: 'clientes-ativos', label: 'Clientes Ativos', icon: Users },
   { id: 'clientes-perdidos', label: 'Clientes Perdidos', icon: XCircle },
   { id: 'configuracoes', label: 'Configurações', icon: Settings }
 ];
