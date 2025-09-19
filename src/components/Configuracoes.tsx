@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Settings, Plus, Trash2, Target, DollarSign } from 'lucide-react';
 
 export function Configuracoes() {
   const { planos, metas, adicionarPlano, atualizarMetas } = useApp();
   const [showNovoPlano, setShowNovoPlano] = useState(false);
+  const [metaMensal, setMetaMensal] = useState(metas.mensal);
+  const [comissaoEstimada, setComissaoEstimada] = useState(metas.comissaoEstimada);
+  const [salvando, setSalvando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
+
+  useEffect(() => {
+    setMetaMensal(metas.mensal);
+    setComissaoEstimada(metas.comissaoEstimada);
+  }, [metas]);
 
   const handleNovoPlano = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,14 +30,16 @@ export function Configuracoes() {
     setShowNovoPlano(false);
   };
 
-  const handleAtualizarMetas = (e: React.FormEvent) => {
+  const handleAtualizarMetas = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    
-    atualizarMetas({
-      mensal: Number(formData.get('metaMensal')),
-      comissaoEstimada: Number(formData.get('comissaoEstimada'))
+    setSalvando(true);
+    await atualizarMetas({
+      mensal: metaMensal,
+      comissaoEstimada: comissaoEstimada
     });
+    setSalvando(false);
+    setSucesso(true);
+    setTimeout(() => setSucesso(false), 3000);
   };
 
   return (

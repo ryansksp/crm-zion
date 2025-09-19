@@ -50,6 +50,7 @@ export interface PlanoEmbracon {
   taxaAdministracao: number; // percentual
   fundoReserva: number; // percentual
   seguro: number; // percentual
+  userId: string;
 }
 
 export interface Simulacao {

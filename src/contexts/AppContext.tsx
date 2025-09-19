@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { Cliente, PlanoEmbracon, Meta, Simulacao, UserProfile } from '../types';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 interface AppState {
@@ -16,7 +16,7 @@ interface AppContextType extends AppState {
   adicionarCliente: (cliente: Omit<Cliente, 'id'>) => Promise<void>;
   atualizarCliente: (id: string, cliente: Partial<Cliente>) => Promise<void>;
   moverClienteEtapa: (id: string, novaEtapa: Cliente['etapa']) => Promise<void>;
-  adicionarPlano: (plano: Omit<PlanoEmbracon, 'id'>) => Promise<void>;
+  adicionarPlano: (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => Promise<void>;
   atualizarMetas: (metas: Partial<Meta>) => Promise<void>;
   adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => Promise<void>;
   obterClientesAtivos: () => Cliente[];
@@ -114,18 +114,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
     carregarUserProfile();
   }, [user]);
 
-  // Carregar clientes do Firestore
+  // Carregar dados do Firestore
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'clientes'), where('userId', '==', user.uid));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+
+    // Clientes
+    const qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
+    const unsubscribeClientes = onSnapshot(qClientes, (querySnapshot) => {
       const clientesFirestore: Cliente[] = [];
       querySnapshot.forEach((doc) => {
         clientesFirestore.push(doc.data() as Cliente);
       });
       dispatch({ type: 'SET_STATE', payload: { ...state, clientes: clientesFirestore, planos: state.planos, metas: state.metas, simulacoes: state.simulacoes } });
     });
-    return () => unsubscribe();
+
+    // Planos
+    const qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
+    const unsubscribePlanos = onSnapshot(qPlanos, (querySnapshot) => {
+      const planosFirestore: PlanoEmbracon[] = [];
+      querySnapshot.forEach((doc) => {
+        planosFirestore.push(doc.data() as PlanoEmbracon);
+      });
+      dispatch({ type: 'SET_STATE', payload: { ...state, clientes: state.clientes, planos: planosFirestore, metas: state.metas, simulacoes: state.simulacoes } });
+    });
+
+    // Metas
+    const docRefMetas = doc(db, 'metas', user.uid);
+    const unsubscribeMetas = onSnapshot(docRefMetas, (docSnap) => {
+      if (docSnap.exists()) {
+        const metasFirestore = docSnap.data() as Meta;
+        dispatch({ type: 'SET_STATE', payload: { ...state, clientes: state.clientes, planos: state.planos, metas: metasFirestore, simulacoes: state.simulacoes } });
+      }
+    });
+
+    return () => {
+      unsubscribeClientes();
+      unsubscribePlanos();
+      unsubscribeMetas();
+    };
   }, [user]);
 
   const atualizarUserProfile = async (profile: Partial<UserProfile>) => {
@@ -163,16 +189,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id'>) => {
+  const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => {
+    if (!user) return;
     const novoPlano: PlanoEmbracon = {
       ...plano,
       id: Date.now().toString(),
+      userId: user.uid
     };
-    dispatch({ type: 'ADICIONAR_PLANO', payload: novoPlano });
+    const docRef = doc(collection(db, 'planos'));
+    await setDoc(docRef, novoPlano);
   };
 
   const atualizarMetas = async (metas: Partial<Meta>) => {
-    dispatch({ type: 'ATUALIZAR_METAS', payload: metas });
+    if (!user) return;
+    const docRef = doc(db, 'metas', user.uid);
+    await setDoc(docRef, metas, { merge: true });
   };
 
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
