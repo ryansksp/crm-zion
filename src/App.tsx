@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { FunilVendas } from './components/FunilVendas';
 import { Simulador } from './components/Simulador';
-import { ClientesAtivos } from './components/ClientesAtivos';
+import { ClientesPerdidos } from './components/ClientesPerdidos';
 import { PainelDesempenho } from './components/PainelDesempenho';
 import { Configuracoes } from './components/Configuracoes';
 
@@ -19,8 +19,8 @@ function App() {
         return <FunilVendas />;
       case 'simulador':
         return <Simulador />;
-      case 'clientes-ativos':
-        return <ClientesAtivos />;
+      case 'clientes-perdidos':
+        return <ClientesPerdidos />;
       case 'desempenho':
         return <PainelDesempenho />;
       case 'configuracoes':

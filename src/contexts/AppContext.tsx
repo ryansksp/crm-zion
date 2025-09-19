@@ -89,10 +89,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const moverClienteEtapa = (id: string, novaEtapa: Cliente['etapa']) => {
-    atualizarCliente(id, { 
-      etapa: novaEtapa, 
-      dataUltimaInteracao: new Date().toISOString() 
-    });
+    const updates: Partial<Cliente> = {
+      etapa: novaEtapa,
+      dataUltimaInteracao: new Date().toISOString()
+    };
+
+    if (novaEtapa === 'Venda Perdida') {
+      updates.dataPerda = new Date().toISOString();
+    }
+
+    atualizarCliente(id, updates);
   };
 
   const adicionarPlano = (plano: Omit<PlanoEmbracon, 'id'>) => {

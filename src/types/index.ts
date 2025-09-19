@@ -13,6 +13,8 @@ export interface Cliente {
   grupoECota?: string;
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
+  motivoPerda?: string;
+  dataPerda?: string;
 }
 
 export type EtapaFunil =
