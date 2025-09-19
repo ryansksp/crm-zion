@@ -1,8 +1,8 @@
-# TODO: Redesign Funil de Vendas to Sales Pipeline
+# TODO: Update Project to Match Provided Calculation Logic
 
 ## Tasks
-- [x] Redesign FunilVendas.tsx to a horizontal sales pipeline layout
-- [x] Implement drag-and-drop functionality for moving clients between stages
-- [x] Add arrow buttons on client cards for easy stage transitions
-- [x] Add visual arrows between pipeline stages
-- [x] Improve UI styling for better visibility and modern look
+- [ ] Update src/utils/formatters.ts to match the provided formatters.js exactly
+- [ ] Update src/components/CalculatorForm.jsx to match the provided CalculatorForm.jsx (remove extra fields like antecipacao1, antecipacao2a12)
+- [ ] Update src/components/Calculator.jsx to match the provided Calculator.jsx (simplify to basic version without extra features)
+- [ ] Verify other components (ConsortiumResults.jsx, FinancingResults.jsx, ComparisonSummary.jsx) match the provided
+- [ ] Test the application to ensure financing simulation works correctly

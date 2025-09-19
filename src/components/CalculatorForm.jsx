@@ -1,4 +1,3 @@
-// src/components/calculator/CalculatorForm.jsx
 "use client";
 
 import React from "react";
@@ -65,7 +64,7 @@ export default function CalculatorForm({ formData, setFormData }) {
             value={formData.taxaAdm || ""}
             onChange={(e) => handleChange("taxaAdm", e.target.value)}
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500"
-          placeholder="28%"
+            placeholder="28"
           />
         </div>
         <div>
@@ -75,12 +74,11 @@ export default function CalculatorForm({ formData, setFormData }) {
             value={formData.fundoReserva || ""}
             onChange={(e) => handleChange("fundoReserva", e.target.value)}
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500"
-          placeholder="2%"
+            placeholder="2"
           />
         </div>
       </div>
 
-      {/* Taxa Adesão */}
       <div>
         <label className="block text-sm mb-1">🎫 Taxa Adesão (%)</label>
         <input
@@ -92,31 +90,6 @@ export default function CalculatorForm({ formData, setFormData }) {
         />
       </div>
 
-      {/* Antecipação */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">⚡ Antecipação 1 (%)</label>
-          <input
-            type="text"
-            value={formData.antecipacao1 || ""}
-            onChange={(e) => handleChange("antecipacao1", e.target.value)}
-            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500"
-            placeholder={formatPercent(0.1)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">⚡ Antecipação 2 a 12 (%)</label>
-          <input
-            type="text"
-            value={formData.antecipacao2a12 || ""}
-            onChange={(e) => handleChange("antecipacao2a12", e.target.value)}
-            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500"
-            placeholder={formatPercent(0.1)}
-          />
-        </div>
-      </div>
-
-      {/* Lances */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">🎯 Lance Embutido (%)</label>
@@ -152,13 +125,13 @@ export default function CalculatorForm({ formData, setFormData }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">💵 Entrada</label>
-        <input
-          type="text"
-          value={formData.entrada || ""}
-          onChange={(e) => handleChange("entrada", e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-green-500"
-          placeholder="20000"
-        />
+          <input
+            type="text"
+            value={formData.entrada || ""}
+            onChange={(e) => handleChange("entrada", e.target.value)}
+            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-green-500"
+            placeholder="20000"
+          />
         </div>
         <div>
           <label className="block text-sm mb-1">📈 Juros (% a.m.)</label>

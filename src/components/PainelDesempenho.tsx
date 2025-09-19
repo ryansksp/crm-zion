@@ -125,7 +125,7 @@ export function PainelDesempenho() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Funil de Conversão</h3>
         
         <div className="space-y-3">
-          {dadosConversao.map((item, index) => {
+          {dadosConversao.map((item) => {
             const porcentagem = clientes.length > 0 ? (item.quantidade / clientes.length) * 100 : 0;
             
             return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Calculator, Download, TrendingUp } from 'lucide-react';
-import calculate, { calcularImpactoLance } from '../utils/CalculatorLogic';
+import calculate from '../utils/CalculatorLogic';
 import { formatCurrency, formatPercent, parseNumber } from '../utils/formatters';
 
 interface FormularioSimulacao {
@@ -17,8 +17,30 @@ interface FormularioSimulacao {
   prazoFinanciamento: string;
 }
 
+interface ResultadoSimulacao {
+  consorcio: {
+    creditoLiberado: number;
+    primeiraParcela: number;
+    segundaA12Parcela: number;
+    demaisParcelas: number;
+    valorLanceProprio: number;
+    custoTotalConsorcio: number;
+    custoAoMesPercent: number;
+  };
+  financiamento: {
+    valorFinanciado: number;
+    parcelaMensal: number;
+    jurosTotais: number;
+    custoTotalFinanciamento: number;
+  };
+  economia: {
+    valor: number;
+    percentual: number;
+  };
+}
+
 export function Simulador() {
-  const { planos, clientes, adicionarSimulacao, adicionarCliente } = useApp();
+  const { clientes, adicionarSimulacao } = useApp();
   const [formData, setFormData] = useState<FormularioSimulacao>({
     valorCredito: '120000',
     prazo: '240',
@@ -33,7 +55,7 @@ export function Simulador() {
   });
   const [clienteSelecionado, setClienteSelecionado] = useState<string>('');
   const [percentualLance, setPercentualLance] = useState<number>(0);
-  const [resultado, setResultado] = useState<any>(null);
+  const [resultado, setResultado] = useState<ResultadoSimulacao | null>(null);
 
   const handleChange = (field: keyof FormularioSimulacao, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -107,14 +129,7 @@ Impacto estimado no prazo e custos
     URL.revokeObjectURL(url);
   };
 
-  const analiseComLance = percentualLance > 0 && resultado ? 
-    calcularImpactoLance(
-      parseNumber(formData.valorCredito),
-      percentualLance,
-      parseNumber(formData.prazo),
-      parseNumber(formData.taxaAdm),
-      parseNumber(formData.fundoReserva)
-    ) : null;
+
 
   return (
     <div className="space-y-6">
@@ -324,17 +339,13 @@ Impacto estimado no prazo e custos
               />
             </div>
 
-            {analiseComLance && (
+            {percentualLance > 0 && (
               <div className="bg-green-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-2">Impacto do Lance</h4>
+                <h4 className="font-semibold text-green-800 mb-2">Análise de Lance</h4>
                 <div className="space-y-1 text-sm">
-                  <p>Valor do Lance: <strong>{formatCurrency(analiseComLance.valorLance)}</strong></p>
-                  <p>Crédito Liberado: <strong>{formatCurrency(analiseComLance.creditoLiberado)}</strong></p>
-                  <p>Redução no Prazo: <strong>{analiseComLance.reducaoPrazo} meses</strong></p>
-                  <p>Novo Prazo: <strong>{analiseComLance.novoPrazo} meses</strong></p>
-                  <p className="text-green-700">
-                    Economia Estimada: <strong>{formatCurrency(analiseComLance.economiaTotal)}</strong>
-                  </p>
+                  <p>Valor do Lance: <strong>{formatCurrency((parseNumber(formData.valorCredito) * percentualLance) / 100)}</strong></p>
+                  <p>Percentual: <strong>{percentualLance}%</strong></p>
+                  <p className="text-gray-600">* Análise detalhada disponível em breve</p>
                 </div>
               </div>
             )}

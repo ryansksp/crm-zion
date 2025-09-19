@@ -1,6 +1,18 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Users, Calendar, Gift, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, Calendar, Gift, CheckCircle2, XCircle } from 'lucide-react';
+
+interface Cliente {
+  id: string;
+  nome: string;
+  telefone: string;
+  email: string;
+  planoInteresse: string;
+  statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
+  grupoECota?: string;
+  dataVenda?: string;
+  aniversario?: string;
+}
 
 export function ClientesAtivos() {
   const { obterClientesAtivos, atualizarCliente } = useApp();
@@ -19,17 +31,9 @@ export function ClientesAtivos() {
     return proximaAssembleia;
   };
 
-  const calcularAniversarioVenda = (dataVenda: string) => {
-    const venda = new Date(dataVenda);
-    const aniversario = new Date();
-    aniversario.setFullYear(aniversario.getFullYear() + 1);
-    aniversario.setMonth(venda.getMonth());
-    aniversario.setDate(venda.getDate());
-    
-    return aniversario;
-  };
 
-  const obterAlertas = (cliente: any) => {
+
+  const obterAlertas = (cliente: Cliente) => {
     const alertas = [];
     const hoje = new Date();
     

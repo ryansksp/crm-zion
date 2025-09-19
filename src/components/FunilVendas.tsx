@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Plus, User, Phone, Mail, Calendar, AlertTriangle, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { Plus, User, Phone, Calendar, AlertTriangle, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { EtapaFunil } from '../types';
 
 export function FunilVendas() {
