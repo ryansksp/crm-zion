@@ -12,6 +12,11 @@ export function Dashboard() {
     return diasInatividade > 3 && !['Venda Ganha', 'Venda Perdida'].includes(c.etapa);
   });
 
+  const vendasGanhas = clientes.filter(c => c.etapa === 'Venda Ganha');
+  const vendasPerdidas = clientes.filter(c => c.etapa === 'Venda Perdida');
+  const totalVendido = vendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const totalPerdido = vendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+
   const estatisticas = [
     {
       titulo: 'Total de Leads',
@@ -22,10 +27,31 @@ export function Dashboard() {
     },
     {
       titulo: 'Vendas no Mês',
-      valor: clientes.filter(c => c.etapa === 'Venda Ganha').length,
+      valor: vendasGanhas.length,
       icon: TrendingUp,
       cor: 'text-green-600',
       bgCor: 'bg-green-50'
+    },
+    {
+      titulo: 'Valor Total Vendido',
+      valor: `R$ ${totalVendido.toLocaleString('pt-BR')}`,
+      icon: TrendingUp,
+      cor: 'text-green-600',
+      bgCor: 'bg-green-50'
+    },
+    {
+      titulo: 'Leads Perdidos',
+      valor: vendasPerdidas.length,
+      icon: AlertTriangle,
+      cor: 'text-red-600',
+      bgCor: 'bg-red-50'
+    },
+    {
+      titulo: 'Valor Total Perdido',
+      valor: `R$ ${totalPerdido.toLocaleString('pt-BR')}`,
+      icon: AlertTriangle,
+      cor: 'text-red-600',
+      bgCor: 'bg-red-50'
     },
     {
       titulo: 'Taxa de Conversão',
@@ -33,13 +59,6 @@ export function Dashboard() {
       icon: Target,
       cor: 'text-purple-600',
       bgCor: 'bg-purple-50'
-    },
-    {
-      titulo: 'Simulações Geradas',
-      valor: clientes.reduce((acc, c) => acc + c.simulacoes.length, 0),
-      icon: Calculator,
-      cor: 'text-orange-600',
-      bgCor: 'bg-orange-50'
     }
   ];
 
