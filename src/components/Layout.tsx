@@ -1,64 +1,99 @@
 import React from 'react';
+import { Crown, Home, Target, Users, Settings, Calculator, XCircle, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User } from 'lucide-react';
-
-interface Tab {
-  key: string;
-  label: string;
-}
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
-  onTabChange: (tabKey: string) => void;
-  tabs: Tab[];
+  onTabChange: (tab: string) => void;
 }
 
-export function Layout({ children, activeTab, onTabChange, tabs }: LayoutProps) {
-  const { logout } = useAuth();
+const menuItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: Home },
+  { id: 'funil', label: 'Funil de Vendas', icon: Target },
+  { id: 'simulador', label: 'Simulador', icon: Calculator },
+  { id: 'clientes-ativos', label: 'Clientes Ativos', icon: Users },
+  { id: 'clientes-perdidos', label: 'Clientes Perdidos', icon: XCircle },
+  { id: 'configuracoes', label: 'Configurações', icon: Settings }
+];
+
+export function Layout({ children, activeTab, onTabChange }: LayoutProps) {
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      alert('Erro ao fazer logout.');
+    }
+  };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md flex flex-col">
-        <div className="flex items-center space-x-2 px-6 py-4 border-b">
-          <img src="/crown-icon.svg" alt="Coroa" className="w-6 h-6" />
-          <div>
-            <h1 className="text-xl font-bold">Zion Capital</h1>
-            <p className="text-xs text-gray-500">CRM</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <Crown className="w-8 h-8 text-blue-600" />
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Cronos Pro</h1>
+                <p className="text-xs text-gray-500">CRM Embracon</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                {new Date().toLocaleDateString('pt-BR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                title="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sair</span>
+              </button>
+            </div>
           </div>
         </div>
-        <nav className="flex flex-col flex-grow px-4 py-6 space-y-2">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => onTabChange(tab.key)}
-              className={`flex items-center px-4 py-2 rounded text-left text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition-colors ${
-                activeTab === tab.key ? 'bg-blue-600 text-white' : ''
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
+      </header>
 
-      {/* Main content */}
-      <div className="flex flex-col flex-grow">
-        <header className="flex justify-end items-center bg-white shadow p-4 space-x-4">
-          <div className="flex items-center space-x-2 text-gray-700">
-            <User className="w-6 h-6" />
-            <span>Perfil</span>
-          </div>
-          <button
-            onClick={logout}
-            className="flex items-center space-x-1 text-red-600 hover:text-red-800"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Sair</span>
-          </button>
-        </header>
-        <main className="flex-grow p-6 bg-gray-50 overflow-auto">{children}</main>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-6">
+          {/* Sidebar */}
+          <nav className="w-64 bg-white rounded-lg shadow-sm p-4 h-fit">
+            <ul className="space-y-2">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => onTabChange(item.id)}
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left transition-colors ${
+                        activeTab === item.id
+                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          {/* Main Content */}
+          <main className="flex-1">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );
