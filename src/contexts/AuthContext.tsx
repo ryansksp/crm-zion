@@ -7,6 +7,8 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
+  error: string | null;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,37 +16,59 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const clearError = () => setError(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        setUser(user);
+        setLoading(false);
+        setError(null);
+      },
+      (error) => {
+        console.error('Erro no AuthStateChanged:', error);
+        setError('Erro na autenticação');
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, []);
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
+    setError(null);
     try {
+      const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro no login com Google:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Login cancelado pelo usuário');
+      } else if (error.code === 'auth/popup-blocked') {
+        setError('Popup bloqueado pelo navegador');
+      } else {
+        setError('Erro ao fazer login. Tente novamente.');
+      }
       throw error;
     }
   };
 
   const logout = async () => {
+    setError(null);
     try {
       await signOut(auth);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro no logout:', error);
+      setError('Erro ao fazer logout');
       throw error;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loginWithGoogle, logout, loading }}>
+    <AuthContext.Provider value={{ user, loginWithGoogle, logout, loading, error, clearError }}>
       {children}
     </AuthContext.Provider>
   );

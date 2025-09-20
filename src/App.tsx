@@ -12,10 +12,41 @@ import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
 import { Profile } from './components/Profile';
 
-
 function AppContent() {
-  const { user } = useAuth();
+  const { user, loading, error, clearError } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if there's an authentication error
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+            <h2 className="text-red-800 font-semibold mb-2">Erro de Autenticação</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={clearError}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+            >
+              Tentar Novamente
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Login />;
@@ -34,24 +65,13 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
   // Define accessible tabs based on accessLevel
   const accessLevel = userProfile?.accessLevel || 'Operador';
 
-  const tabs = [
-    { key: 'dashboard', label: 'Dashboard' },
-    { key: 'funil', label: 'Funil de Vendas' },
-    { key: 'simulador', label: 'Simulador' },
-    { key: 'clientes-ativos', label: 'Clientes Ativos' },
-    { key: 'clientes-perdidos', label: 'Clientes Perdidos' },
-    { key: 'desempenho', label: 'Painel de Desempenho' },
-    { key: 'configuracoes', label: 'Configurações' },
-    { key: 'profile', label: 'Perfil' }
-  ];
-
-  // Example: restrict 'configuracoes' tab to Gerente and Diretor only
-  const filteredTabs = tabs.filter(tab => {
-    if (tab.key === 'configuracoes' && accessLevel === 'Operador') {
-      return false;
-    }
-    return true;
-  });
+  // TODO: Implement role-based access control for tabs
+  // const filteredTabs = tabs.filter(tab => {
+  //   if (tab.key === 'configuracoes' && accessLevel === 'Operador') {
+  //     return false;
+  //   }
+  //   return true;
+  // });
 
   const renderContent = () => {
     switch (activeTab) {
@@ -61,10 +81,10 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         return <FunilVendas />;
       case 'simulador':
         return <Simulador />;
-      case 'clientes-perdidos':
-        return <ClientesPerdidos />;
       case 'clientes-ativos':
         return <ClientesAtivos />;
+      case 'clientes-perdidos':
+        return <ClientesPerdidos />;
       case 'desempenho':
         return <PainelDesempenho />;
       case 'configuracoes':
@@ -77,7 +97,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab} tabs={filteredTabs}>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
       {renderContent()}
     </Layout>
   );

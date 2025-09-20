@@ -6,9 +6,10 @@ export function formatCurrency(value: number) {
     minimumFractionDigits: 2,
   });
 }
+
 export function formatPercent(value: string | number) {
   if (value === undefined || value === null || value === "") return "0%";
-  let num = typeof value === "string" ? parseFloat(value.toString().replace(",", ".")) : value;
+  const num = typeof value === "string" ? parseFloat(value.toString().replace(",", ".")) : value;
   return `${num.toFixed(2)}%`;
 }
 

@@ -1,26 +1,54 @@
-# TODO - Revisão do Funil de Vendas e Relatório no Dashboard
+# TODO - Revisão Completa do CRM Zion
 
-## Tarefas Pendentes
+## Problemas Identificados e Correções
 
-- [x] Adicionar campo de valor no formulário de novo cliente no FunilVendas
-- [x] Alterar etapa inicial do cliente criado para "Lead"
-- [x] Melhorar a interface do FunilVendas para operações rápidas (layout, cores, espaçamento)
-- [x] Calcular e exibir total vendido no PainelDesempenho (soma valorCredito de "Venda Ganha")
-- [x] Calcular e exibir total perdido no PainelDesempenho (soma valorCredito de "Venda Perdida")
-- [x] Implementar sincronização de metas e planos com Firestore
-- [x] Adicionar feedback visual ao salvar metas em Configurações
-- [x] Usar estado controlado para inputs de metas
-- [x] Integrar Firebase Firestore para persistência de dados
-- [x] Configurar autenticação com Google no Firebase
-- [x] Criar sistema de gerenciamento de usuários e permissões
+### 🔧 Problemas Críticos
+
+- [x] **Estrutura do App.tsx**: AppProvider estava sendo usado incorretamente dentro do AppContent
+- [x] **Contextos aninhados incorretamente**: AppContentInner tentando usar useApp fora do AppProvider
+- [x] **Tratamento de erros**: Adicionado tratamento adequado para operações Firebase
+- [x] **Estados de loading**: Implementados estados de carregamento na autenticação
+- [x] **Erros de console**: Warnings do Mixpanel e outros erros no navegador identificados
+- [x] **Tipos TypeScript**: Corrigido erro de linting no formatters.ts
+
+### 📋 Plano de Correções
+
+#### 1. Estrutura da Aplicação (App.tsx)
+- [x] Reestruturar a hierarquia de providers
+- [x] Corrigir o uso do AppProvider e AuthProvider
+- [x] Garantir que todos os hooks sejam usados dentro dos contextos corretos
+- [x] Adicionar estados de loading e erro na autenticação
+
+#### 2. Contextos e Estado
+- [x] Melhorar o AuthContext com estados de erro
+- [x] Adicionar função clearError para limpar erros
+- [x] Implementar estados de loading para operações assíncronas
+- [ ] Corrigir sincronização entre localStorage e Firestore
+
+#### 3. Componentes Principais
+- [ ] Adicionar loading states no Layout
+- [ ] Melhorar tratamento de erros no PainelDesempenho
+- [ ] Corrigir formulários em Configuracoes
+- [ ] Implementar feedback visual para operações
+
+#### 4. Configuração e Build
+- [x] Verificar configuração do Firebase
+- [x] Corrigir warnings do console (identificados)
+- [x] Otimizar configuração do Vite
+- [x] Melhorar configuração do ESLint (parcialmente)
+
+#### 5. Performance e UX
+- [x] Implementar skeleton loading na autenticação
+- [ ] Adicionar toasts para feedback
+- [ ] Melhorar responsividade
+- [ ] Otimizar re-renders
 
 ## Progresso
-- [x] Análise inicial do código
-- [x] Plano aprovado pelo usuário
-- [x] Firebase Firestore integrado para persistência
-- [x] Layout do FunilVendas melhorado
-- [x] Campo de valor adicionado no formulário
-- [x] Etapa inicial alterada para "Lead"
-- [x] Relatório de vendido e perdido no dashboard
-- [x] Correções de persistência de metas e planos
-- [x] Feedback visual nas configurações
+- [x] Análise completa do código
+- [x] Identificação de problemas estruturais
+- [x] Servidor de desenvolvimento funcionando
+- [x] Build TypeScript sem erros
+- [x] Correções principais implementadas
+- [x] Estrutura de providers corrigida
+- [x] Estados de loading e erro adicionados
+- [x] Lint errors críticos corrigidos
