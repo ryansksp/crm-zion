@@ -27,13 +27,11 @@ interface AppContextType extends AppState {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-type Action = 
-  | { type: 'SET_STATE'; payload: Omit<AppState, 'userProfile'> }
+type Action =
+  | { type: 'SET_CLIENTES'; payload: Cliente[] }
+  | { type: 'SET_PLANOS'; payload: PlanoEmbracon[] }
+  | { type: 'SET_METAS'; payload: Meta }
   | { type: 'SET_USER_PROFILE'; payload: UserProfile | null }
-  | { type: 'ADICIONAR_CLIENTE'; payload: Cliente }
-  | { type: 'ATUALIZAR_CLIENTE'; payload: { id: string; cliente: Partial<Cliente> } }
-  | { type: 'ADICIONAR_PLANO'; payload: PlanoEmbracon }
-  | { type: 'ATUALIZAR_METAS'; payload: Partial<Meta> }
   | { type: 'ADICIONAR_SIMULACAO'; payload: Simulacao };
 
 const initialState: Omit<AppState, 'userProfile'> = {
@@ -45,21 +43,12 @@ const initialState: Omit<AppState, 'userProfile'> = {
 
 function appReducer(state: Omit<AppState, 'userProfile'>, action: Action): Omit<AppState, 'userProfile'> {
   switch (action.type) {
-    case 'SET_STATE':
-      return action.payload;
-    case 'ADICIONAR_CLIENTE':
-      return { ...state, clientes: [...state.clientes, action.payload] };
-    case 'ATUALIZAR_CLIENTE':
-      return {
-        ...state,
-        clientes: state.clientes.map(c => 
-          c.id === action.payload.id ? { ...c, ...action.payload.cliente } : c
-        )
-      };
-    case 'ADICIONAR_PLANO':
-      return { ...state, planos: [...state.planos, action.payload] };
-    case 'ATUALIZAR_METAS':
-      return { ...state, metas: { ...state.metas, ...action.payload } };
+    case 'SET_CLIENTES':
+      return { ...state, clientes: action.payload };
+    case 'SET_PLANOS':
+      return { ...state, planos: action.payload };
+    case 'SET_METAS':
+      return { ...state, metas: action.payload };
     case 'ADICIONAR_SIMULACAO':
       return { ...state, simulacoes: [...state.simulacoes, action.payload] };
     default:
@@ -76,7 +65,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedData = localStorage.getItem('cronos-pro-data');
     if (savedData) {
-      dispatch({ type: 'SET_STATE', payload: JSON.parse(savedData) });
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.clientes && parsed.planos && parsed.metas) {
+          dispatch({ type: 'SET_CLIENTES', payload: parsed.clientes });
+          dispatch({ type: 'SET_PLANOS', payload: parsed.planos });
+          dispatch({ type: 'SET_METAS', payload: parsed.metas });
+        }
+      } catch (err) {
+        console.error("Erro ao carregar localStorage:", err);
+      }
     }
   }, []);
 
@@ -85,7 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cronos-pro-data', JSON.stringify(state));
   }, [state]);
 
-  // Carregar perfil do usuário do Firestore
+  // Carregar perfil do usuário
   const carregarUserProfile = async () => {
     if (!user) {
       setUserProfile(null);
@@ -96,7 +94,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (docSnap.exists()) {
       setUserProfile(docSnap.data() as UserProfile);
     } else {
-      // Criar perfil padrão se não existir
       const defaultProfile: UserProfile = {
         id: user.uid,
         name: user.displayName || '',
@@ -114,7 +111,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     carregarUserProfile();
   }, [user]);
 
-  // Carregar dados do Firestore
+  // Carregar dados do Firestore em tempo real
   useEffect(() => {
     if (!user) return;
 
@@ -122,28 +119,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
     const unsubscribeClientes = onSnapshot(qClientes, (querySnapshot) => {
       const clientesFirestore: Cliente[] = [];
-      querySnapshot.forEach((doc) => {
-        clientesFirestore.push(doc.data() as Cliente);
+      querySnapshot.forEach((docSnap) => {
+        clientesFirestore.push({ id: docSnap.id, ...docSnap.data() } as Cliente);
       });
-      dispatch({ type: 'SET_STATE', payload: { ...state, clientes: clientesFirestore, planos: state.planos, metas: state.metas, simulacoes: state.simulacoes } });
+      dispatch({ type: 'SET_CLIENTES', payload: clientesFirestore });
     });
 
     // Planos
     const qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
     const unsubscribePlanos = onSnapshot(qPlanos, (querySnapshot) => {
       const planosFirestore: PlanoEmbracon[] = [];
-      querySnapshot.forEach((doc) => {
-        planosFirestore.push(doc.data() as PlanoEmbracon);
+      querySnapshot.forEach((docSnap) => {
+        planosFirestore.push({ id: docSnap.id, ...docSnap.data() } as PlanoEmbracon);
       });
-      dispatch({ type: 'SET_STATE', payload: { ...state, clientes: state.clientes, planos: planosFirestore, metas: state.metas, simulacoes: state.simulacoes } });
+      dispatch({ type: 'SET_PLANOS', payload: planosFirestore });
     });
 
     // Metas
     const docRefMetas = doc(db, 'metas', user.uid);
     const unsubscribeMetas = onSnapshot(docRefMetas, (docSnap) => {
       if (docSnap.exists()) {
-        const metasFirestore = docSnap.data() as Meta;
-        dispatch({ type: 'SET_STATE', payload: { ...state, clientes: state.clientes, planos: state.planos, metas: metasFirestore, simulacoes: state.simulacoes } });
+        dispatch({ type: 'SET_METAS', payload: docSnap.data() as Meta });
       }
     });
 
@@ -250,4 +246,4 @@ export const useApp = () => {
     throw new Error('useApp deve ser usado dentro de AppProvider');
   }
   return context;
-}
+};
