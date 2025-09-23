@@ -11,6 +11,7 @@ export interface Cliente {
   simulacoes: Simulacao[];
   dataVenda?: string;
   dataPerda?: string;
+  motivoPerda?: string;
   grupoECota?: string;
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;

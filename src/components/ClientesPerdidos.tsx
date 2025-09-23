@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Users, Calendar, AlertTriangle, XCircle } from 'lucide-react';
+import { Users, XCircle } from 'lucide-react';
+import { formatCurrency, formatDate } from '../utils/formatters.ts';
 
 interface Cliente {
   id: string;
@@ -19,19 +20,29 @@ export function ClientesPerdidos() {
   const clientesPerdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
 
   const obterAlertas = (cliente: Cliente) => {
-    const alertas = [];
+    const alertas: {
+      tipo: string;
+      mensagem: string;
+      cor: string;
+      icon: React.ElementType;
+    }[] = [];
+
     const hoje = new Date();
 
     if (cliente.dataPerda) {
       const perda = new Date(cliente.dataPerda);
-      const diasDesdePerda = Math.floor((hoje.getTime() - perda.getTime()) / (1000 * 60 * 60 * 24));
-      if (diasDesdePerda <= 30) {
-        alertas.push({
-          tipo: 'perda-recente',
-          mensagem: `Perda recente há ${diasDesdePerda} dias`,
-          cor: 'text-red-600',
-          icon: XCircle
-        });
+      if (!isNaN(perda.getTime())) {
+        const diasDesdePerda = Math.floor(
+          (hoje.getTime() - perda.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (diasDesdePerda <= 30) {
+          alertas.push({
+            tipo: 'perda-recente',
+            mensagem: `Perda recente há ${diasDesdePerda} dias`,
+            cor: 'text-red-600',
+            icon: XCircle,
+          });
+        }
       }
     }
 
@@ -42,7 +53,9 @@ export function ClientesPerdidos() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Clientes Perdidos</h2>
-        <p className="text-gray-600">Gerencie clientes perdidos para possível reativação</p>
+        <p className="text-gray-600">
+          Gerencie clientes perdidos para possível reativação
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -50,8 +63,12 @@ export function ClientesPerdidos() {
           <div className="flex items-center space-x-3 mb-4">
             <Users className="w-8 h-8 text-red-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Total de Clientes Perdidos</h3>
-              <p className="text-2xl font-bold text-red-600">{clientesPerdidos.length}</p>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Total de Clientes Perdidos
+              </h3>
+              <p className="text-2xl font-bold text-red-600">
+                {clientesPerdidos.length}
+              </p>
             </div>
           </div>
         </div>
@@ -68,11 +85,16 @@ export function ClientesPerdidos() {
             const alertas = obterAlertas(cliente);
 
             return (
-              <div key={cliente.id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div
+                key={cliente.id}
+                className="p-6 hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h4 className="text-lg font-semibold text-gray-900">{cliente.nome}</h4>
+                      <h4 className="text-lg font-semibold text-gray-900">
+                        {cliente.nome}
+                      </h4>
                       <div className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
                         <XCircle className="w-3 h-3" />
                         <span>Perdido</span>
@@ -81,30 +103,37 @@ export function ClientesPerdidos() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
                       <div>
-                        <span className="font-medium">Telefone:</span> {cliente.telefone}
+                        <span className="font-medium">Telefone:</span>{' '}
+                        {cliente.telefone}
                       </div>
                       <div>
-                        <span className="font-medium">Email:</span> {cliente.email}
+                        <span className="font-medium">Email:</span>{' '}
+                        {cliente.email}
                       </div>
                       <div>
-                        <span className="font-medium">Plano:</span> {cliente.planoInteresse}
+                        <span className="font-medium">Plano:</span>{' '}
+                        {cliente.planoInteresse}
                       </div>
                       <div>
-                        <span className="font-medium">Valor da Venda:</span> R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}
+                        <span className="font-medium">Valor da Venda:</span>{' '}
+                        {formatCurrency(cliente.valorCredito)}
                       </div>
                       {cliente.dataVenda && (
                         <div>
-                          <span className="font-medium">Data da Venda:</span> {new Date(cliente.dataVenda).toLocaleDateString('pt-BR')}
+                          <span className="font-medium">Data da Venda:</span>{' '}
+                          {formatDate(cliente.dataVenda)}
                         </div>
                       )}
                       {cliente.motivoPerda && (
                         <div>
-                          <span className="font-medium">Motivo da Perda:</span> {cliente.motivoPerda}
+                          <span className="font-medium">Motivo da Perda:</span>{' '}
+                          {cliente.motivoPerda}
                         </div>
                       )}
                       {cliente.dataPerda && (
                         <div>
-                          <span className="font-medium">Data da Perda:</span> {new Date(cliente.dataPerda).toLocaleDateString('pt-BR')}
+                          <span className="font-medium">Data da Perda:</span>{' '}
+                          {formatDate(cliente.dataPerda)}
                         </div>
                       )}
                     </div>
@@ -115,7 +144,10 @@ export function ClientesPerdidos() {
                         {alertas.map((alerta, index) => {
                           const AlertIcon = alerta.icon;
                           return (
-                            <div key={index} className={`flex items-center space-x-2 text-sm ${alerta.cor}`}>
+                            <div
+                              key={index}
+                              className={`flex items-center space-x-2 text-sm ${alerta.cor}`}
+                            >
                               <AlertIcon className="w-4 h-4" />
                               <span className="font-medium">{alerta.mensagem}</span>
                             </div>
@@ -130,13 +162,21 @@ export function ClientesPerdidos() {
                       type="text"
                       placeholder="Motivo da Perda"
                       defaultValue={cliente.motivoPerda || ''}
-                      onBlur={(e) => atualizarCliente(cliente.id, { motivoPerda: e.target.value })}
+                      onBlur={e =>
+                        atualizarCliente(cliente.id, { motivoPerda: e.target.value })
+                      }
                       className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
                     <input
                       type="date"
-                      defaultValue={cliente.dataPerda ? new Date(cliente.dataPerda).toISOString().substr(0, 10) : ''}
-                      onChange={(e) => atualizarCliente(cliente.id, { dataPerda: e.target.value })}
+                      defaultValue={
+                        cliente.dataPerda
+                          ? new Date(cliente.dataPerda).toISOString().substr(0, 10)
+                          : ''
+                      }
+                      onChange={e =>
+                        atualizarCliente(cliente.id, { dataPerda: e.target.value })
+                      }
                       className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
                       title="Data da Perda"
                     />
@@ -150,7 +190,9 @@ export function ClientesPerdidos() {
             <div className="p-12 text-center text-gray-500">
               <XCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <h4 className="text-lg font-medium mb-2">Nenhum cliente perdido</h4>
-              <p className="text-sm">Clientes perdidos aparecerão aqui para possível reativação.</p>
+              <p className="text-sm">
+                Clientes perdidos aparecerão aqui para possível reativação.
+              </p>
             </div>
           )}
         </div>
