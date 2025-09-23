@@ -1,5 +1,5 @@
 export function formatCurrency(value: number) {
-  if (isNaN(value)) return "R$ 0,00";
+  if (value === undefined || value === null || isNaN(value)) return "R$ 0,00";
   return value.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
@@ -10,6 +10,7 @@ export function formatCurrency(value: number) {
 export function formatPercent(value: string | number) {
   if (value === undefined || value === null || value === "") return "0%";
   const num = typeof value === "string" ? parseFloat(value.toString().replace(",", ".")) : value;
+  if (isNaN(num)) return "0%";
   return `${num.toFixed(2)}%`;
 }
 
