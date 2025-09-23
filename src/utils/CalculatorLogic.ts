@@ -1,16 +1,28 @@
-// src/utils/CalculatorLogic.js
-export default function calculate(formData) {
+interface FormData {
+  valorCredito: string;
+  prazo: string;
+  taxaAdm: string;
+  fundoReserva: string;
+  taxaAdesao: string;
+  lanceEmbutido: string;
+  lanceProprio: string;
+  entrada: string;
+  taxaJuros: string;
+  prazoFinanciamento: string;
+}
+
+export default function calculate(formData: FormData) {
   // Parse inputs
-  const valorCredito = parseFloat(formData.valorCredito?.toString().replace(",", ".") || 0);
-  const prazo = parseInt(formData.prazo || 0);
-  const taxaAdm = parseFloat(formData.taxaAdm?.toString().replace(",", ".") || 0) / 100;
-  const fundoReserva = parseFloat(formData.fundoReserva?.toString().replace(",", ".") || 0) / 100;
-  const taxaAdesao = parseFloat(formData.taxaAdesao?.toString().replace(",", ".") || 0) / 100;
-  const lanceEmbutido = parseFloat(formData.lanceEmbutido?.toString().replace(",", ".") || 0) / 100;
-  const lanceProprio = parseFloat(formData.lanceProprio?.toString().replace(",", ".") || 0) / 100;
-  const entrada = parseFloat(formData.entrada?.toString().replace(",", ".") || 0);
-  const taxaJuros = parseFloat(formData.taxaJuros?.toString().replace(",", ".") || 0) / 100;
-  const prazoFinanciamento = parseInt(formData.prazoFinanciamento || 0);
+  const valorCredito = parseFloat(formData.valorCredito?.toString().replace(",", ".") || "0");
+  const prazo = parseInt(formData.prazo || "0");
+  const taxaAdm = parseFloat(formData.taxaAdm?.toString().replace(",", ".") || "0") / 100;
+  const fundoReserva = parseFloat(formData.fundoReserva?.toString().replace(",", ".") || "0") / 100;
+  const taxaAdesao = parseFloat(formData.taxaAdesao?.toString().replace(",", ".") || "0") / 100;
+  const lanceEmbutido = parseFloat(formData.lanceEmbutido?.toString().replace(",", ".") || "0") / 100;
+  const lanceProprio = parseFloat(formData.lanceProprio?.toString().replace(",", ".") || "0") / 100;
+  const entrada = parseFloat(formData.entrada?.toString().replace(",", ".") || "0");
+  const taxaJuros = parseFloat(formData.taxaJuros?.toString().replace(",", ".") || "0") / 100;
+  const prazoFinanciamento = parseInt(formData.prazoFinanciamento || "0");
 
   // Consórcio
   const valorLanceEmbutido = valorCredito * lanceEmbutido;
