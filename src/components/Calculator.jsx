@@ -152,7 +152,7 @@ export default function Calculator() {
 
           <div className="border-t border-gray-700 mt-6 pt-6 text-gray-400 text-sm">
 
-            <p>&copy; 2024 América Financeira. Todos os direitos reservados.</p>
+            <p>&copy; 2025 América Financeira. Todos os direitos reservados.</p>
 
           </div>
 
