@@ -86,39 +86,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cronos-pro-data', JSON.stringify(state));
   }, [state]);
 
-  // Carregar perfil do usuário
-  const carregarUserProfile = async () => {
+  useEffect(() => {
     if (!user) {
       setUserProfile(null);
       return;
     }
     const docRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      // Garantir que isMaster seja lido do banco e incluído no userProfile
-      const userProfileData: UserProfile = {
-        ...(data as UserProfile),
-        isMaster: data.isMaster || false,
-      };
-      setUserProfile(userProfileData);
-    } else {
-      const defaultProfile: UserProfile = {
-        id: user.uid,
-        name: user.displayName || '',
-        email: user.email || '',
-        photoURL: user.photoURL || '',
-        phone: '',
-        accessLevel: 'Operador',
-        status: 'pending' // Novo campo para controle de aprovação
-      };
-      await setDoc(docRef, defaultProfile);
-      setUserProfile(defaultProfile);
-    }
-  };
 
-  useEffect(() => {
-    carregarUserProfile();
+    // Real-time listener to user profile document
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const userProfileData: UserProfile = {
+          ...(data as UserProfile),
+          isMaster: data.isMaster || false,
+        };
+        setUserProfile(userProfileData);
+      } else {
+        const defaultProfile: UserProfile = {
+          id: user.uid,
+          name: user.displayName || '',
+          email: user.email || '',
+          photoURL: user.photoURL || '',
+          phone: '',
+          accessLevel: 'Operador',
+          status: 'pending' // Novo campo para controle de aprovação
+        };
+        setDoc(docRef, defaultProfile);
+        setUserProfile(defaultProfile);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [user]);
 
   // Carregar dados do Firestore em tempo real
