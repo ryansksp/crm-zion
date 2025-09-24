@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3, Trash2 } from 'lucide-react';
+import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
+import { collection, getDocs, doc, updateDoc, deleteDoc, getFirestore } from 'firebase/firestore';
 
 interface UserPermissions {
   canViewAllClients: boolean;
@@ -20,6 +21,7 @@ interface UserProfile {
   permissions: UserPermissions;
   createdAt: Date;
   lastLogin?: Date;
+  active: boolean;
   stats: {
     totalClients: number;
     totalLeads: number;
@@ -68,29 +70,30 @@ export function ControleUsuarios() {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.status === 'approved') {
-          usersData.push({
-            id: doc.id,
-            uid: data.uid,
-            name: data.name || '',
-            email: data.email || '',
-            accessLevel: data.accessLevel || 'Operador',
-            permissions: data.permissions || {
-              canViewAllClients: data.accessLevel === 'Diretor',
-              canViewAllLeads: data.accessLevel === 'Diretor',
-              canViewAllSimulations: data.accessLevel === 'Diretor',
-              canViewAllReports: data.accessLevel === 'Diretor',
-              canManageUsers: data.accessLevel === 'Diretor',
-              canChangeSettings: data.accessLevel !== 'Operador',
-            },
-            createdAt: data.createdAt?.toDate() || new Date(),
-            lastLogin: data.lastLogin?.toDate(),
-            stats: data.stats || {
-              totalClients: 0,
-              totalLeads: 0,
-              totalSimulations: 0,
-              totalSales: 0,
-            },
-          });
+      usersData.push({
+        id: doc.id,
+        uid: data.uid,
+        name: data.name || '',
+        email: data.email || '',
+        accessLevel: data.accessLevel || 'Operador',
+        permissions: data.permissions || {
+          canViewAllClients: data.accessLevel === 'Diretor',
+          canViewAllLeads: data.accessLevel === 'Diretor',
+          canViewAllSimulations: data.accessLevel === 'Diretor',
+          canViewAllReports: data.accessLevel === 'Diretor',
+          canManageUsers: data.accessLevel === 'Diretor',
+          canChangeSettings: data.accessLevel !== 'Operador',
+        },
+        createdAt: data.createdAt?.toDate() || new Date(),
+        lastLogin: data.lastLogin?.toDate(),
+        active: data.active !== false,
+        stats: data.stats || {
+          totalClients: 0,
+          totalLeads: 0,
+          totalSimulations: 0,
+          totalSales: 0,
+        },
+      });
         } else if (data.status === 'pending') {
           pendingUsersData.push({
             id: doc.id,
@@ -168,7 +171,7 @@ export function ControleUsuarios() {
   const deleteUser = async (userId: string) => {
     try {
       const userRef = doc(db, 'users', userId);
-      await userRef.delete();
+      await deleteDoc(userRef);
 
       setUsers(users.filter(user => user.id !== userId));
     } catch (error) {
@@ -405,6 +408,21 @@ export function ControleUsuarios() {
                         >
                           <Edit className="w-3 h-3" />
                           <span>Editar</span>
+                        </button>
+                        <button
+                          onClick={() => toggleUserAccess(user.id, user.active)}
+                          className={`inline-flex items-center space-x-1 px-2 py-1 text-xs rounded-full ${
+                            user.active ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                          } hover:bg-opacity-80 transition-colors`}
+                        >
+                          {user.active ? 'Desabilitar' : 'Habilitar'}
+                        </button>
+                        <button
+                          onClick={() => deleteUser(user.id)}
+                          className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                          <span>Excluir</span>
                         </button>
                       </div>
                     )}
