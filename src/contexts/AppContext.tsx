@@ -341,13 +341,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const obterClientesAtivos = () => {
-    return state.clientes.filter(c => c.etapa === 'Venda Ganha');
+    if (!userProfile) return [];
+    if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
+      return state.clientes.filter(c => c.etapa === 'Venda Ganha');
+    }
+    // @ts-ignore
+    return state.clientes.filter(c => c.etapa === 'Venda Ganha' && c.userId === userProfile.uid);
   };
 
   const obterTaxaConversao = () => {
     const totalClientes = state.clientes.length;
     const vendas = state.clientes.filter(c => c.etapa === 'Venda Ganha').length;
     return totalClientes > 0 ? (vendas / totalClientes) * 100 : 0;
+  };
+
+  const obterLeads = () => {
+    if (!userProfile) return [];
+    if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
+      return state.clientes.filter(c => c.etapa === 'Lead');
+    }
+    // @ts-ignore
+    return state.clientes.filter(c => c.etapa === 'Lead' && c.userId === userProfile.uid);
+  };
+
+  const obterClientesPerdidos = () => {
+    if (!userProfile) return [];
+    if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
+      return state.clientes.filter(c => c.etapa === 'Venda Perdida');
+    }
+    // @ts-ignore
+    return state.clientes.filter(c => c.etapa === 'Venda Perdida' && c.userId === userProfile.uid);
   };
 
   const podeAlterarPermissao = (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => {
