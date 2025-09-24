@@ -198,8 +198,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const atualizarMetas = async (metas: Partial<Meta>) => {
     if (!user) return;
-    const docRef = doc(db, 'metas', user.uid);
-    await setDoc(docRef, metas, { merge: true });
+    try {
+      const docRef = doc(db, 'metas', user.uid);
+      await setDoc(docRef, metas, { merge: true });
+    } catch (error) {
+      console.error('Erro ao atualizar metas:', error);
+      throw error;
+    }
   };
 
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {

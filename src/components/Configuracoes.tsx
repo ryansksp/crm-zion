@@ -64,7 +64,8 @@ export function Configuracoes() {
             <input
               type="number"
               name="metaMensal"
-              defaultValue={metas.mensal}
+              value={metaMensal}
+              onChange={(e) => setMetaMensal(Number(e.target.value))}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Ex: 100000"
             />
@@ -77,7 +78,8 @@ export function Configuracoes() {
             <input
               type="number"
               name="comissaoEstimada"
-              defaultValue={metas.comissaoEstimada}
+              value={comissaoEstimada}
+              onChange={(e) => setComissaoEstimada(Number(e.target.value))}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Ex: 5000"
             />
