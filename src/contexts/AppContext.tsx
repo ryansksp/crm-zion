@@ -23,6 +23,8 @@ interface AppContextType extends AppState {
   obterTaxaConversao: () => number;
   carregarUserProfile: () => Promise<void>;
   atualizarUserProfile: (profile: Partial<UserProfile>) => Promise<void>;
+  podeAlterarPermissao: (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => boolean;
+  podeGerenciarUsuarios: () => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -268,6 +270,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return totalClientes > 0 ? (vendas / totalClientes) * 100 : 0;
   };
 
+  const podeAlterarPermissao = (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => {
+    if (!userProfile) return false;
+
+    // Operadores não podem alterar para níveis superiores
+    if (userProfile.accessLevel === 'Operador') {
+      return false;
+    }
+
+    // Gerentes só podem alterar para Operador
+    if (userProfile.accessLevel === 'Gerente') {
+      return novoNivel === 'Operador';
+    }
+
+    // Diretores podem alterar para qualquer nível
+    if (userProfile.accessLevel === 'Diretor') {
+      return true;
+    }
+
+    return false;
+  };
+
+  const podeGerenciarUsuarios = () => {
+    return userProfile?.accessLevel === 'Diretor';
+  };
+
   return (
     <AppContext.Provider value={{
       ...state,
@@ -281,7 +308,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       obterClientesAtivos,
       obterTaxaConversao,
       carregarUserProfile,
-      atualizarUserProfile
+      atualizarUserProfile,
+      podeAlterarPermissao,
+      podeGerenciarUsuarios
     }}>
       {children}
     </AppContext.Provider>

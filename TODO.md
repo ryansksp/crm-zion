@@ -1,7 +1,7 @@
-# TODO - Correção do Sistema de Meta Mensal e Nova Página de Leads
+# TODO - Sistema de Permissões e Correções
 
-## ✅ Concluído
-- [x] Corrigido o campo `comissaoEstimada` em `Configuracoes.tsx` para ser controlado (adicionado `value` e `onChange`)
+## ✅ Concluído (Tarefas Anteriores)
+- [x] Corrigido o campo `comissaoEstimada` em `Configuracoes.tsx` para ser controlado
 - [x] Adicionado tratamento de erro na função `atualizarMetas` em `AppContext.tsx`
 - [x] Modificado `moverClienteEtapa` para atualizar `vendidoNoMes` quando uma venda é ganha
 - [x] Corrigido `moverClienteEtapa` para subtrair o valor quando um cliente sai de "Venda Ganha"
@@ -10,15 +10,15 @@
 - [x] Integrada a nova página ao sistema de roteamento
 
 ## 🔄 Em Andamento
-- [ ] Testar a funcionalidade de atualização das metas
-- [ ] Verificar se as mudanças persistem no Firestore
-- [ ] Confirmar que a interface atualiza corretamente após salvar
-- [ ] Testar a nova página de Leads
-- [x] Implementar funcionalidade do botão "Ver Detalhes" na página de Leads
-- [x] Adicionar data de criação do lead no modal de detalhes
+- [x] Implementar sistema de permissões baseado em níveis de acesso
+- [x] Restringir mudanças de permissões apenas para usuários Diretor
+- [x] Bloquear operadores de mudarem para Gerente ou Diretor
+- [x] Corrigir visibilidade de dados para usuários Diretor
+- [x] Adicionar controle de acesso baseado em papéis no App.tsx
+- [ ] Criar interface de gerenciamento de usuários para Diretores
 
 ## 📋 Próximos Passos
-1. Teste a atualização das metas na interface
-2. Verifique se os dados são salvos corretamente no banco de dados
-3. Monitore se há erros no console durante o processo
-4. Teste a funcionalidade da nova página de Leads
+1. Implementar verificações de permissão no Profile.tsx
+2. Adicionar controle de acesso no App.tsx
+3. Testar visibilidade de dados para diferentes níveis
+4. Verificar se as restrições funcionam corretamente

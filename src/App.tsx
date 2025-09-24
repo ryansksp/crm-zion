@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppProvider} from './contexts/AppContext';
+import { AppProvider, useApp} from './contexts/AppContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
@@ -61,14 +61,50 @@ function AppContent() {
 }
 
 function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
+  const { userProfile } = useApp();
 
-  // TODO: Implement role-based access control for tabs based on userProfile?.accessLevel
-  // const filteredTabs = tabs.filter(tab => {
-  //   if (tab.key === 'configuracoes' && userProfile?.accessLevel === 'Operador') {
-  //     return false;
-  //   }
-  //   return true;
-  // });
+  // Role-based access control for tabs
+  const getAvailableTabs = () => {
+    const allTabs = [
+      { key: 'dashboard', label: 'Dashboard', icon: '📊' },
+      { key: 'funil', label: 'Funil de Vendas', icon: '🔄' },
+      { key: 'leads', label: 'Leads', icon: '🎯' },
+      { key: 'simulador', label: 'Simulador', icon: '🧮' },
+      { key: 'clientes-ativos', label: 'Clientes Ativos', icon: '✅' },
+      { key: 'clientes-perdidos', label: 'Clientes Perdidos', icon: '❌' },
+      { key: 'desempenho', label: 'Desempenho', icon: '📈' },
+      { key: 'configuracoes', label: 'Configurações', icon: '⚙️' },
+      { key: 'profile', label: 'Perfil', icon: '👤' },
+    ];
+
+    if (!userProfile) return allTabs;
+
+    switch (userProfile.accessLevel) {
+      case 'Operador':
+        // Operadores têm acesso limitado
+        return allTabs.filter(tab =>
+          ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos', 'profile'].includes(tab.key)
+        );
+      case 'Gerente':
+        // Gerentes têm acesso a quase tudo, exceto configurações avançadas
+        return allTabs.filter(tab =>
+          tab.key !== 'configuracoes'
+        );
+      case 'Diretor':
+        // Diretores têm acesso completo
+        return allTabs;
+      default:
+        return allTabs;
+    }
+  };
+
+  const availableTabs = getAvailableTabs();
+  const currentTabExists = availableTabs.some(tab => tab.key === activeTab);
+
+  // Redirect to dashboard if current tab is not available
+  if (!currentTabExists && availableTabs.length > 0) {
+    setActiveTab(availableTabs[0].key);
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -96,7 +132,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab} availableTabs={availableTabs}>
       {renderContent()}
     </Layout>
   );

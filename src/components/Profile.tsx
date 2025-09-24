@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { Shield, AlertTriangle } from 'lucide-react';
 
 export function Profile() {
-  const { userProfile, atualizarUserProfile } = useApp();
+  const { userProfile, atualizarUserProfile, podeAlterarPermissao } = useApp();
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
@@ -13,6 +14,7 @@ export function Profile() {
     phone: '',
     accessLevel: 'Operador',
   });
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     if (userProfile) {
@@ -85,20 +87,50 @@ export function Profile() {
         </div>
 
         <div>
-          <label className="block font-medium">Nível de Acesso</label>
+          <label className="block font-medium flex items-center space-x-2">
+            <span>Nível de Acesso</span>
+            {userProfile.accessLevel === 'Diretor' && (
+              <Shield className="w-4 h-4 text-blue-600" />
+            )}
+          </label>
           {editMode ? (
-            <select
-              name="accessLevel"
-              value={formData.accessLevel}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            >
-              <option value="Operador">Operador</option>
-              <option value="Gerente">Gerente</option>
-              <option value="Diretor">Diretor</option>
-            </select>
+            <div className="space-y-2">
+              <select
+                name="accessLevel"
+                value={formData.accessLevel}
+                onChange={(e) => {
+                  const novoNivel = e.target.value as 'Operador' | 'Gerente' | 'Diretor';
+                  if (podeAlterarPermissao(novoNivel)) {
+                    setError('');
+                    handleChange(e);
+                  } else {
+                    setError('Você não tem permissão para alterar para este nível de acesso.');
+                  }
+                }}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              >
+                <option value="Operador">Operador</option>
+                <option value="Gerente" disabled={userProfile.accessLevel === 'Operador'}>
+                  Gerente {userProfile.accessLevel === 'Operador' ? '(Bloqueado)' : ''}
+                </option>
+                <option value="Diretor" disabled={userProfile.accessLevel !== 'Diretor'}>
+                  Diretor {userProfile.accessLevel !== 'Diretor' ? '(Bloqueado)' : ''}
+                </option>
+              </select>
+              {error && (
+                <div className="flex items-center space-x-2 text-red-600 text-sm">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>{error}</span>
+                </div>
+              )}
+            </div>
           ) : (
-            <p>{userProfile.accessLevel}</p>
+            <div className="flex items-center space-x-2">
+              <p>{userProfile.accessLevel}</p>
+              {userProfile.accessLevel === 'Diretor' && (
+                <Shield className="w-4 h-4 text-blue-600" />
+              )}
+            </div>
           )}
         </div>
       </div>
