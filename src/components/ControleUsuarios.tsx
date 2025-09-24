@@ -29,9 +29,19 @@ interface UserProfile {
   };
 }
 
+interface PendingUser {
+  id: string;
+  uid: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
 export function ControleUsuarios() {
   const { userProfile, podeGerenciarUsuarios } = useApp();
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editPermissions, setEditPermissions] = useState<UserPermissions | null>(null);
@@ -48,38 +58,51 @@ export function ControleUsuarios() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const usersRef = collection(db, 'userProfiles');
+      const usersRef = collection(db, 'users');
       const querySnapshot = await getDocs(usersRef);
 
       const usersData: UserProfile[] = [];
+      const pendingUsersData: PendingUser[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        usersData.push({
-          id: doc.id,
-          uid: data.uid,
-          name: data.name || '',
-          email: data.email || '',
-          accessLevel: data.accessLevel || 'Operador',
-          permissions: data.permissions || {
-            canViewAllClients: data.accessLevel === 'Diretor',
-            canViewAllLeads: data.accessLevel === 'Diretor',
-            canViewAllSimulations: data.accessLevel === 'Diretor',
-            canViewAllReports: data.accessLevel === 'Diretor',
-            canManageUsers: data.accessLevel === 'Diretor',
-            canChangeSettings: data.accessLevel !== 'Operador',
-          },
-          createdAt: data.createdAt?.toDate() || new Date(),
-          lastLogin: data.lastLogin?.toDate(),
-          stats: data.stats || {
-            totalClients: 0,
-            totalLeads: 0,
-            totalSimulations: 0,
-            totalSales: 0,
-          },
-        });
+        if (data.status === 'approved') {
+          usersData.push({
+            id: doc.id,
+            uid: data.uid,
+            name: data.name || '',
+            email: data.email || '',
+            accessLevel: data.accessLevel || 'Operador',
+            permissions: data.permissions || {
+              canViewAllClients: data.accessLevel === 'Diretor',
+              canViewAllLeads: data.accessLevel === 'Diretor',
+              canViewAllSimulations: data.accessLevel === 'Diretor',
+              canViewAllReports: data.accessLevel === 'Diretor',
+              canManageUsers: data.accessLevel === 'Diretor',
+              canChangeSettings: data.accessLevel !== 'Operador',
+            },
+            createdAt: data.createdAt?.toDate() || new Date(),
+            lastLogin: data.lastLogin?.toDate(),
+            stats: data.stats || {
+              totalClients: 0,
+              totalLeads: 0,
+              totalSimulations: 0,
+              totalSales: 0,
+            },
+          });
+        } else if (data.status === 'pending') {
+          pendingUsersData.push({
+            id: doc.id,
+            uid: data.uid,
+            name: data.name || '',
+            email: data.email || '',
+            createdAt: data.createdAt?.toDate() || new Date(),
+            status: 'pending',
+          });
+        }
       });
 
       setUsers(usersData);
+      setPendingUsers(pendingUsersData);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
     } finally {
@@ -87,14 +110,19 @@ export function ControleUsuarios() {
     }
   };
 
-  const handleEditPermissions = (userId: string, currentPermissions: UserPermissions) => {
-    setEditingUser(userId);
-    setEditPermissions({ ...currentPermissions });
+const handleEditPermissions = (userId: string, currentPermissions: UserPermissions, userAccessLevel: 'Operador' | 'Gerente' | 'Diretor') => {
+    // Permitir editar permissões somente se o usuário logado for Diretor e o usuário a ser editado for Operador ou Gerente
+    if (userProfile?.accessLevel === 'Diretor' && (userAccessLevel === 'Operador' || userAccessLevel === 'Gerente')) {
+      setEditingUser(userId);
+      setEditPermissions({ ...currentPermissions });
+    } else {
+      alert('Apenas usuários com nível Diretor podem alterar permissões de Operador e Gerente.');
+    }
   };
 
   const handleSavePermissions = async (userId: string) => {
     try {
-      const userRef = doc(db, 'userProfiles', userId);
+      const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, {
         permissions: editPermissions,
         updatedAt: new Date(),
@@ -126,6 +154,64 @@ export function ControleUsuarios() {
         ...editPermissions,
         [permission]: value,
       });
+    }
+  };
+
+  const handleApproveUser = async (userId: string) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        status: 'approved',
+        updatedAt: new Date(),
+      });
+
+      // Move user from pending to approved
+      const approvedUser = pendingUsers.find(u => u.id === userId);
+      if (approvedUser) {
+        const newUser: UserProfile = {
+          id: approvedUser.id,
+          uid: approvedUser.uid,
+          name: approvedUser.name,
+          email: approvedUser.email,
+          accessLevel: 'Operador', // Default access level
+          permissions: {
+            canViewAllClients: false,
+            canViewAllLeads: false,
+            canViewAllSimulations: false,
+            canViewAllReports: false,
+            canManageUsers: false,
+            canChangeSettings: false,
+          },
+          createdAt: approvedUser.createdAt,
+          stats: {
+            totalClients: 0,
+            totalLeads: 0,
+            totalSimulations: 0,
+            totalSales: 0,
+          },
+        };
+        setUsers([...users, newUser]);
+        setPendingUsers(pendingUsers.filter(u => u.id !== userId));
+      }
+    } catch (error) {
+      console.error('Erro ao aprovar usuário:', error);
+      alert('Erro ao aprovar usuário. Tente novamente.');
+    }
+  };
+
+  const handleRejectUser = async (userId: string) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        status: 'rejected',
+        updatedAt: new Date(),
+      });
+
+      // Remove from pending
+      setPendingUsers(pendingUsers.filter(u => u.id !== userId));
+    } catch (error) {
+      console.error('Erro ao rejeitar usuário:', error);
+      alert('Erro ao rejeitar usuário. Tente novamente.');
     }
   };
 
@@ -188,7 +274,7 @@ export function ControleUsuarios() {
       </div>
 
       <div className="grid gap-6">
-        {filteredUsers.map((user) => (
+{filteredUsers.map((user) => (
           <div key={user.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-4">
@@ -242,7 +328,7 @@ export function ControleUsuarios() {
                       <span>Permissões</span>
                     </h4>
 
-                    {editingUser === user.id ? (
+{editingUser === user.id ? (
                       <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {Object.entries(editPermissions!).map(([key, value]) => (
@@ -304,7 +390,7 @@ export function ControleUsuarios() {
                           </span>
                         ))}
                         <button
-                          onClick={() => handleEditPermissions(user.id, user.permissions)}
+                          onClick={() => handleEditPermissions(user.id, user.permissions, user.accessLevel)}
                           className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors"
                         >
                           <Edit className="w-3 h-3" />

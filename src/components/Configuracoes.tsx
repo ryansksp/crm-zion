@@ -253,7 +253,7 @@ export function Configuracoes() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-gray-600">Versão:</span>
-            <p className="font-medium">Cronos Pro v1.0</p>
+            <p className="font-medium">Zion CRM v1.0</p>
           </div>
           <div>
             <span className="text-gray-600">Último backup:</span>

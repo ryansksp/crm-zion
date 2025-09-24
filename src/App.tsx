@@ -64,6 +64,22 @@ function AppContent() {
 function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
   const { userProfile } = useApp();
 
+  // Check if user is approved
+  if (userProfile && userProfile.status !== 'approved') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md">
+            <h2 className="text-yellow-800 font-semibold mb-2">Conta Pendente de Aprovação</h2>
+            <p className="text-yellow-600 mb-4">
+              Sua conta está aguardando aprovação do diretor. Você receberá acesso assim que for aprovado.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Role-based access control for tabs
   const getAvailableTabs = () => {
     const allTabs = [

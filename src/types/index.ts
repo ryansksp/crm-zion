@@ -26,6 +26,7 @@ export interface UserProfile {
   photoURL?: string;
   phone?: string;
   accessLevel: 'Operador' | 'Gerente' | 'Diretor';
+  status?: 'pending' | 'approved' | 'rejected';
 }
 
 export type EtapaFunil =

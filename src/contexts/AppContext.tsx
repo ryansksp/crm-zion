@@ -102,7 +102,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         email: user.email || '',
         photoURL: user.photoURL || '',
         phone: '',
-        accessLevel: 'Operador'
+        accessLevel: 'Operador',
+        status: 'pending' // Novo campo para controle de aprovação
       };
       await setDoc(docRef, defaultProfile);
       setUserProfile(defaultProfile);
@@ -175,6 +176,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const atualizarUserProfile = async (profile: Partial<UserProfile>) => {
     if (!user) return;
     const docRef = doc(db, 'users', user.uid);
+
+    // Se o nível de acesso foi alterado, atualizar as permissões padrão
+    if (profile.accessLevel) {
+      let newPermissions = {
+        canViewAllClients: false,
+        canViewAllLeads: false,
+        canViewAllSimulations: false,
+        canViewAllReports: false,
+        canManageUsers: false,
+        canChangeSettings: false,
+      };
+
+      if (profile.accessLevel === 'Diretor') {
+        newPermissions = {
+          canViewAllClients: true,
+          canViewAllLeads: true,
+          canViewAllSimulations: true,
+          canViewAllReports: true,
+          canManageUsers: true,
+          canChangeSettings: true,
+        };
+      } else if (profile.accessLevel === 'Gerente') {
+        newPermissions = {
+          canViewAllClients: false,
+          canViewAllLeads: false,
+          canViewAllSimulations: false,
+          canViewAllReports: false,
+          canManageUsers: false,
+          canChangeSettings: true,
+        };
+      }
+
+      // Usar type assertion para evitar erro de propriedade inexistente
+      (profile as any).permissions = newPermissions;
+    }
+
     await updateDoc(docRef, profile);
     setUserProfile(prev => prev ? { ...prev, ...profile } as UserProfile : null);
   };
