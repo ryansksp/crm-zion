@@ -118,9 +118,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
-    // Clientes - Diretores veem todos, outros veem apenas os seus
+    // Clientes - Master e Diretores veem todos, outros veem apenas os seus
     let qClientes;
-    if (userProfile?.accessLevel === 'Diretor') {
+    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor') {
       qClientes = query(collection(db, 'clientes'));
     } else {
       qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
@@ -134,9 +134,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_CLIENTES', payload: clientesFirestore });
     });
 
-    // Planos - Diretores veem todos, outros veem apenas os seus
+    // Planos - Master e Diretores veem todos, outros veem apenas os seus
     let qPlanos;
-    if (userProfile?.accessLevel === 'Diretor') {
+    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor') {
       qPlanos = query(collection(db, 'planos'));
     } else {
       qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
@@ -346,6 +346,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const podeAlterarPermissao = (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => {
     if (!userProfile) return false;
 
+    // Usuários master podem alterar para qualquer nível
+    if (userProfile.isMaster) {
+      return true;
+    }
+
     // Operadores não podem alterar para níveis superiores
     if (userProfile.accessLevel === 'Operador') {
       return false;
@@ -365,7 +370,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const podeGerenciarUsuarios = () => {
-    return userProfile?.accessLevel === 'Diretor';
+    return userProfile?.isMaster || userProfile?.accessLevel === 'Diretor';
   };
 
   return (

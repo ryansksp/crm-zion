@@ -27,6 +27,15 @@ export interface UserProfile {
   phone?: string;
   accessLevel: 'Operador' | 'Gerente' | 'Diretor';
   status?: 'pending' | 'approved' | 'rejected';
+  isMaster?: boolean;
+  permissions?: {
+    canViewAllClients: boolean;
+    canViewAllLeads: boolean;
+    canViewAllSimulations: boolean;
+    canViewAllReports: boolean;
+    canManageUsers: boolean;
+    canChangeSettings: boolean;
+  };
 }
 
 export type EtapaFunil =
