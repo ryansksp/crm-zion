@@ -9,13 +9,17 @@
 - [x] Adicionada navegação para a página "Leads" no menu lateral
 - [x] Integrada a nova página ao sistema de roteamento
 
-## 🔄 Em Andamento
+## ✅ Concluído
 - [x] Implementar sistema de permissões baseado em níveis de acesso
 - [x] Restringir mudanças de permissões apenas para usuários Diretor
 - [x] Bloquear operadores de mudarem para Gerente ou Diretor
 - [x] Corrigir visibilidade de dados para usuários Diretor
 - [x] Adicionar controle de acesso baseado em papéis no App.tsx
-- [ ] Criar interface de gerenciamento de usuários para Diretores
+- [x] Criar interface de gerenciamento de usuários para Diretores
+- [x] Remover aba "Perfil" da sidebar (mantida apenas no header)
+- [x] Adicionar aba "Controle de Usuários" (apenas para Diretores)
+- [x] Implementar controle granular de permissões por usuário
+- [x] Corrigir problema de dados zerados para Diretores
 
 ## 📋 Próximos Passos
 1. Implementar verificações de permissão no Profile.tsx

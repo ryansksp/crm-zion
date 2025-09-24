@@ -117,8 +117,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
-    // Clientes
-    const qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
+    // Clientes - Diretores veem todos, outros veem apenas os seus
+    let qClientes;
+    if (userProfile?.accessLevel === 'Diretor') {
+      qClientes = query(collection(db, 'clientes'));
+    } else {
+      qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
+    }
+
     const unsubscribeClientes = onSnapshot(qClientes, (querySnapshot) => {
       const clientesFirestore: Cliente[] = [];
       querySnapshot.forEach((docSnap) => {
@@ -127,8 +133,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_CLIENTES', payload: clientesFirestore });
     });
 
-    // Planos
-    const qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
+    // Planos - Diretores veem todos, outros veem apenas os seus
+    let qPlanos;
+    if (userProfile?.accessLevel === 'Diretor') {
+      qPlanos = query(collection(db, 'planos'));
+    } else {
+      qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
+    }
+
     const unsubscribePlanos = onSnapshot(qPlanos, (querySnapshot) => {
       const planosFirestore: PlanoEmbracon[] = [];
       querySnapshot.forEach((docSnap) => {
@@ -137,8 +149,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_PLANOS', payload: planosFirestore });
     });
 
-    // Metas
-    const docRefMetas = doc(db, 'metas', user.uid);
+    // Metas - Diretores veem todas, outros veem apenas as suas
+    let docRefMetas;
+    if (userProfile?.accessLevel === 'Diretor') {
+      // Para diretores, vamos carregar metas de todos os usuários
+      // Por enquanto, vamos manter as metas individuais por usuário
+      docRefMetas = doc(db, 'metas', user.uid);
+    } else {
+      docRefMetas = doc(db, 'metas', user.uid);
+    }
+
     const unsubscribeMetas = onSnapshot(docRefMetas, (docSnap) => {
       if (docSnap.exists()) {
         dispatch({ type: 'SET_METAS', payload: docSnap.data() as Meta });
@@ -150,7 +170,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       unsubscribePlanos();
       unsubscribeMetas();
     };
-  }, [user]);
+  }, [user, userProfile]);
 
   const atualizarUserProfile = async (profile: Partial<UserProfile>) => {
     if (!user) return;
@@ -172,7 +192,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const atualizarCliente = async (id: string, cliente: Partial<Cliente>) => {
     if (!user) return;
-    const q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
+
+    let q;
+    if (userProfile?.accessLevel === 'Diretor') {
+      q = query(collection(db, 'clientes'), where('id', '==', id));
+    } else {
+      q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
+    }
+
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       const docRef = querySnapshot.docs[0].ref;
@@ -184,7 +211,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     // Primeiro, buscar o cliente para obter o valor e etapa atual
-    const q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
+    let q;
+    if (userProfile?.accessLevel === 'Diretor') {
+      q = query(collection(db, 'clientes'), where('id', '==', id));
+    } else {
+      q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
+    }
+
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) return;
 
@@ -200,7 +233,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Atualizar o vendidoNoMes se necessário
     if (cliente.valorCredito && (etapaAnterior === 'Venda Ganha' || novaEtapa === 'Venda Ganha')) {
-      const docRefMetas = doc(db, 'metas', user.uid);
+      // Para diretores, atualizar as metas do usuário que criou o cliente
+      // Para outros, atualizar suas próprias metas
+      const userIdParaMetas = userProfile?.accessLevel === 'Diretor' ? cliente.userId : user.uid;
+      const docRefMetas = doc(db, 'metas', userIdParaMetas);
       const docSnap = await getDoc(docRefMetas);
 
       let novasMetas: Partial<Meta> = {};

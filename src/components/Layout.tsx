@@ -25,6 +25,7 @@ const iconMap: { [key: string]: any } = {
   '📈': BarChart3,
   '⚙️': Settings,
   '👤': UserCheck,
+  '👥': Users,
 };
 
 export function Layout({ children, activeTab, onTabChange, availableTabs }: LayoutProps) {

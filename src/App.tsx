@@ -74,7 +74,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
       { key: 'clientes-perdidos', label: 'Clientes Perdidos', icon: '❌' },
       { key: 'desempenho', label: 'Desempenho', icon: '📈' },
       { key: 'configuracoes', label: 'Configurações', icon: '⚙️' },
-      { key: 'profile', label: 'Perfil', icon: '👤' },
+      { key: 'usuarios', label: 'Controle de Usuários', icon: '👥' },
     ];
 
     if (!userProfile) return allTabs;
@@ -83,12 +83,12 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
       case 'Operador':
         // Operadores têm acesso limitado
         return allTabs.filter(tab =>
-          ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos', 'profile'].includes(tab.key)
+          ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos'].includes(tab.key)
         );
       case 'Gerente':
-        // Gerentes têm acesso a quase tudo, exceto configurações avançadas
+        // Gerentes têm acesso a quase tudo, exceto configurações avançadas e controle de usuários
         return allTabs.filter(tab =>
-          tab.key !== 'configuracoes'
+          !['configuracoes', 'usuarios'].includes(tab.key)
         );
       case 'Diretor':
         // Diretores têm acesso completo
@@ -124,6 +124,8 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         return <PainelDesempenho />;
       case 'configuracoes':
         return <Configuracoes />;
+      case 'usuarios':
+        return <ControleUsuarios />;
       case 'profile':
         return <Profile />;
       default:
