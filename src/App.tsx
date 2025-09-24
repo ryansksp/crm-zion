@@ -7,6 +7,7 @@ import { FunilVendas } from './components/FunilVendas';
 import { Simulador } from './components/Simulador';
 import { ClientesAtivos } from './components/ClientesAtivos';
 import { ClientesPerdidos } from './components/ClientesPerdidos';
+import { Leads } from './components/Leads';
 import { PainelDesempenho } from './components/PainelDesempenho';
 import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
@@ -75,6 +76,8 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         return <Dashboard />;
       case 'funil':
         return <FunilVendas />;
+      case 'leads':
+        return <Leads />;
       case 'simulador':
         return <Simulador />;
       case 'clientes-ativos':

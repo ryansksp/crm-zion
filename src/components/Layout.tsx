@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Home, Target, Users, Settings, Calculator, XCircle, LogOut } from 'lucide-react';
+import { Crown, Home, Target, Users, Settings, Calculator, XCircle, LogOut, UserCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
@@ -11,6 +11,7 @@ interface LayoutProps {
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
   { id: 'funil', label: 'Funil de Vendas', icon: Target },
+  { id: 'leads', label: 'Leads', icon: UserCheck },
   { id: 'simulador', label: 'Simulador', icon: Calculator },
   { id: 'clientes-ativos', label: 'Clientes Ativos', icon: Users },
   { id: 'clientes-perdidos', label: 'Clientes Perdidos', icon: XCircle },
