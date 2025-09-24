@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
-import { collection, getDocs, doc, updateDoc, getFirestore } from 'firebase/firestore';
+import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3, Trash2 } from 'lucide-react';
 
 interface UserPermissions {
   canViewAllClients: boolean;
@@ -144,6 +143,37 @@ export function ControleUsuarios() {
     } catch (error) {
       console.error('Erro ao salvar permissões:', error);
       alert('Erro ao salvar permissões. Tente novamente.');
+    }
+  };
+
+  const toggleUserAccess = async (userId: string, currentStatus: boolean) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        active: !currentStatus,
+        updatedAt: new Date(),
+      });
+
+      setUsers(users.map(user =>
+        user.id === userId
+          ? { ...user, active: !currentStatus }
+          : user
+      ));
+    } catch (error) {
+      console.error('Erro ao alterar status do usuário:', error);
+      alert('Erro ao alterar status do usuário. Tente novamente.');
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await userRef.delete();
+
+      setUsers(users.filter(user => user.id !== userId));
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
+      alert('Erro ao excluir usuário. Tente novamente.');
     }
   };
 
