@@ -12,6 +12,7 @@ import { PainelDesempenho } from './components/PainelDesempenho';
 import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
 import { Profile } from './components/Profile';
+import { ControleUsuarios } from './components/ControleUsuarios';
 
 function AppContent() {
   const { user, loading, error, clearError } = useAuth();
