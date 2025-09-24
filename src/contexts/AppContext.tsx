@@ -25,6 +25,9 @@ interface AppContextType extends AppState {
   atualizarUserProfile: (profile: Partial<UserProfile>) => Promise<void>;
   podeAlterarPermissao: (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => boolean;
   podeGerenciarUsuarios: () => boolean;
+
+  clientesPorUsuario: Record<string, Cliente[]>;
+  metasPorUsuario: Record<string, Meta>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -62,6 +65,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { user } = useAuth();
+
+  const [clientesPorUsuario, setClientesPorUsuario] = useState<Record<string, Cliente[]>>({});
+  const [metasPorUsuario, setMetasPorUsuario] = useState<Record<string, Meta>>({});
 
   // Carregar dados do localStorage
   useEffect(() => {
@@ -127,7 +133,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Clientes - Master e Diretores veem todos, outros veem apenas os seus
     let qClientes;
-    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor') {
+    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
       qClientes = query(collection(db, 'clientes'));
     } else {
       qClientes = query(collection(db, 'clientes'), where('userId', '==', user.uid));
@@ -135,15 +141,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const unsubscribeClientes = onSnapshot(qClientes, (querySnapshot) => {
       const clientesFirestore: Cliente[] = [];
+      const clientesPorUser: Record<string, Cliente[]> = {};
       querySnapshot.forEach((docSnap) => {
-        clientesFirestore.push({ id: docSnap.id, ...docSnap.data() } as Cliente);
+        const cliente = { id: docSnap.id, ...docSnap.data() } as Cliente;
+        clientesFirestore.push(cliente);
+        if (!clientesPorUser[cliente.userId]) {
+          clientesPorUser[cliente.userId] = [];
+        }
+        clientesPorUser[cliente.userId].push(cliente);
       });
       dispatch({ type: 'SET_CLIENTES', payload: clientesFirestore });
+      setClientesPorUsuario(clientesPorUser);
     });
 
     // Planos - Master e Diretores veem todos, outros veem apenas os seus
     let qPlanos;
-    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor') {
+    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
       qPlanos = query(collection(db, 'planos'));
     } else {
       qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
@@ -157,20 +170,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_PLANOS', payload: planosFirestore });
     });
 
-    // Metas - Diretores veem todas, outros veem apenas as suas
-    let docRefMetas;
-    if (userProfile?.accessLevel === 'Diretor') {
-      // Para diretores, vamos carregar metas de todos os usuários
-      // Por enquanto, vamos manter as metas individuais por usuário
-      docRefMetas = doc(db, 'metas', user.uid);
+    // Metas - Diretores e Gerentes veem todas, outros veem apenas as suas
+    let metasCollectionRef;
+    if (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
+      metasCollectionRef = collection(db, 'metas');
     } else {
-      docRefMetas = doc(db, 'metas', user.uid);
+      metasCollectionRef = collection(db, 'metas');
     }
 
-    const unsubscribeMetas = onSnapshot(docRefMetas, (docSnap) => {
-      if (docSnap.exists()) {
-        dispatch({ type: 'SET_METAS', payload: docSnap.data() as Meta });
-      }
+    const unsubscribeMetas = onSnapshot(metasCollectionRef, (querySnapshot) => {
+      const metasPorUser: Record<string, Meta> = {};
+      querySnapshot.forEach((docSnap) => {
+        metasPorUser[docSnap.id] = docSnap.data() as Meta;
+      });
+
+      // Agregar metas para exibição geral
+      const metasAgregadas = Object.values(metasPorUser).reduce((acc, meta) => {
+        acc.mensal += meta.mensal || 0;
+        acc.vendidoNoMes += meta.vendidoNoMes || 0;
+        acc.comissaoEstimada += meta.comissaoEstimada || 0;
+        return acc;
+      }, { mensal: 0, vendidoNoMes: 0, comissaoEstimada: 0 });
+
+      dispatch({ type: 'SET_METAS', payload: metasAgregadas });
+      setMetasPorUsuario(metasPorUser);
     });
 
     return () => {
@@ -412,7 +435,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       obterTaxaConversao,
       atualizarUserProfile,
       podeAlterarPermissao,
-      podeGerenciarUsuarios
+      podeGerenciarUsuarios,
+      clientesPorUsuario,
+      metasPorUsuario
     }}>
       {children}
     </AppContext.Provider>
