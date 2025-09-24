@@ -15,6 +15,7 @@
 - [ ] Confirmar que a interface atualiza corretamente após salvar
 - [ ] Testar a nova página de Leads
 - [x] Implementar funcionalidade do botão "Ver Detalhes" na página de Leads
+- [x] Adicionar data de criação do lead no modal de detalhes
 
 ## 📋 Próximos Passos
 1. Teste a atualização das metas na interface

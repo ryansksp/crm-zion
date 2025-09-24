@@ -209,6 +209,10 @@ export function Leads() {
                   <p className="mt-1 text-sm text-gray-900">R$ {selectedCliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Data de Criação</label>
+                  <p className="mt-1 text-sm text-gray-900">{formatarData(selectedCliente.dataCriacao)}</p>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Última Interação</label>
                   <p className="mt-1 text-sm text-gray-900">{formatarData(selectedCliente.dataUltimaInteracao)}</p>
                 </div>

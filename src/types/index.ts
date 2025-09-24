@@ -7,6 +7,7 @@ export interface Cliente {
   valorCredito?: number;
   etapa: EtapaFunil;
   dataUltimaInteracao: string;
+  dataCriacao: string;
   historico: Interacao[];
   simulacoes: Simulacao[];
   dataVenda?: string;
