@@ -152,16 +152,23 @@ export function ControleUsuarios() {
   const toggleUserAccess = async (userId: string, currentStatus: boolean) => {
     try {
       const userRef = doc(db, 'users', userId);
+      // Toggle status between 'approved' and 'pending'
+      const newStatus = currentStatus ? 'pending' : 'approved';
       await updateDoc(userRef, {
-        active: !currentStatus,
+        status: newStatus,
         updatedAt: new Date(),
       });
 
-      setUsers(users.map(user =>
-        user.id === userId
-          ? { ...user, active: !currentStatus }
-          : user
-      ));
+      // Update local state accordingly
+      if (newStatus === 'approved') {
+        // Reload users to reflect status change
+        await loadUsers();
+      } else {
+        // Remove user from approved users list and add to pendingUsers
+        setUsers(users.filter(user => user.id !== userId));
+        // Optionally, reload pending users
+        await loadUsers();
+      }
     } catch (error) {
       console.error('Erro ao alterar status do usuário:', error);
       alert('Erro ao alterar status do usuário. Tente novamente.');
