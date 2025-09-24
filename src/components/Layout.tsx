@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Home, Target, Users, Settings, Calculator, XCircle, LogOut, UserCheck, BarChart3, Activity } from 'lucide-react';
+import { Crown, Users, Settings, Calculator, XCircle, LogOut, UserCheck, BarChart3, Activity } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface Tab {
@@ -29,7 +29,7 @@ const iconMap: { [key: string]: any } = {
 };
 
 export function Layout({ children, activeTab, onTabChange, availableTabs }: LayoutProps) {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -54,7 +54,10 @@ export function Layout({ children, activeTab, onTabChange, availableTabs }: Layo
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => onTabChange('profile')}
+                onClick={() => {
+                  console.log('Profile button clicked');
+                  onTabChange('profile');
+                }}
                 className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 cursor-pointer"
                 title="Perfil"
               >

@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { Cliente, PlanoEmbracon, Meta, Simulacao, UserProfile } from '../types';
 import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
+
 
 interface AppState {
   clientes: Cliente[];
@@ -352,11 +353,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const podeAlterarPermissao = (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => {
     if (!userProfile) return false;
 
-    // Usuários master podem alterar para qualquer nível
-    if (userProfile.isMaster) {
-      return true;
-    }
-
     // Operadores não podem alterar para níveis superiores
     if (userProfile.accessLevel === 'Operador') {
       return false;
@@ -376,7 +372,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const podeGerenciarUsuarios = () => {
-    return userProfile?.isMaster || userProfile?.accessLevel === 'Diretor';
+    return userProfile?.accessLevel === 'Diretor' && userProfile?.status === 'approved';
   };
 
   return (
