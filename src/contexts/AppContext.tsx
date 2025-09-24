@@ -94,7 +94,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const docRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      setUserProfile(docSnap.data() as UserProfile);
+      const data = docSnap.data();
+      // Garantir que isMaster seja lido do banco e incluído no userProfile
+      const userProfileData: UserProfile = {
+        ...(data as UserProfile),
+        isMaster: data.isMaster || false,
+      };
+      setUserProfile(userProfileData);
     } else {
       const defaultProfile: UserProfile = {
         id: user.uid,
