@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Search, Filter, Eye, Phone, Mail, Calendar, DollarSign } from 'lucide-react';
+import { Search, Filter, Eye, Phone, Mail, Calendar, DollarSign, X } from 'lucide-react';
 
 export function Leads() {
   const { clientes } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEtapa, setFilterEtapa] = useState('todos');
+  const [selectedCliente, setSelectedCliente] = useState<any>(null);
 
   // Definir quais etapas são consideradas "leads"
   const etapasLeads = [
@@ -139,7 +140,10 @@ export function Leads() {
                     <Calendar className="w-4 h-4" />
                     <span>Última interação: {formatarData(cliente.dataUltimaInteracao)}</span>
                   </div>
-                  <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors">
+                  <button
+                    onClick={() => setSelectedCliente(cliente)}
+                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors"
+                  >
                     <Eye className="w-4 h-4" />
                     <span>Ver Detalhes</span>
                   </button>
@@ -163,6 +167,101 @@ export function Leads() {
           </div>
         )}
       </div>
+
+      {/* Modal de Detalhes */}
+      {selectedCliente && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Detalhes do Lead</h3>
+              <button
+                onClick={() => setSelectedCliente(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Nome</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.nome}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Telefone</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.telefone}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Etapa</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.etapa}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Plano de Interesse</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.planoInteresse}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Valor do Crédito</label>
+                  <p className="mt-1 text-sm text-gray-900">R$ {selectedCliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Última Interação</label>
+                  <p className="mt-1 text-sm text-gray-900">{formatarData(selectedCliente.dataUltimaInteracao)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {diasInatividade(selectedCliente.dataUltimaInteracao) > 3 ? 'Inativo' : 'Ativo'}
+                  </p>
+                </div>
+              </div>
+
+              {selectedCliente.historico && selectedCliente.historico.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Histórico de Interações</label>
+                  <div className="space-y-2">
+                    {selectedCliente.historico.map((interacao: any, index: number) => (
+                      <div key={index} className="bg-gray-50 p-3 rounded-md">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{interacao.tipo}</p>
+                            <p className="text-sm text-gray-600">{interacao.descricao}</p>
+                          </div>
+                          <p className="text-xs text-gray-500">{formatarData(interacao.data)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedCliente.simulacoes && selectedCliente.simulacoes.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Simulações</label>
+                  <div className="space-y-2">
+                    {selectedCliente.simulacoes.map((simulacao: any, index: number) => (
+                      <div key={index} className="bg-gray-50 p-3 rounded-md">
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="font-medium">Valor do Crédito:</span> R$ {simulacao.valorCredito.toLocaleString('pt-BR')}
+                          </div>
+                          <div>
+                            <span className="font-medium">Parcela:</span> R$ {simulacao.parcela.toLocaleString('pt-BR')}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

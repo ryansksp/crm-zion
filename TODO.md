@@ -14,6 +14,7 @@
 - [ ] Verificar se as mudanças persistem no Firestore
 - [ ] Confirmar que a interface atualiza corretamente após salvar
 - [ ] Testar a nova página de Leads
+- [x] Implementar funcionalidade do botão "Ver Detalhes" na página de Leads
 
 ## 📋 Próximos Passos
 1. Teste a atualização das metas na interface
