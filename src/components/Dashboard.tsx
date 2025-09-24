@@ -1,6 +1,5 @@
-import React from 'react';
 import { useApp } from '../contexts/AppContext';
-import { TrendingUp, Users, Calculator, Target, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 
 export function Dashboard() {
   const { clientes, metas, obterTaxaConversao } = useApp();
@@ -94,19 +93,22 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Meta Mensal</h3>
           <span className="text-sm text-gray-500">
-            R$ {metas.vendidoNoMes.toLocaleString()} / R$ {metas.mensal.toLocaleString()}
+            R$ {(metas?.vendidoNoMes ?? 0).toLocaleString('pt-BR')} / R$ {(metas?.mensal ?? 0).toLocaleString('pt-BR')}
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
           <div 
             className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min((metas.vendidoNoMes / metas.mensal) * 100, 100)}%` }}
+            style={{
+              width: `${Math.min(((metas?.vendidoNoMes ?? 0) / (metas?.mensal || 1)) * 100, 100)}%`
+            }}
           ></div>
         </div>
         <p className="text-sm text-gray-600">
-          {((metas.vendidoNoMes / metas.mensal) * 100).toFixed(1)}% da meta atingida
+          {(((metas?.vendidoNoMes ?? 0) / (metas?.mensal || 1)) * 100).toFixed(1)}% da meta atingida
         </p>
       </div>
+
 
       {/* Alertas de Clientes Inativos */}
       {clientesInativos.length > 0 && (

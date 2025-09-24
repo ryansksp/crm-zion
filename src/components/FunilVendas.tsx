@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Plus, User, Phone, Calendar, AlertTriangle, ChevronLeft, ChevronRight, ArrowRight, DollarSign } from 'lucide-react';
+import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
 import { EtapaFunil } from '../types';
 
 export function FunilVendas() {
-  const { clientes, moverClienteEtapa, adicionarCliente } = useApp();
+  const { clientes, moverClienteEtapa, adicionarCliente} = useApp();
   const [showNovoCliente, setShowNovoCliente] = useState(false);
 
   const etapas: EtapaFunil[] = [
@@ -38,6 +38,7 @@ export function FunilVendas() {
     const formData = new FormData(e.target as HTMLFormElement);
     
     adicionarCliente({
+      userId: crypto.randomUUID(), // ou outra forma de gerar ID único
       nome: formData.get('nome') as string,
       telefone: formData.get('telefone') as string,
       email: formData.get('email') as string,
@@ -47,7 +48,7 @@ export function FunilVendas() {
       dataUltimaInteracao: new Date().toISOString(),
       historico: [],
       simulacoes: []
-    });
+    });    
     
     setShowNovoCliente(false);
   };

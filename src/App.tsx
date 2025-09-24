@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppProvider, useApp } from './contexts/AppContext';
+import { AppProvider} from './contexts/AppContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
@@ -60,14 +60,10 @@ function AppContent() {
 }
 
 function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
-  const { userProfile } = useApp();
 
-  // Define accessible tabs based on accessLevel
-  const accessLevel = userProfile?.accessLevel || 'Operador';
-
-  // TODO: Implement role-based access control for tabs
+  // TODO: Implement role-based access control for tabs based on userProfile?.accessLevel
   // const filteredTabs = tabs.filter(tab => {
-  //   if (tab.key === 'configuracoes' && accessLevel === 'Operador') {
+  //   if (tab.key === 'configuracoes' && userProfile?.accessLevel === 'Operador') {
   //     return false;
   //   }
   //   return true;

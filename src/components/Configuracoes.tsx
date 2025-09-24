@@ -86,10 +86,14 @@ export function Configuracoes() {
           <div className="md:col-span-2">
             <button
               type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              disabled={salvando}
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Atualizar Metas
+              {salvando ? 'Salvando...' : 'Atualizar Metas'}
             </button>
+            {sucesso && (
+              <p className="text-green-600 text-sm mt-2">Metas atualizadas com sucesso!</p>
+            )}
           </div>
         </form>
       </div>
