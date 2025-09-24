@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
-import { collection, query, where, getDocs, doc, updateDoc, getFirestore } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, getFirestore } from 'firebase/firestore';
 
 interface UserPermissions {
   canViewAllClients: boolean;
@@ -115,12 +115,12 @@ export function ControleUsuarios() {
 
   const handleEditPermissions = (userId: string, currentPermissions: UserPermissions, userAccessLevel: 'Operador' | 'Gerente' | 'Diretor') => {
     console.log('handleEditPermissions userProfile.accessLevel:', userProfile?.accessLevel, 'userAccessLevel:', userAccessLevel);
-    // Permitir editar permissões somente se o usuário logado for Diretor e o usuário a ser editado for Operador ou Gerente
-    if (userProfile?.accessLevel === 'Diretor' && (userAccessLevel === 'Operador' || userAccessLevel === 'Gerente')) {
+    // Permitir editar permissões somente se o usuário logado for Diretor
+    if (userProfile?.accessLevel === 'Diretor') {
       setEditingUser(userId);
       setEditPermissions({ ...currentPermissions });
     } else {
-      alert('Apenas usuários com nível Diretor podem alterar permissões de Operador e Gerente.');
+      alert('Apenas usuários com nível Diretor podem alterar permissões.');
     }
   };
 
@@ -161,63 +161,6 @@ export function ControleUsuarios() {
     }
   };
 
-  const handleApproveUser = async (userId: string) => {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        status: 'approved',
-        updatedAt: new Date(),
-      });
-
-      // Move user from pending to approved
-      const approvedUser = pendingUsers.find(u => u.id === userId);
-      if (approvedUser) {
-        const newUser: UserProfile = {
-          id: approvedUser.id,
-          uid: approvedUser.uid,
-          name: approvedUser.name,
-          email: approvedUser.email,
-          accessLevel: 'Operador', // Default access level
-          permissions: {
-            canViewAllClients: false,
-            canViewAllLeads: false,
-            canViewAllSimulations: false,
-            canViewAllReports: false,
-            canManageUsers: false,
-            canChangeSettings: false,
-          },
-          createdAt: approvedUser.createdAt,
-          stats: {
-            totalClients: 0,
-            totalLeads: 0,
-            totalSimulations: 0,
-            totalSales: 0,
-          },
-        };
-        setUsers([...users, newUser]);
-        setPendingUsers(pendingUsers.filter(u => u.id !== userId));
-      }
-    } catch (error) {
-      console.error('Erro ao aprovar usuário:', error);
-      alert('Erro ao aprovar usuário. Tente novamente.');
-    }
-  };
-
-  const handleRejectUser = async (userId: string) => {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        status: 'rejected',
-        updatedAt: new Date(),
-      });
-
-      // Remove from pending
-      setPendingUsers(pendingUsers.filter(u => u.id !== userId));
-    } catch (error) {
-      console.error('Erro ao rejeitar usuário:', error);
-      alert('Erro ao rejeitar usuário. Tente novamente.');
-    }
-  };
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -239,6 +182,39 @@ export function ControleUsuarios() {
       </div>
     );
   }
+
+  // Funções para aprovar ou rejeitar usuários pendentes
+  const handleApproveUser = async (userId: string) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        status: 'approved',
+        updatedAt: new Date(),
+      });
+      // Atualizar localmente para refletir a mudança
+      setPendingUsers(pendingUsers.filter(user => user.id !== userId));
+      await loadUsers();
+    } catch (error) {
+      console.error('Erro ao aprovar usuário:', error);
+      alert('Erro ao aprovar usuário. Tente novamente.');
+    }
+  };
+
+  const handleRejectUser = async (userId: string) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        status: 'rejected',
+        updatedAt: new Date(),
+      });
+      // Atualizar localmente para refletir a mudança
+      setPendingUsers(pendingUsers.filter(user => user.id !== userId));
+      await loadUsers();
+    } catch (error) {
+      console.error('Erro ao rejeitar usuário:', error);
+      alert('Erro ao rejeitar usuário. Tente novamente.');
+    }
+  };
 
   if (loading) {
     return (
@@ -422,6 +398,44 @@ export function ControleUsuarios() {
               : 'Os usuários aparecerão aqui conforme se cadastrarem no sistema'
             }
           </p>
+        </div>
+      )}
+
+      {/* Lista de usuários pendentes */}
+      {pendingUsers.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Usuários Pendentes</h2>
+          <div className="grid gap-6">
+            {pendingUsers.map((user) => (
+              <div key={user.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span className="text-gray-600 font-semibold text-lg">
+                      {user.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                    <p className="text-gray-600">{user.email}</p>
+                  </div>
+                </div>
+                <div className="space-x-2">
+                  <button
+                    onClick={() => handleApproveUser(user.id)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    Aprovar
+                  </button>
+                  <button
+                    onClick={() => handleRejectUser(user.id)}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    Rejeitar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
