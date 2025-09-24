@@ -22,7 +22,6 @@ interface AppContextType extends AppState {
   adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => Promise<void>;
   obterClientesAtivos: () => Cliente[];
   obterTaxaConversao: () => number;
-  carregarUserProfile: () => Promise<void>;
   atualizarUserProfile: (profile: Partial<UserProfile>) => Promise<void>;
   podeAlterarPermissao: (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => boolean;
   podeGerenciarUsuarios: () => boolean;
@@ -411,7 +410,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       adicionarSimulacao,
       obterClientesAtivos,
       obterTaxaConversao,
-      carregarUserProfile,
       atualizarUserProfile,
       podeAlterarPermissao,
       podeGerenciarUsuarios
