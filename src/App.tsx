@@ -96,23 +96,43 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
 
     if (!userProfile) return allTabs;
 
-    switch (userProfile.accessLevel) {
-      case 'Operador':
-        // Operadores têm acesso limitado
-        return allTabs.filter(tab =>
-          ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos'].includes(tab.key)
-        );
-      case 'Gerente':
-        // Gerentes têm acesso a quase tudo, exceto configurações avançadas e controle de usuários
-        return allTabs.filter(tab =>
-          !['configuracoes', 'usuarios'].includes(tab.key)
-        );
-      case 'Diretor':
-        // Diretores têm acesso completo
-        return allTabs;
-      default:
-        return allTabs;
+    const perms = userProfile.permissions;
+
+    if (!perms) {
+      switch (userProfile.accessLevel) {
+        case 'Operador':
+          return allTabs.filter(tab =>
+            ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos'].includes(tab.key)
+          );
+        case 'Gerente':
+          return allTabs.filter(tab =>
+            !['configuracoes', 'usuarios'].includes(tab.key)
+          );
+        case 'Diretor':
+          return allTabs;
+        default:
+          return allTabs;
+      }
     }
+
+    return allTabs.filter(tab => {
+      switch (tab.key) {
+        case 'dashboard':
+        case 'funil':
+        case 'leads':
+        case 'simulador':
+        case 'clientes-ativos':
+        case 'clientes-perdidos':
+        case 'desempenho':
+          return perms.canViewAllClients || perms.canViewAllLeads || perms.canViewAllSimulations || perms.canViewAllReports;
+        case 'configuracoes':
+          return perms.canChangeSettings;
+        case 'usuarios':
+          return perms.canManageUsers;
+        default:
+          return true;
+      }
+    });
   };
 
   const availableTabs = getAvailableTabs();
