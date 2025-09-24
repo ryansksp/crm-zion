@@ -179,10 +179,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const moverClienteEtapa = async (id: string, novaEtapa: Cliente['etapa']) => {
-    await atualizarCliente(id, { 
-      etapa: novaEtapa, 
-      dataUltimaInteracao: new Date().toISOString() 
+    if (!user) return;
+
+    // Primeiro, buscar o cliente para obter o valor
+    const q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) return;
+
+    const clienteDoc = querySnapshot.docs[0];
+    const cliente = { id: clienteDoc.id, ...clienteDoc.data() } as Cliente;
+
+    // Atualizar a etapa do cliente
+    await atualizarCliente(id, {
+      etapa: novaEtapa,
+      dataUltimaInteracao: new Date().toISOString()
     });
+
+    // Se a nova etapa for 'Venda Ganha', atualizar o vendidoNoMes
+    if (novaEtapa === 'Venda Ganha' && cliente.valorCredito) {
+      const docRefMetas = doc(db, 'metas', user.uid);
+      const docSnap = await getDoc(docRefMetas);
+
+      let novasMetas: Partial<Meta> = { vendidoNoMes: cliente.valorCredito };
+
+      if (docSnap.exists()) {
+        const metasAtuais = docSnap.data() as Meta;
+        novasMetas.vendidoNoMes = (metasAtuais.vendidoNoMes || 0) + cliente.valorCredito;
+      }
+
+      await setDoc(docRefMetas, novasMetas, { merge: true });
+    }
   };
 
   const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => {

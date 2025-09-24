@@ -3,6 +3,7 @@
 ## ✅ Concluído
 - [x] Corrigido o campo `comissaoEstimada` em `Configuracoes.tsx` para ser controlado (adicionado `value` e `onChange`)
 - [x] Adicionado tratamento de erro na função `atualizarMetas` em `AppContext.tsx`
+- [x] Modificado `moverClienteEtapa` para atualizar `vendidoNoMes` quando uma venda é ganha
 
 ## 🔄 Em Andamento
 - [ ] Testar a funcionalidade de atualização das metas
