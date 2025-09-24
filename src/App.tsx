@@ -116,7 +116,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
   };
 
   const availableTabs = getAvailableTabs();
-  const currentTabExists = availableTabs.some(tab => tab.key === activeTab);
+  const currentTabExists = availableTabs.some(tab => tab.key === activeTab) || activeTab === 'profile';
 
   // Redirect to dashboard if current tab is not available
   if (!currentTabExists && availableTabs.length > 0) {

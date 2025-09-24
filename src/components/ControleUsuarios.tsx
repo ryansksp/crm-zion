@@ -40,6 +40,9 @@ interface PendingUser {
 
 export function ControleUsuarios() {
   const { userProfile, podeGerenciarUsuarios } = useApp();
+
+  console.log('ControleUsuarios userProfile:', userProfile);
+
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +113,8 @@ export function ControleUsuarios() {
     }
   };
 
-const handleEditPermissions = (userId: string, currentPermissions: UserPermissions, userAccessLevel: 'Operador' | 'Gerente' | 'Diretor') => {
+  const handleEditPermissions = (userId: string, currentPermissions: UserPermissions, userAccessLevel: 'Operador' | 'Gerente' | 'Diretor') => {
+    console.log('handleEditPermissions userProfile.accessLevel:', userProfile?.accessLevel, 'userAccessLevel:', userAccessLevel);
     // Permitir editar permissões somente se o usuário logado for Diretor e o usuário a ser editado for Operador ou Gerente
     if (userProfile?.accessLevel === 'Diretor' && (userAccessLevel === 'Operador' || userAccessLevel === 'Gerente')) {
       setEditingUser(userId);
