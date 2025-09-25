@@ -76,21 +76,28 @@ export function ControleUsuarios() {
         if (data.status === 'approved') {
           // Calcular estatísticas reais do usuário
           const userId = data.uid;
+          console.log(`Processando usuário: ${data.name || 'Unknown'} (UID: ${userId})`);
+          
           const clientsQuery = collection(db, 'clientes');
           const clientsSnapshot = await getDocs(clientsQuery);
           let totalClients = 0;
           let totalLeads = 0;
           let totalSales = 0;
           const clientIds: string[] = [];
+          let matchingClients = 0;
           clientsSnapshot.forEach((clientDoc) => {
             const client = clientDoc.data();
+            console.log(`Cliente ID: ${clientDoc.id}, userId: "${client.userId}", etapa: "${client.etapa}", comparando com userId: "${userId}"`);
             if (client.userId === userId) {
+              matchingClients++;
               totalClients++;
               clientIds.push(client.id);
               if (client.etapa === 'Lead') totalLeads++;
               if (client.etapa === 'Venda Ganha') totalSales++;
+              console.log(`Match encontrado! Total clients: ${totalClients}, Leads: ${totalLeads}, Sales: ${totalSales}`);
             }
           });
+          console.log(`Total matching clients para ${data.name}: ${matchingClients}, Final stats: clients=${totalClients}, leads=${totalLeads}, sales=${totalSales}`);
 
           const simulationsQuery = collection(db, 'simulacoes');
           const simulationsSnapshot = await getDocs(simulationsQuery);
@@ -99,6 +106,7 @@ export function ControleUsuarios() {
             const sim = simDoc.data();
             if (clientIds.includes(sim.clienteId)) totalSimulations++;
           });
+          console.log(`Total simulations para ${data.name}: ${totalSimulations}`);
 
           usersData.push({
             id: docSnap.id,
@@ -138,6 +146,7 @@ export function ControleUsuarios() {
 
       setUsers(usersData);
       setPendingUsers(pendingUsersData);
+      console.log('Usuários carregados:', usersData.map(u => ({ name: u.name, stats: u.stats })));
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
     } finally {
