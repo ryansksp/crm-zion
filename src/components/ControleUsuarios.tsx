@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+ import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
 import { collection, getDocs, doc, updateDoc, deleteDoc, getFirestore } from 'firebase/firestore';
@@ -67,36 +67,60 @@ export function ControleUsuarios() {
 
       const usersData: UserProfile[] = [];
       const pendingUsersData: PendingUser[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+      for (const docSnap of querySnapshot.docs) {
+        const data = docSnap.data();
         if (data.status === 'approved') {
-      usersData.push({
-        id: doc.id,
-        uid: data.uid,
-        name: data.name || '',
-        email: data.email || '',
-        accessLevel: data.accessLevel || 'Operador',
-        permissions: data.permissions || {
-          canViewAllClients: data.accessLevel === 'Diretor',
-          canViewAllLeads: data.accessLevel === 'Diretor',
-          canViewAllSimulations: data.accessLevel === 'Diretor',
-          canViewAllReports: data.accessLevel === 'Diretor',
-          canManageUsers: data.accessLevel === 'Diretor',
-          canChangeSettings: data.accessLevel !== 'Operador',
-        },
-        createdAt: data.createdAt?.toDate() || new Date(),
-        lastLogin: data.lastLogin?.toDate(),
-        active: data.active !== false,
-        stats: data.stats || {
-          totalClients: 0,
-          totalLeads: 0,
-          totalSimulations: 0,
-          totalSales: 0,
-        },
-      });
+          // Calcular estatísticas reais do usuário
+          const userId = data.uid;
+          const clientsQuery = collection(db, 'clientes');
+          const clientsSnapshot = await getDocs(clientsQuery);
+          let totalClients = 0;
+          let totalLeads = 0;
+          let totalSales = 0;
+          clientsSnapshot.forEach((clientDoc) => {
+            const client = clientDoc.data();
+            if (client.userId === userId) {
+              totalClients++;
+              if (client.etapa === 'Lead') totalLeads++;
+              if (client.etapa === 'Venda Ganha') totalSales++;
+            }
+          });
+
+          const simulationsQuery = collection(db, 'simulacoes');
+          const simulationsSnapshot = await getDocs(simulationsQuery);
+          let totalSimulations = 0;
+          simulationsSnapshot.forEach((simDoc) => {
+            const sim = simDoc.data();
+            if (sim.userId === userId) totalSimulations++;
+          });
+
+          usersData.push({
+            id: docSnap.id,
+            uid: data.uid,
+            name: data.name || '',
+            email: data.email || '',
+            accessLevel: data.accessLevel || 'Operador',
+            permissions: data.permissions || {
+              canViewAllClients: data.accessLevel === 'Diretor',
+              canViewAllLeads: data.accessLevel === 'Diretor',
+              canViewAllSimulations: data.accessLevel === 'Diretor',
+              canViewAllReports: data.accessLevel === 'Diretor',
+              canManageUsers: data.accessLevel === 'Diretor',
+              canChangeSettings: data.accessLevel !== 'Operador',
+            },
+            createdAt: data.createdAt?.toDate() || new Date(),
+            lastLogin: data.lastLogin?.toDate(),
+            active: data.active !== false,
+            stats: {
+              totalClients,
+              totalLeads,
+              totalSimulations,
+              totalSales,
+            },
+          });
         } else if (data.status === 'pending') {
           pendingUsersData.push({
-            id: doc.id,
+            id: docSnap.id,
             uid: data.uid,
             name: data.name || '',
             email: data.email || '',
@@ -104,7 +128,7 @@ export function ControleUsuarios() {
             status: 'pending',
           });
         }
-      });
+      }
 
       setUsers(usersData);
       setPendingUsers(pendingUsersData);

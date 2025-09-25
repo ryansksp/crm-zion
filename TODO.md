@@ -25,6 +25,11 @@
 - [x] Implementar verificações de permissão no Profile.tsx
 - [x] Adicionar controle de acesso no App.tsx
 
-## 📋 Próximos Passos
-1. Testar visibilidade de dados para diferentes níveis
-2. Verificar se as restrições funcionam corretamente
+## ✅ Concluído
+- [x] Removido 'Perfil' da sidebar, mantido apenas no header
+- [x] Implementado cálculo de estatísticas individuais em Controle de Usuários
+- [x] Diretores podem alterar nível de acesso no perfil
+
+## ✅ Concluído
+- [x] Testar visibilidade de dados para diferentes níveis
+- [x] Verificar se as restrições funcionam corretamente
