@@ -359,9 +359,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
+    if (!user) return;
     const novaSimulacao: Simulacao = {
       ...simulacao,
       id: Date.now().toString(),
+      userId: user.uid,
     };
     dispatch({ type: 'ADICIONAR_SIMULACAO', payload: novaSimulacao });
   };
@@ -421,7 +423,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const podeGerenciarUsuarios = () => {
-    return userProfile?.accessLevel === 'Diretor' && userProfile?.status === 'approved';
+    return (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') && userProfile?.status === 'approved';
   };
 
   return (

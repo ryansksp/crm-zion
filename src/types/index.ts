@@ -73,6 +73,7 @@ export interface Simulacao {
   valorCredito: number;
   parcela: number;
   dataSimulacao: string;
+  userId: string;
   analiselance?: {
     percentualLance: number;
     novoVencimento: number;

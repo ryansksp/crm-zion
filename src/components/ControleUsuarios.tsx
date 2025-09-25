@@ -81,10 +81,12 @@ export function ControleUsuarios() {
           let totalClients = 0;
           let totalLeads = 0;
           let totalSales = 0;
+          const clientIds: string[] = [];
           clientsSnapshot.forEach((clientDoc) => {
             const client = clientDoc.data();
             if (client.userId === userId) {
               totalClients++;
+              clientIds.push(client.id);
               if (client.etapa === 'Lead') totalLeads++;
               if (client.etapa === 'Venda Ganha') totalSales++;
             }
@@ -95,7 +97,7 @@ export function ControleUsuarios() {
           let totalSimulations = 0;
           simulationsSnapshot.forEach((simDoc) => {
             const sim = simDoc.data();
-            if (sim.userId === userId) totalSimulations++;
+            if (clientIds.includes(sim.clienteId)) totalSimulations++;
           });
 
           usersData.push({
