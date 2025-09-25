@@ -17,6 +17,7 @@ interface UserProfile {
   uid: string;
   name: string;
   email: string;
+  phone?: string;
   accessLevel: 'Operador' | 'Gerente' | 'Diretor';
   permissions: UserPermissions;
   createdAt: Date;
@@ -48,6 +49,9 @@ export function ControleUsuarios() {
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editAccessLevel, setEditAccessLevel] = useState<'Operador' | 'Gerente' | 'Diretor'>('Operador');
   const [editPermissions, setEditPermissions] = useState<UserPermissions | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -139,21 +143,27 @@ export function ControleUsuarios() {
     }
   };
 
-  const handleEditPermissions = (userId: string, currentPermissions: UserPermissions, userAccessLevel: 'Operador' | 'Gerente' | 'Diretor') => {
-    console.log('handleEditPermissions userProfile.accessLevel:', userProfile?.accessLevel, 'userAccessLevel:', userAccessLevel);
-    // Permitir editar permissões somente se o usuário logado for Diretor
+  const handleEditUser = (user: UserProfile) => {
+    console.log('handleEditUser userProfile.accessLevel:', userProfile?.accessLevel);
+    // Permitir editar usuário somente se o usuário logado for Diretor
     if (userProfile?.accessLevel === 'Diretor') {
-      setEditingUser(userId);
-      setEditPermissions({ ...currentPermissions });
+      setEditingUser(user.id);
+      setEditName(user.name);
+      setEditPhone(user.phone || '');
+      setEditAccessLevel(user.accessLevel);
+      setEditPermissions({ ...user.permissions });
     } else {
-      alert('Apenas usuários com nível Diretor podem alterar permissões.');
+      alert('Apenas usuários com nível Diretor podem editar usuários.');
     }
   };
 
-  const handleSavePermissions = async (userId: string) => {
+  const handleSaveUser = async (userId: string) => {
     try {
       const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, {
+        name: editName,
+        phone: editPhone,
+        accessLevel: editAccessLevel,
         permissions: editPermissions,
         updatedAt: new Date(),
       });
@@ -161,15 +171,24 @@ export function ControleUsuarios() {
       // Atualizar estado local
       setUsers(users.map(user =>
         user.id === userId
-          ? { ...user, permissions: editPermissions! }
+          ? {
+              ...user,
+              name: editName,
+              phone: editPhone,
+              accessLevel: editAccessLevel,
+              permissions: editPermissions!
+            }
           : user
       ));
 
       setEditingUser(null);
+      setEditName('');
+      setEditPhone('');
+      setEditAccessLevel('Operador');
       setEditPermissions(null);
     } catch (error) {
-      console.error('Erro ao salvar permissões:', error);
-      alert('Erro ao salvar permissões. Tente novamente.');
+      console.error('Erro ao salvar usuário:', error);
+      alert('Erro ao salvar usuário. Tente novamente.');
     }
   };
 
@@ -213,6 +232,9 @@ export function ControleUsuarios() {
 
   const handleCancelEdit = () => {
     setEditingUser(null);
+    setEditName('');
+    setEditPhone('');
+    setEditAccessLevel('Operador');
     setEditPermissions(null);
   };
 
@@ -373,30 +395,65 @@ export function ControleUsuarios() {
                     </h4>
 
 {editingUser === user.id ? (
-                      <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {Object.entries(editPermissions!).map(([key, value]) => (
-                            <label key={key} className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={value}
-                                onChange={(e) => handlePermissionChange(key as keyof UserPermissions, e.target.checked)}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm text-gray-700">
-                                {key === 'canViewAllClients' && 'Ver todos os clientes'}
-                                {key === 'canViewAllLeads' && 'Ver todos os leads'}
-                                {key === 'canViewAllSimulations' && 'Ver todas as simulações'}
-                                {key === 'canViewAllReports' && 'Ver relatórios completos'}
-                                {key === 'canManageUsers' && 'Gerenciar usuários'}
-                                {key === 'canChangeSettings' && 'Alterar configurações'}
-                              </span>
-                            </label>
-                          ))}
+                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                            <input
+                              type="text"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                            <input
+                              type="text"
+                              value={editPhone}
+                              onChange={(e) => setEditPhone(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nível de Acesso</label>
+                            <select
+                              value={editAccessLevel}
+                              onChange={(e) => setEditAccessLevel(e.target.value as 'Operador' | 'Gerente' | 'Diretor')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                              <option value="Operador">Operador</option>
+                              <option value="Gerente">Gerente</option>
+                              <option value="Diretor">Diretor</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <h5 className="text-sm font-medium text-gray-700 mb-2">Permissões</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(editPermissions!).map(([key, value]) => (
+                              <label key={key} className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  checked={value}
+                                  onChange={(e) => handlePermissionChange(key as keyof UserPermissions, e.target.checked)}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">
+                                  {key === 'canViewAllClients' && 'Ver todos os clientes'}
+                                  {key === 'canViewAllLeads' && 'Ver todos os leads'}
+                                  {key === 'canViewAllSimulations' && 'Ver todas as simulações'}
+                                  {key === 'canViewAllReports' && 'Ver relatórios completos'}
+                                  {key === 'canManageUsers' && 'Gerenciar usuários'}
+                                  {key === 'canChangeSettings' && 'Alterar configurações'}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
                         </div>
                         <div className="flex space-x-2 pt-2">
                           <button
-                            onClick={() => handleSavePermissions(user.id)}
+                            onClick={() => handleSaveUser(user.id)}
                             className="flex items-center space-x-2 px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                           >
                             <Save className="w-4 h-4" />
@@ -434,7 +491,7 @@ export function ControleUsuarios() {
                           </span>
                         ))}
                         <button
-                          onClick={() => handleEditPermissions(user.id, user.permissions, user.accessLevel)}
+                          onClick={() => handleEditUser(user)}
                           className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors"
                         >
                           <Edit className="w-3 h-3" />
