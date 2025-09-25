@@ -92,6 +92,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
       { key: 'desempenho', label: 'Desempenho', icon: '📈' },
       { key: 'configuracoes', label: 'Configurações', icon: '⚙️' },
       { key: 'usuarios', label: 'Controle de Usuários', icon: '👥' },
+      { key: 'profile', label: 'Perfil', icon: '👤' },
     ];
 
     if (!userProfile) return allTabs;

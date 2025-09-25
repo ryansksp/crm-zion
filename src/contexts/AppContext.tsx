@@ -216,6 +216,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         canViewAllReports: false,
         canManageUsers: false,
         canChangeSettings: false,
+        canEditProfile: false,
       };
 
       if (profile.accessLevel === 'Diretor') {
@@ -226,6 +227,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           canViewAllReports: true,
           canManageUsers: true,
           canChangeSettings: true,
+          canEditProfile: true,
         };
       } else if (profile.accessLevel === 'Gerente') {
         newPermissions = {
@@ -235,6 +237,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           canViewAllReports: false,
           canManageUsers: false,
           canChangeSettings: true,
+          canEditProfile: true,
         };
       }
 

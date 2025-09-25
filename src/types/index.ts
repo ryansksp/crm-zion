@@ -35,6 +35,7 @@ export interface UserProfile {
     canViewAllReports: boolean;
     canManageUsers: boolean;
     canChangeSettings: boolean;
+    canEditProfile: boolean;
   };
 }
 

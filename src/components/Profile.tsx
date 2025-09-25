@@ -31,6 +31,12 @@ export function Profile() {
   };
 
   const handleSave = async () => {
+    if (!userProfile) return;
+    // Verificar se a mudança de accessLevel é permitida
+    if (formData.accessLevel !== userProfile.accessLevel && !podeAlterarPermissao(formData.accessLevel)) {
+      setError('Você não tem permissão para alterar para este nível de acesso.');
+      return;
+    }
     await atualizarUserProfile(formData);
     setEditMode(false);
   };
@@ -93,7 +99,7 @@ export function Profile() {
               <Shield className="w-4 h-4 text-blue-600" />
             )}
           </label>
-          {editMode ? (
+          {editMode && (userProfile.permissions?.canEditProfile || userProfile.accessLevel === 'Diretor') ? (
             <div className="space-y-2">
               <select
                 name="accessLevel"
@@ -110,12 +116,8 @@ export function Profile() {
                 className="w-full border border-gray-300 rounded px-3 py-2"
               >
                 <option value="Operador">Operador</option>
-                <option value="Gerente" disabled={userProfile.accessLevel === 'Operador'}>
-                  Gerente {userProfile.accessLevel === 'Operador' ? '(Bloqueado)' : ''}
-                </option>
-                <option value="Diretor" disabled={userProfile.accessLevel !== 'Diretor'}>
-                  Diretor {userProfile.accessLevel !== 'Diretor' ? '(Bloqueado)' : ''}
-                </option>
+                <option value="Gerente">Gerente</option>
+                <option value="Diretor">Diretor</option>
               </select>
               {error && (
                 <div className="flex items-center space-x-2 text-red-600 text-sm">
