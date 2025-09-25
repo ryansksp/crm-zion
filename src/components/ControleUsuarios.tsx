@@ -73,9 +73,9 @@ export function ControleUsuarios() {
       const pendingUsersData: PendingUser[] = [];
       for (const docSnap of querySnapshot.docs) {
         const data = docSnap.data();
+        const userId = docSnap.id; // Use document ID as UID
         if (data.status === 'approved') {
           // Calcular estatísticas reais do usuário
-          const userId = data.uid;
           console.log(`Processando usuário: ${data.name || 'Unknown'} (UID: ${userId})`);
           
           const clientsQuery = collection(db, 'clientes');
@@ -110,7 +110,7 @@ export function ControleUsuarios() {
 
           usersData.push({
             id: docSnap.id,
-            uid: data.uid,
+            uid: userId,
             name: data.name || '',
             email: data.email || '',
             accessLevel: data.accessLevel || 'Operador',
@@ -135,7 +135,7 @@ export function ControleUsuarios() {
         } else if (data.status === 'pending') {
           pendingUsersData.push({
             id: docSnap.id,
-            uid: data.uid,
+            uid: userId,
             name: data.name || '',
             email: data.email || '',
             createdAt: data.createdAt?.toDate() || new Date(),
