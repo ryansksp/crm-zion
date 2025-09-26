@@ -12,6 +12,15 @@ export function Configuracoes() {
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
+  const categorias = ['Auto', 'Imóveis', 'Serviços'];
+
+  const planosPorCategoria = planos.reduce((acc: Record<string, PlanoEmbracon[]>, plano) => {
+    const cat = plano.categoria || 'Outros';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(plano);
+    return acc;
+  }, {});
+
   useEffect(() => {
     setMetaMensal(metas.mensal);
   }, [metas]);
@@ -19,32 +28,34 @@ export function Configuracoes() {
   const handleNovoPlano = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     adicionarPlano({
       nome: formData.get('nome') as string,
+      categoria: formData.get('categoria') as string,
       prazo: Number(formData.get('prazo')),
       taxaAdministracao: Number(formData.get('taxaAdministracao')),
       fundoReserva: Number(formData.get('fundoReserva')),
       seguro: Number(formData.get('seguro'))
     });
-    
+
     setShowNovoPlano(false);
   };
 
   const handleEditarPlano = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPlano) return;
-    
+
     const formData = new FormData(e.target as HTMLFormElement);
-    
+
     await atualizarPlano(editingPlano.id, {
       nome: formData.get('nome') as string,
+      categoria: formData.get('categoria') as string,
       prazo: Number(formData.get('prazo')),
       taxaAdministracao: Number(formData.get('taxaAdministracao')),
       fundoReserva: Number(formData.get('fundoReserva')),
       seguro: Number(formData.get('seguro'))
     });
-    
+
     setEditingPlano(null);
   };
 
@@ -124,41 +135,48 @@ export function Configuracoes() {
           </button>
         </div>
 
-        <div className="space-y-4">
-          {planos.map(plano => (
-            <div key={plano.id} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex justify-between items-start mb-3">
-                <h4 className="font-semibold text-gray-900">{plano.nome}</h4>
-                <div className="flex space-x-2">
-                  <button 
-                    onClick={() => setEditingPlano(plano)}
-                    className="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button className="text-red-600 hover:text-red-800 transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-600">Prazo:</span>
-                  <p className="font-medium">{plano.prazo} meses</p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Taxa Admin:</span>
-                  <p className="font-medium">{plano.taxaAdministracao}%</p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Fundo Reserva:</span>
-                  <p className="font-medium">{plano.fundoReserva}%</p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Seguro:</span>
-                  <p className="font-medium">{plano.seguro}%</p>
-                </div>
+        <div className="space-y-6">
+          {Object.entries(planosPorCategoria).map(([categoria, planosCategoria]) => (
+            <div key={categoria}>
+              <h4 className="text-md font-semibold text-gray-800 mb-3 border-b pb-1">{categoria}</h4>
+              <div className="space-y-4 mb-6">
+                {planosCategoria.map(plano => (
+                  <div key={plano.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <h5 className="font-medium text-gray-900">{plano.nome}</h5>
+                      <div className="flex space-x-2">
+                        <button 
+                          onClick={() => setEditingPlano(plano)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button className="text-red-600 hover:text-red-800 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Prazo:</span>
+                        <p className="font-medium">{plano.prazo} meses</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Taxa Admin:</span>
+                        <p className="font-medium">{plano.taxaAdministracao}%</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Fundo Reserva:</span>
+                        <p className="font-medium">{plano.fundoReserva}%</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Seguro:</span>
+                        <p className="font-medium">{plano.seguro}%</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -188,6 +206,20 @@ export function Configuracoes() {
                   placeholder="Ex: Plano Mais por Menos - Auto"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <select
+                  name="categoria"
+                  required
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione uma categoria</option>
+                  {categorias.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
               
               <div>
@@ -274,6 +306,21 @@ export function Configuracoes() {
                   defaultValue={editingPlano.nome}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <select
+                  name="categoria"
+                  required
+                  defaultValue={editingPlano.categoria || ''}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione uma categoria</option>
+                  {categorias.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
               
               <div>

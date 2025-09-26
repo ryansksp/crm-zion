@@ -59,6 +59,7 @@ export interface Interacao {
 export interface PlanoEmbracon {
   id: string;
   nome: string;
+  categoria: string; // Ex: 'Auto', 'Imóveis', 'Serviços'
   prazo: number; // em meses
   taxaAdministracao: number; // percentual
   fundoReserva: number; // percentual

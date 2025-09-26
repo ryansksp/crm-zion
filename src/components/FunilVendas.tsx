@@ -10,6 +10,13 @@ export function FunilVendas() {
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
+  const planosPorCategoria = planos.reduce((acc: Record<string, typeof planos>, plano) => {
+    const cat = plano.categoria || 'Outros';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(plano);
+    return acc;
+  }, {});
+
   const db = getFirestore();
 
   useEffect(() => {
@@ -244,10 +251,14 @@ export function FunilVendas() {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecione um plano</option>
-                  {planos.map((plano) => (
-                    <option key={plano.id} value={plano.nome}>
-                      {plano.nome}
-                    </option>
+                  {Object.entries(planosPorCategoria).map(([categoria, planosCategoria]) => (
+                    <optgroup key={categoria} label={categoria}>
+                      {planosCategoria.map((plano) => (
+                        <option key={plano.id} value={plano.nome}>
+                          {plano.nome}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>
