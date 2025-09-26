@@ -1,24 +1,40 @@
-# TODO - Migração Completa para Firestore
+# TODO: Fix Save Button for Meta and Remove Comissao Estimada
 
-## ✅ Concluído
-- [x] Adicionar `userId` ao tipo `Simulacao` em `src/types/index.ts`
-- [x] Atualizar `adicionarSimulacao` em `src/contexts/AppContext.tsx` para definir `userId`
-- [x] Permitir acesso de Gerentes ao Controle de Usuários em `src/contexts/AppContext.tsx`
-- [x] Corrigir cálculo de simulações em `src/components/ControleUsuarios.tsx` para filtrar por `clienteId` dos clientes do usuário
-- [x] Adicionar logs de debug no console para investigar mismatch de userId e cálculo de métricas
-- [x] Corrigir uso de userId para docSnap.id (ID do documento) em vez de data.uid, garantindo match com client.userId
-- [x] Adicionar nome do vendedor no Funil de Vendas (exibido em cada cliente)
-- [x] Adicionar métricas "Total Vendido" (soma valorCredito de Venda Ganha) e "Perdidos" (contagem de Venda Perdida) no Controle de Usuários
-- [x] Adicionar filtro segmentado por vendedor no Funil de Vendas (dropdown com nomes de usuários)
-- [x] Remover todos os usos de localStorage em AppContext.tsx
-- [x] Migrar simulacoes para Firestore com onSnapshot real-time
-- [x] Garantir que adicionarSimulacao salva diretamente no Firestore
+## Steps to Complete:
 
-## Próximos Passos
-- [ ] Usuário testar app: verificar que dados persistem no Firestore (clientes, planos, metas, simulacoes)
-- [ ] Confirmar que não há mais dependência de localStorage (recarregar página)
-- [ ] Se OK, remover logs de debug se ainda presentes
-- [ ] Testar acesso de Gerente ao Controle de Usuários
-- [ ] Verificar métricas para outros usuários e simulações
-- [ ] Teste de adição de nova simulação para confirmar userId salvo no Firestore
-- [ ] Casos de borda: usuários sem dados, busca, recarregamento
+1. **Update Configuracoes.tsx - Add Error Handling**  
+   - Add try-catch block in `handleAtualizarMetas` to catch errors from `atualizarMetas`.  
+   - Ensure `setSalvando(false)` is called in both success and error cases.  
+   - Optionally, show an error message if the save fails.
+
+2. **Update Configuracoes.tsx - Remove Comissao Estimada**  
+   - Remove `comissaoEstimada` state and `setComissaoEstimada`.  
+   - Remove the input field for "Comissão Estimada".  
+   - Update `handleAtualizarMetas` to only pass `mensal` to `atualizarMetas`.  
+   - Remove `setComissaoEstimada` from useEffect.
+
+3. **Update PainelDesempenho.tsx - Remove Comissao Estimada Reference**  
+   - In the default metas object for `metasPorUsuario[userId]`, remove `comissaoEstimada: 0`.  
+   - Ensure no other references to `comissaoEstimada` remain.
+
+4. **Verify types/index.ts**  
+   - Confirm `Meta` interface does not include `comissaoEstimada` (no change needed).  
+   - If needed, update the interface to remove it, but it's already absent.
+
+5. **Update AppContext.tsx if Necessary**  
+   - Check if `atualizarMetas` or initial state references `comissaoEstimada`.  
+   - Remove any references to ensure consistency.
+
+6. **Test the Changes**  
+   - Run the app and test saving metas in Configuracoes.tsx.  
+   - Verify the button completes (no longer stuck on "Salvando...").  
+   - Confirm the commission field is removed and no errors occur.  
+   - Check PainelDesempenho.tsx displays correctly without the field.
+
+Progress:
+- [x] Step 1
+- [x] Step 2
+- [x] Step 3
+- [x] Step 4
+- [x] Step 5
+- [ ] Step 6

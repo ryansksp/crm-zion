@@ -6,13 +6,11 @@ export function Configuracoes() {
   const { planos, metas, adicionarPlano, atualizarMetas } = useApp();
   const [showNovoPlano, setShowNovoPlano] = useState(false);
   const [metaMensal, setMetaMensal] = useState(metas.mensal);
-  const [comissaoEstimada, setComissaoEstimada] = useState(metas.comissaoEstimada);
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
   useEffect(() => {
     setMetaMensal(metas.mensal);
-    setComissaoEstimada(metas.comissaoEstimada);
   }, [metas]);
 
   const handleNovoPlano = (e: React.FormEvent) => {
@@ -33,13 +31,18 @@ export function Configuracoes() {
   const handleAtualizarMetas = async (e: React.FormEvent) => {
     e.preventDefault();
     setSalvando(true);
-    await atualizarMetas({
-      mensal: metaMensal,
-      comissaoEstimada: comissaoEstimada
-    });
-    setSalvando(false);
-    setSucesso(true);
-    setTimeout(() => setSucesso(false), 3000);
+    try {
+      await atualizarMetas({
+        mensal: metaMensal
+      });
+      setSucesso(true);
+      setTimeout(() => setSucesso(false), 3000);
+    } catch (error) {
+      console.error('Erro ao atualizar metas:', error);
+      // Optionally, set an error state to show to user
+    } finally {
+      setSalvando(false);
+    }
   };
 
   return (
@@ -56,7 +59,7 @@ export function Configuracoes() {
           <h3 className="text-lg font-semibold text-gray-900">Metas Mensais</h3>
         </div>
 
-        <form onSubmit={handleAtualizarMetas} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleAtualizarMetas} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Meta de Vendas Mensal (R$)
@@ -72,20 +75,6 @@ export function Configuracoes() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Comissão Estimada (R$)
-            </label>
-            <input
-              type="number"
-              name="comissaoEstimada"
-              value={comissaoEstimada}
-              onChange={(e) => setComissaoEstimada(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Ex: 5000"
-            />
-          </div>
-
-          <div className="md:col-span-2">
             <button
               type="submit"
               disabled={salvando}

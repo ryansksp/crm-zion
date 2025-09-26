@@ -18,7 +18,7 @@ export function PainelDesempenho() {
         </div>
 
         {Object.entries(clientesPorUsuario).map(([userId, clientes]) => {
-          const metas = metasPorUsuario[userId] || { mensal: 0, vendidoNoMes: 0, comissaoEstimada: 0 };
+          const metas = metasPorUsuario[userId] || { mensal: 0, vendidoNoMes: 0 };
           const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
           const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
           const totalVendido = vendas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
