@@ -29,6 +29,7 @@ export function Leads() {
      cliente.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const { userProfiles } = useApp();
   const etapasUnicas = [...new Set(clientes.map(c => c.etapa))];
 
   const diasInatividade = (dataUltimaInteracao: string) => {
@@ -131,6 +132,10 @@ export function Leads() {
                     <span className="text-gray-600">Valor do Crédito:</span>
                     <p className="font-medium">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
                   </div>
+                  <div>
+                    <span className="text-gray-600">Vendedor:</span>
+                    <p className="font-medium">{userProfiles[cliente.userId]?.name || 'Desconhecido'}</p>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center mt-4">
@@ -193,6 +198,10 @@ export function Leads() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
                   <p className="mt-1 text-sm text-gray-900">{selectedCliente.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Vendedor</label>
+                  <p className="mt-1 text-sm text-gray-900">{userProfiles[selectedCliente.userId]?.name || 'Desconhecido'}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Etapa</label>

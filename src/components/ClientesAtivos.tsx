@@ -4,7 +4,7 @@ import { Cliente } from '../types';
 import { Users, Calendar, Gift, CheckCircle2, XCircle } from 'lucide-react';
 
 export function ClientesAtivos() {
-  const { obterClientesAtivos, atualizarCliente } = useApp();
+  const { obterClientesAtivos, atualizarCliente, userProfiles } = useApp();
   const clientesAtivos = obterClientesAtivos();
 
   const calcularProximaAssembleia = (dataVenda: string) => {
@@ -145,6 +145,9 @@ export function ClientesAtivos() {
                       </div>
                       <div>
                         <span className="font-medium">Plano:</span> {cliente.planoInteresse}
+                      </div>
+                      <div>
+                        <span className="font-medium">Vendedor:</span> {userProfiles[cliente.userId]?.name || 'Desconhecido'}
                       </div>
                       {cliente.grupoECota && (
                         <div>
