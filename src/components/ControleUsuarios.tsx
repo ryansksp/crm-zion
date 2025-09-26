@@ -28,6 +28,8 @@ interface UserProfile {
     totalLeads: number;
     totalSimulations: number;
     totalSales: number;
+    totalSoldValue: number;
+    totalLost: number;
   };
 }
 
@@ -83,6 +85,8 @@ export function ControleUsuarios() {
           let totalClients = 0;
           let totalLeads = 0;
           let totalSales = 0;
+          let totalSoldValue = 0;
+          let totalLost = 0;
           const clientIds: string[] = [];
           let matchingClients = 0;
           clientsSnapshot.forEach((clientDoc) => {
@@ -93,11 +97,15 @@ export function ControleUsuarios() {
               totalClients++;
               clientIds.push(client.id);
               if (client.etapa === 'Lead') totalLeads++;
-              if (client.etapa === 'Venda Ganha') totalSales++;
+              if (client.etapa === 'Venda Ganha') {
+                totalSales++;
+                totalSoldValue += client.valorCredito || 0;
+              }
+              if (client.etapa === 'Venda Perdida') totalLost++;
               console.log(`Match encontrado! Total clients: ${totalClients}, Leads: ${totalLeads}, Sales: ${totalSales}`);
             }
           });
-          console.log(`Total matching clients para ${data.name}: ${matchingClients}, Final stats: clients=${totalClients}, leads=${totalLeads}, sales=${totalSales}`);
+          console.log(`Total matching clients para ${data.name}: ${matchingClients}, Final stats: clients=${totalClients}, leads=${totalLeads}, sales=${totalSales}, soldValue=${totalSoldValue}, lost=${totalLost}`);
 
           const simulationsQuery = collection(db, 'simulacoes');
           const simulationsSnapshot = await getDocs(simulationsQuery);
@@ -130,6 +138,8 @@ export function ControleUsuarios() {
               totalLeads,
               totalSimulations,
               totalSales,
+              totalSoldValue,
+              totalLost,
             },
           });
         } else if (data.status === 'pending') {
@@ -379,7 +389,7 @@ export function ControleUsuarios() {
                   <p className="text-gray-600 mb-3">{user.email}</p>
 
                   {/* Estatísticas */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                       <div className="text-2xl font-bold text-blue-600">{user.stats.totalClients}</div>
                       <div className="text-sm text-gray-600">Clientes</div>
@@ -395,6 +405,14 @@ export function ControleUsuarios() {
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                       <div className="text-2xl font-bold text-orange-600">{user.stats.totalSales}</div>
                       <div className="text-sm text-gray-600">Vendas</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-emerald-600">R$ {user.stats.totalSoldValue.toLocaleString('pt-BR')}</div>
+                      <div className="text-sm text-gray-600">Total Vendido</div>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">{user.stats.totalLost}</div>
+                      <div className="text-sm text-gray-600">Perdidos</div>
                     </div>
                   </div>
 

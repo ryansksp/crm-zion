@@ -1,11 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
+import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User } from 'lucide-react';
 import { EtapaFunil } from '../types';
+import { collection, getDocs, getFirestore } from 'firebase/firestore';
 
 export function FunilVendas() {
-  const { clientes, moverClienteEtapa, adicionarCliente} = useApp();
+  const { clientes, moverClienteEtapa, adicionarCliente, userProfile } = useApp();
   const [showNovoCliente, setShowNovoCliente] = useState(false);
+  const [userNames, setUserNames] = useState<Record<string, string>>({});
+
+  const db = getFirestore();
+
+  useEffect(() => {
+    const loadUserNames = async () => {
+      try {
+        const usersRef = collection(db, 'users');
+        const snapshot = await getDocs(usersRef);
+        const names: Record<string, string> = {};
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.status === 'approved') {
+            names[doc.id] = data.name || 'Desconhecido';
+          }
+        });
+        setUserNames(names);
+      } catch (error) {
+        console.error('Erro ao carregar nomes de usuários:', error);
+      }
+    };
+
+    loadUserNames();
+  }, []);
 
   const etapas: EtapaFunil[] = [
     'Novo Cliente',
@@ -38,13 +63,14 @@ export function FunilVendas() {
     const formData = new FormData(e.target as HTMLFormElement);
     
     adicionarCliente({
-      userId: crypto.randomUUID(), // ou outra forma de gerar ID único
+      userId: userProfile?.id || '', // Use ID do usuário logado como vendedor
       nome: formData.get('nome') as string,
       telefone: formData.get('telefone') as string,
       email: formData.get('email') as string,
       planoInteresse: formData.get('planoInteresse') as string,
       valorCredito: parseFloat(formData.get('valorCredito') as string) || 0,
       etapa: 'Lead',
+      dataCriacao: new Date().toISOString(),
       dataUltimaInteracao: new Date().toISOString(),
       historico: [],
       simulacoes: []
@@ -120,6 +146,10 @@ export function FunilVendas() {
                           <div className="flex items-center space-x-1">
                             <Phone className="w-3 h-3" />
                             <span className="truncate">{cliente.telefone}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <User className="w-3 h-3" />
+                            <span className="truncate">Vendedor: {userNames[cliente.userId] || 'N/A'}</span>
                           </div>
                         </div>
 
