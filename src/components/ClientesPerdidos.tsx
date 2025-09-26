@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
-import { formatDateTimeBrasilia } from '../utils/date';
+import { formatDateBrasilia } from '../utils/date';
 import { Cliente } from '../types';
 import { Users, XCircle } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters.ts';
@@ -115,7 +115,7 @@ export function ClientesPerdidos() {
                       {cliente.dataVenda && (
                         <div>
                           <span className="font-medium">Data da Venda:</span>{' '}
-                          {formatDateTimeBrasilia(cliente.dataVenda)}
+                          {formatDateBrasilia(cliente.dataVenda)}
                         </div>
                       )}
                       {cliente.motivoPerda && (
@@ -127,7 +127,7 @@ export function ClientesPerdidos() {
                       {cliente.dataPerda && (
                         <div>
                           <span className="font-medium">Data da Perda:</span>{' '}
-                          {formatDateTimeBrasilia(cliente.dataPerda)}
+                          {formatDateBrasilia(cliente.dataPerda)}
                         </div>
                       )}
                     </div>
@@ -163,6 +163,7 @@ export function ClientesPerdidos() {
                     />
                     <input
                       type="date"
+                      max={new Date().toISOString().split('T')[0]}
                       defaultValue={
                         cliente.dataPerda
                           ? new Date(cliente.dataPerda).toISOString().substr(0, 10)

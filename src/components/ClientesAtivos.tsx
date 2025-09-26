@@ -213,6 +213,7 @@ export function ClientesAtivos() {
                     {!cliente.aniversario && (
                       <input
                         type="date"
+                        max={new Date().toISOString().split('T')[0]}
                         onChange={(e) => {
                           if (e.target.value) {
                             atualizarCliente(cliente.id, { aniversario: e.target.value });
