@@ -11,6 +11,7 @@ export function Configuracoes() {
   const [metaMensal, setMetaMensal] = useState(metas.mensal);
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
+  const [erro, setErro] = useState('');
 
   const categorias = ['Auto', 'Imóveis', 'Serviços'];
 
@@ -25,6 +26,15 @@ export function Configuracoes() {
     setMetaMensal(metas.mensal);
   }, [metas]);
 
+  const parseNumber = (value: FormDataEntryValue | null) => {
+    if (!value || typeof value !== 'string') return 0;
+    return Number(value.replace(',', '.'));
+  };
+
+  const formatNumber = (value: number) => {
+    return value.toString().replace('.', ',');
+  };
+
   const handleNovoPlano = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -33,10 +43,10 @@ export function Configuracoes() {
       nome: formData.get('nome') as string,
       categoria: formData.get('categoria') as string,
       prazo: Number(formData.get('prazo')),
-      taxaAdministracao: Number(formData.get('taxaAdministracao')),
-      fundoReserva: Number(formData.get('fundoReserva')),
-      seguro: Number(formData.get('seguro')),
-      taxaAdesao: Number(formData.get('taxaAdesao'))
+      taxaAdministracao: parseNumber(formData.get('taxaAdministracao')),
+      fundoReserva: parseNumber(formData.get('fundoReserva')),
+      seguro: parseNumber(formData.get('seguro')),
+      taxaAdesao: parseNumber(formData.get('taxaAdesao'))
     });
 
     setShowNovoPlano(false);
@@ -52,10 +62,10 @@ export function Configuracoes() {
       nome: formData.get('nome') as string,
       categoria: formData.get('categoria') as string,
       prazo: Number(formData.get('prazo')),
-      taxaAdministracao: Number(formData.get('taxaAdministracao')),
-      fundoReserva: Number(formData.get('fundoReserva')),
-      seguro: Number(formData.get('seguro')),
-      taxaAdesao: Number(formData.get('taxaAdesao'))
+      taxaAdministracao: parseNumber(formData.get('taxaAdministracao')),
+      fundoReserva: parseNumber(formData.get('fundoReserva')),
+      seguro: parseNumber(formData.get('seguro')),
+      taxaAdesao: parseNumber(formData.get('taxaAdesao'))
     });
 
     setEditingPlano(null);
@@ -64,6 +74,7 @@ export function Configuracoes() {
   const handleAtualizarMetas = async (e: React.FormEvent) => {
     e.preventDefault();
     setSalvando(true);
+    setErro('');
     try {
       await atualizarMetas({
         mensal: metaMensal
@@ -71,6 +82,7 @@ export function Configuracoes() {
       setSucesso(true);
       setTimeout(() => setSucesso(false), 3000);
     } catch (error) {
+      setErro('Erro ao salvar metas. Tente novamente.');
       console.error('Erro ao atualizar metas:', error);
     } finally {
       setSalvando(false);
@@ -166,19 +178,19 @@ export function Configuracoes() {
                       </div>
                       <div>
                         <span className="text-gray-600">Taxa Admin:</span>
-                        <p className="font-medium">{plano.taxaAdministracao}%</p>
+                        <p className="font-medium">{formatNumber(plano.taxaAdministracao)}%</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Fundo Reserva:</span>
-                        <p className="font-medium">{plano.fundoReserva}%</p>
+                        <p className="font-medium">{formatNumber(plano.fundoReserva)}%</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Seguro:</span>
-                        <p className="font-medium">{plano.seguro}%</p>
+                        <p className="font-medium">{formatNumber(plano.seguro)}%</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Taxa Adesão:</span>
-                        <p className="font-medium">{plano.taxaAdesao}%</p>
+                        <p className="font-medium">{formatNumber(plano.taxaAdesao)}%</p>
                       </div>
                     </div>
                   </div>
@@ -243,11 +255,10 @@ export function Configuracoes() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Taxa Adm. (%)</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
                     name="taxaAdministracao"
                     required
-                    placeholder="Ex: 0.25"
+                    placeholder="Ex: 0,25"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -255,11 +266,10 @@ export function Configuracoes() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">F. Reserva (%)</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
                     name="fundoReserva"
                     required
-                    placeholder="Ex: 0.15"
+                    placeholder="Ex: 0,15"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -268,11 +278,10 @@ export function Configuracoes() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Seguro (%)</label>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
                   name="seguro"
                   required
-                  placeholder="Ex: 0.10"
+                  placeholder="Ex: 0,10"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -280,11 +289,10 @@ export function Configuracoes() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
                   name="taxaAdesao"
                   required
-                  placeholder="Ex: 1.00"
+                  placeholder="Ex: 1,00"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -356,8 +364,7 @@ export function Configuracoes() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Taxa Adm. (%)</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
                     name="taxaAdministracao"
                     required
                     defaultValue={editingPlano.taxaAdministracao}
@@ -368,8 +375,7 @@ export function Configuracoes() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">F. Reserva (%)</label>
                   <input
-                    type="number"
-                    step="0.01"
+                    type="text"
                     name="fundoReserva"
                     required
                     defaultValue={editingPlano.fundoReserva}
@@ -381,8 +387,7 @@ export function Configuracoes() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Seguro (%)</label>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
                   name="seguro"
                   required
                   defaultValue={editingPlano.seguro}
@@ -393,8 +398,7 @@ export function Configuracoes() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
                   name="taxaAdesao"
                   required
                   defaultValue={editingPlano.taxaAdesao}
