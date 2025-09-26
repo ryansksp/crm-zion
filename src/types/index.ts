@@ -83,5 +83,4 @@ export interface Simulacao {
 export interface Meta {
   mensal: number;
   vendidoNoMes: number;
-  comissaoEstimada: number;
 }

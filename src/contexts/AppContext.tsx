@@ -43,7 +43,7 @@ type Action =
 const initialState: Omit<AppState, 'userProfile'> = {
   clientes: [],
   planos: [],
-  metas: { mensal: 0, vendidoNoMes: 0, comissaoEstimada: 0 },
+  metas: { mensal: 0, vendidoNoMes: 0 },
   simulacoes: []
 };
 
@@ -187,9 +187,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const metasAgregadas = Object.values(metasPorUser).reduce((acc, meta) => {
         acc.mensal += meta.mensal || 0;
         acc.vendidoNoMes += meta.vendidoNoMes || 0;
-        acc.comissaoEstimada += meta.comissaoEstimada || 0;
         return acc;
-      }, { mensal: 0, vendidoNoMes: 0, comissaoEstimada: 0 });
+      }, { mensal: 0, vendidoNoMes: 0 });
 
       dispatch({ type: 'SET_METAS', payload: metasAgregadas });
       setMetasPorUsuario(metasPorUser);
