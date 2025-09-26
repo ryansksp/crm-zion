@@ -35,7 +35,8 @@ export function Configuracoes() {
       prazo: Number(formData.get('prazo')),
       taxaAdministracao: Number(formData.get('taxaAdministracao')),
       fundoReserva: Number(formData.get('fundoReserva')),
-      seguro: Number(formData.get('seguro'))
+      seguro: Number(formData.get('seguro')),
+      taxaAdesao: Number(formData.get('taxaAdesao'))
     });
 
     setShowNovoPlano(false);
@@ -53,7 +54,8 @@ export function Configuracoes() {
       prazo: Number(formData.get('prazo')),
       taxaAdministracao: Number(formData.get('taxaAdministracao')),
       fundoReserva: Number(formData.get('fundoReserva')),
-      seguro: Number(formData.get('seguro'))
+      seguro: Number(formData.get('seguro')),
+      taxaAdesao: Number(formData.get('taxaAdesao'))
     });
 
     setEditingPlano(null);
@@ -157,7 +159,7 @@ export function Configuracoes() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Prazo:</span>
                         <p className="font-medium">{plano.prazo} meses</p>
@@ -173,6 +175,10 @@ export function Configuracoes() {
                       <div>
                         <span className="text-gray-600">Seguro:</span>
                         <p className="font-medium">{plano.seguro}%</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Taxa Adesão:</span>
+                        <p className="font-medium">{plano.taxaAdesao}%</p>
                       </div>
                     </div>
                   </div>
@@ -270,7 +276,19 @@ export function Configuracoes() {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="taxaAdesao"
+                  required
+                  placeholder="Ex: 1.00"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
@@ -371,7 +389,19 @@ export function Configuracoes() {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="taxaAdesao"
+                  required
+                  defaultValue={editingPlano.taxaAdesao}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"

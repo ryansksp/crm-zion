@@ -64,6 +64,7 @@ export interface PlanoEmbracon {
   taxaAdministracao: number; // percentual
   fundoReserva: number; // percentual
   seguro: number; // percentual
+  taxaAdesao: number; // percentual
   userId: string;
 }
 
