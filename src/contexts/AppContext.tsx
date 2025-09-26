@@ -36,6 +36,7 @@ type Action =
   | { type: 'SET_CLIENTES'; payload: Cliente[] }
   | { type: 'SET_PLANOS'; payload: PlanoEmbracon[] }
   | { type: 'SET_METAS'; payload: Meta }
+  | { type: 'SET_SIMULACOES'; payload: Simulacao[] }
   | { type: 'SET_USER_PROFILE'; payload: UserProfile | null }
   | { type: 'ADICIONAR_SIMULACAO'; payload: Simulacao };
 
@@ -54,6 +55,8 @@ function appReducer(state: Omit<AppState, 'userProfile'>, action: Action): Omit<
       return { ...state, planos: action.payload };
     case 'SET_METAS':
       return { ...state, metas: action.payload };
+    case 'SET_SIMULACOES':
+      return { ...state, simulacoes: action.payload };
     case 'ADICIONAR_SIMULACAO':
       return { ...state, simulacoes: [...state.simulacoes, action.payload] };
     default:
@@ -69,27 +72,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [clientesPorUsuario, setClientesPorUsuario] = useState<Record<string, Cliente[]>>({});
   const [metasPorUsuario, setMetasPorUsuario] = useState<Record<string, Meta>>({});
 
-  // Carregar dados do localStorage
-  useEffect(() => {
-    const savedData = localStorage.getItem('cronos-pro-data');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed.clientes && parsed.planos && parsed.metas) {
-          dispatch({ type: 'SET_CLIENTES', payload: parsed.clientes });
-          dispatch({ type: 'SET_PLANOS', payload: parsed.planos });
-          dispatch({ type: 'SET_METAS', payload: parsed.metas });
-        }
-      } catch (err) {
-        console.error("Erro ao carregar localStorage:", err);
-      }
-    }
-  }, []);
 
-  // Salvar dados no localStorage
-  useEffect(() => {
-    localStorage.setItem('cronos-pro-data', JSON.stringify(state));
-  }, [state]);
 
   useEffect(() => {
     if (!user) {
@@ -170,6 +153,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_PLANOS', payload: planosFirestore });
     });
 
+    // Simulacoes - Master e Diretores veem todas, outros veem apenas as suas
+    let qSimulacoes;
+    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
+      qSimulacoes = query(collection(db, 'simulacoes'));
+    } else {
+      qSimulacoes = query(collection(db, 'simulacoes'), where('userId', '==', user.uid));
+    }
+
+    const unsubscribeSimulacoes = onSnapshot(qSimulacoes, (querySnapshot) => {
+      const simulacoesFirestore: Simulacao[] = [];
+      querySnapshot.forEach((docSnap) => {
+        simulacoesFirestore.push({ id: docSnap.id, ...docSnap.data() } as Simulacao);
+      });
+      dispatch({ type: 'SET_SIMULACOES', payload: simulacoesFirestore });
+    });
+
     // Metas - Diretores e Gerentes veem todas, outros veem apenas as suas
     let metasCollectionRef;
     if (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
@@ -199,6 +198,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => {
       unsubscribeClientes();
       unsubscribePlanos();
+      unsubscribeSimulacoes();
       unsubscribeMetas();
     };
   }, [user, userProfile]);
@@ -365,7 +365,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       id: Date.now().toString(),
       userId: user.uid,
     };
-    dispatch({ type: 'ADICIONAR_SIMULACAO', payload: novaSimulacao });
+    const docRef = doc(collection(db, 'simulacoes'));
+    await setDoc(docRef, novaSimulacao);
   };
 
   const obterClientesAtivos = () => {
