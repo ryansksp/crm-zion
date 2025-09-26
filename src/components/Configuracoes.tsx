@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
-import { Settings, Plus, Trash2, Target, DollarSign } from 'lucide-react';
+import { Settings, Plus, Trash2, Target, DollarSign, Edit } from 'lucide-react';
+import { PlanoEmbracon } from '../types';
 
 export function Configuracoes() {
-  const { planos, metas, adicionarPlano, atualizarMetas } = useApp();
+  const { planos, metas, adicionarPlano, atualizarPlano, atualizarMetas } = useApp();
   const [showNovoPlano, setShowNovoPlano] = useState(false);
+  const [editingPlano, setEditingPlano] = useState<PlanoEmbracon | null>(null);
   const [metaMensal, setMetaMensal] = useState(metas.mensal);
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
@@ -29,6 +31,23 @@ export function Configuracoes() {
     setShowNovoPlano(false);
   };
 
+  const handleEditarPlano = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPlano) return;
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    
+    await atualizarPlano(editingPlano.id, {
+      nome: formData.get('nome') as string,
+      prazo: Number(formData.get('prazo')),
+      taxaAdministracao: Number(formData.get('taxaAdministracao')),
+      fundoReserva: Number(formData.get('fundoReserva')),
+      seguro: Number(formData.get('seguro'))
+    });
+    
+    setEditingPlano(null);
+  };
+
   const handleAtualizarMetas = async (e: React.FormEvent) => {
     e.preventDefault();
     setSalvando(true);
@@ -40,7 +59,6 @@ export function Configuracoes() {
       setTimeout(() => setSucesso(false), 3000);
     } catch (error) {
       console.error('Erro ao atualizar metas:', error);
-      // Optionally, set an error state to show to user
     } finally {
       setSalvando(false);
     }
@@ -111,9 +129,17 @@ export function Configuracoes() {
             <div key={plano.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex justify-between items-start mb-3">
                 <h4 className="font-semibold text-gray-900">{plano.nome}</h4>
-                <button className="text-red-600 hover:text-red-800 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => setEditingPlano(plano)}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button className="text-red-600 hover:text-red-800 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -226,6 +252,92 @@ export function Configuracoes() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Adicionar Plano
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Plano */}
+      {editingPlano && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Editar Plano {editingPlano.nome}</h3>
+            <form onSubmit={handleEditarPlano} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Plano</label>
+                <input
+                  type="text"
+                  name="nome"
+                  required
+                  defaultValue={editingPlano.nome}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo (meses)</label>
+                <input
+                  type="number"
+                  name="prazo"
+                  required
+                  defaultValue={editingPlano.prazo}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Taxa Adm. (%)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="taxaAdministracao"
+                    required
+                    defaultValue={editingPlano.taxaAdministracao}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">F. Reserva (%)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="fundoReserva"
+                    required
+                    defaultValue={editingPlano.fundoReserva}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Seguro (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="seguro"
+                  required
+                  defaultValue={editingPlano.seguro}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setEditingPlano(null)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Atualizar Plano
                 </button>
               </div>
             </form>

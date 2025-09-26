@@ -18,6 +18,7 @@ interface AppContextType extends AppState {
   atualizarCliente: (id: string, cliente: Partial<Cliente>) => Promise<void>;
   moverClienteEtapa: (id: string, novaEtapa: Cliente['etapa']) => Promise<void>;
   adicionarPlano: (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => Promise<void>;
+  atualizarPlano: (id: string, plano: Partial<PlanoEmbracon>) => Promise<void>;
   atualizarMetas: (metas: Partial<Meta>) => Promise<void>;
   adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => Promise<void>;
   obterClientesAtivos: () => Cliente[];
@@ -361,6 +362,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await setDoc(docRef, novoPlano);
   };
 
+  const atualizarPlano = async (id: string, plano: Partial<PlanoEmbracon>) => {
+    if (!user) return;
+
+    let q;
+    if (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
+      q = query(collection(db, 'planos'), where('id', '==', id));
+    } else {
+      q = query(collection(db, 'planos'), where('id', '==', id), where('userId', '==', user.uid));
+    }
+
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, plano);
+    }
+  };
+
   const atualizarMetas = async (metas: Partial<Meta>) => {
     if (!user) return;
     try {
@@ -449,6 +467,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       atualizarCliente,
       moverClienteEtapa,
       adicionarPlano,
+      atualizarPlano,
       atualizarMetas,
       adicionarSimulacao,
       obterClientesAtivos,
