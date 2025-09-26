@@ -31,7 +31,8 @@ export function Configuracoes() {
     return Number(value.replace(',', '.'));
   };
 
-  const formatNumber = (value: number) => {
+  const formatNumber = (value?: number) => {
+    if (value === undefined || value === null) return '0';
     return value.toString().replace('.', ',');
   };
 
@@ -128,6 +129,9 @@ export function Configuracoes() {
             </button>
             {sucesso && (
               <p className="text-green-600 text-sm mt-2">Metas atualizadas com sucesso!</p>
+            )}
+            {erro && (
+              <p className="text-red-600 text-sm mt-2">{erro}</p>
             )}
           </div>
         </form>
