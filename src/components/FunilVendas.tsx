@@ -8,6 +8,7 @@ export function FunilVendas() {
   const { clientes, moverClienteEtapa, adicionarCliente, userProfile } = useApp();
   const [showNovoCliente, setShowNovoCliente] = useState(false);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const db = getFirestore();
 
@@ -31,6 +32,8 @@ export function FunilVendas() {
 
     loadUserNames();
   }, []);
+
+  const filteredClientes = selectedUserId ? clientes.filter(c => c.userId === selectedUserId) : clientes;
 
   const etapas: EtapaFunil[] = [
     'Novo Cliente',
@@ -86,6 +89,19 @@ export function FunilVendas() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Funil de Vendas</h2>
           <p className="text-gray-600">Gerencie seu pipeline de clientes</p>
         </div>
+        <div className="flex items-center space-x-4">
+          <label className="text-sm font-medium text-gray-700">Filtrar por Vendedor:</label>
+          <select
+            value={selectedUserId || ''}
+            onChange={(e) => setSelectedUserId(e.target.value ? e.target.value : null)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Todos os Vendedores</option>
+            {Object.entries(userNames).map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="flex justify-end mb-4 fixed top-24 right-8 z-50">
@@ -101,7 +117,7 @@ export function FunilVendas() {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="grid grid-cols-4 gap-6">
           {etapas.map((etapa, etapaIndex) => {
-            const clientesEtapa = clientes.filter(c => c.etapa === etapa);
+            const clientesEtapa = filteredClientes.filter(c => c.etapa === etapa);
             const totalValor = clientesEtapa.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
 
             return (
