@@ -121,44 +121,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const seedDefaultPlans = async () => {
       const planosSnapshot = await getDocs(query(collection(db, 'planos'), where('userId', '==', user.uid)));
       if (planosSnapshot.empty) {
-        const defaultPlans: Omit<PlanoEmbracon, 'id' | 'userId'>[] = [
-          // Auto category
+        const defaultPlans = [
+          // Automóvel category
           {
-            nome: 'Plano Auto Básico',
-            categoria: 'Auto',
+            nome: 'Plano Automóvel Básico',
+            categoria: 'Automóvel',
             prazo: 100,
             taxaAdministracao: 0.28,
             fundoReserva: 0.02,
             seguro: 0.10,
-            taxaAdesao: 1.2
+            taxaAdesao: 1.2,
+            userId: user.uid
           },
           {
-            nome: 'Plano Auto Premium',
-            categoria: 'Auto',
+            nome: 'Plano Automóvel Premium',
+            categoria: 'Automóvel',
             prazo: 100,
             taxaAdministracao: 0.28,
             fundoReserva: 0.02,
             seguro: 0.10,
-            taxaAdesao: 2.0
+            taxaAdesao: 2.0,
+            userId: user.uid
           },
-          // Imóveis category
+          // Imóvel category
           {
-            nome: 'Plano Imóveis Padrão',
-            categoria: 'Imóveis',
+            nome: 'Plano Imóvel Padrão',
+            categoria: 'Imóvel',
             prazo: 240,
             taxaAdministracao: 0.28,
             fundoReserva: 0.02,
             seguro: 0.10,
-            taxaAdesao: 1.2
+            taxaAdesao: 1.2,
+            userId: user.uid
           },
           {
-            nome: 'Plano Imóveis Avançado',
-            categoria: 'Imóveis',
+            nome: 'Plano Imóvel Avançado',
+            categoria: 'Imóvel',
             prazo: 240,
             taxaAdministracao: 0.28,
             fundoReserva: 0.02,
             seguro: 0.10,
-            taxaAdesao: 2.0
+            taxaAdesao: 2.0,
+            userId: user.uid
           },
           // Serviços category
           {
@@ -168,7 +172,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             taxaAdministracao: 0.28,
             fundoReserva: 0.02,
             seguro: 0.10,
-            taxaAdesao: 1.2
+            taxaAdesao: 1.2,
+            userId: user.uid
           },
           {
             nome: 'Plano Serviços Premium',
@@ -177,12 +182,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             taxaAdministracao: 0.28,
             fundoReserva: 0.02,
             seguro: 0.10,
-            taxaAdesao: 2.0
+            taxaAdesao: 2.0,
+            userId: user.uid
           }
         ];
 
         for (const plano of defaultPlans) {
-          await adicionarPlano(plano);
+          const docRef = doc(collection(db, 'planos'));
+          await setDoc(docRef, plano);
         }
       }
     };

@@ -13,7 +13,7 @@ export function Configuracoes() {
   const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState('');
 
-  const categorias = ['Auto', 'Imóveis', 'Serviços'];
+  const categorias = ['Automóvel', 'Imóvel', 'Serviços'];
 
   const planosPorCategoria = planos.reduce((acc: Record<string, PlanoEmbracon[]>, plano) => {
     const cat = plano.categoria || 'Outros';
