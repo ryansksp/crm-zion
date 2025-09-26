@@ -117,6 +117,78 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
+    // Seed default plans if none exist
+    const seedDefaultPlans = async () => {
+      const planosSnapshot = await getDocs(query(collection(db, 'planos'), where('userId', '==', user.uid)));
+      if (planosSnapshot.empty) {
+        const defaultPlans: Omit<PlanoEmbracon, 'id' | 'userId'>[] = [
+          // Auto category
+          {
+            nome: 'Plano Auto Básico',
+            categoria: 'Auto',
+            prazo: 100,
+            taxaAdministracao: 0.28,
+            fundoReserva: 0.02,
+            seguro: 0.10,
+            taxaAdesao: 1.2
+          },
+          {
+            nome: 'Plano Auto Premium',
+            categoria: 'Auto',
+            prazo: 100,
+            taxaAdministracao: 0.28,
+            fundoReserva: 0.02,
+            seguro: 0.10,
+            taxaAdesao: 2.0
+          },
+          // Imóveis category
+          {
+            nome: 'Plano Imóveis Padrão',
+            categoria: 'Imóveis',
+            prazo: 240,
+            taxaAdministracao: 0.28,
+            fundoReserva: 0.02,
+            seguro: 0.10,
+            taxaAdesao: 1.2
+          },
+          {
+            nome: 'Plano Imóveis Avançado',
+            categoria: 'Imóveis',
+            prazo: 240,
+            taxaAdministracao: 0.28,
+            fundoReserva: 0.02,
+            seguro: 0.10,
+            taxaAdesao: 2.0
+          },
+          // Serviços category
+          {
+            nome: 'Plano Serviços Básico',
+            categoria: 'Serviços',
+            prazo: 40,
+            taxaAdministracao: 0.28,
+            fundoReserva: 0.02,
+            seguro: 0.10,
+            taxaAdesao: 1.2
+          },
+          {
+            nome: 'Plano Serviços Premium',
+            categoria: 'Serviços',
+            prazo: 40,
+            taxaAdministracao: 0.28,
+            fundoReserva: 0.02,
+            seguro: 0.10,
+            taxaAdesao: 2.0
+          }
+        ];
+
+        for (const plano of defaultPlans) {
+          await adicionarPlano(plano);
+        }
+      }
+    };
+
+    seedDefaultPlans();
+
     // Clientes - Master e Diretores veem todos, outros veem apenas os seus
     let qClientes;
     if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
