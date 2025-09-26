@@ -5,7 +5,7 @@ import { EtapaFunil } from '../types';
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
 
 export function FunilVendas() {
-  const { clientes, moverClienteEtapa, adicionarCliente, userProfile } = useApp();
+  const { clientes, moverClienteEtapa, adicionarCliente, userProfile, planos } = useApp();
   const [showNovoCliente, setShowNovoCliente] = useState(false);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -238,13 +238,18 @@ export function FunilVendas() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Plano de Interesse</label>
-                <input
-                  type="text"
+                <select
                   name="planoInteresse"
                   required
-                  placeholder="Ex: Plano Mais por Menos - Auto"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                >
+                  <option value="">Selecione um plano</option>
+                  {planos.map((plano) => (
+                    <option key={plano.id} value={plano.nome}>
+                      {plano.nome}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Valor da Venda</label>
