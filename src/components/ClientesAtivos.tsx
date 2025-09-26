@@ -1,19 +1,7 @@
-import React from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
+import { Cliente } from '../types';
 import { Users, Calendar, Gift, CheckCircle2, XCircle } from 'lucide-react';
-
-interface Cliente {
-  id: string;
-  nome: string;
-  telefone: string;
-  email: string;
-  planoInteresse: string;
-  statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
-  grupoECota?: string;
-  dataVenda?: string;
-  aniversario?: string;
-}
 
 export function ClientesAtivos() {
   const { obterClientesAtivos, atualizarCliente } = useApp();
@@ -165,14 +153,14 @@ export function ClientesAtivos() {
                       )}
                       {cliente.dataVenda && (
                         <div>
-                          <span className="font-medium">Data da Venda:</span> 
-                          {' '}{new Date(cliente.dataVenda).toLocaleDateString('pt-BR')}
+                          <span className="font-medium">Data da Venda:</span>
+                          {' '}{formatDateTimeBrasilia(cliente.dataVenda)}
                         </div>
                       )}
                       {cliente.aniversario && (
                         <div>
-                          <span className="font-medium">Aniversário:</span> 
-                          {' '}{new Date(cliente.aniversario).toLocaleDateString('pt-BR')}
+                          <span className="font-medium">Aniversário:</span>
+                          {' '}{formatDateTimeBrasilia(cliente.aniversario)}
                         </div>
                       )}
                     </div>

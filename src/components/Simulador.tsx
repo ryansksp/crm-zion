@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { Calculator, Download, TrendingUp } from 'lucide-react';
@@ -70,7 +70,10 @@ export function Simulador() {
   const salvarSimulacao = () => {
     if (!resultado || !clienteSelecionado) return;
 
+    const { userProfile } = useApp();
+
     adicionarSimulacao({
+      userId: userProfile?.id || '',
       clienteId: clienteSelecionado,
       planoId: 'simulacao-' + Date.now(),
       valorCredito: parseNumber(formData.valorCredito),
@@ -91,7 +94,7 @@ export function Simulador() {
     const valorCredito = parseNumber(formData.valorCredito);
 
     const conteudoPDF = `
-COMPARATIVO EMBRACON - ${new Date().toLocaleDateString('pt-BR')}
+COMPARATIVO EMBRACON - ${formatDateTimeBrasilia(new Date().toISOString())}
 
 === SIMULAÇÃO CONSÓRCIO EMBRACON ===
 Valor do Crédito: ${formatCurrency(valorCredito)}

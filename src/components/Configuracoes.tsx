@@ -255,7 +255,7 @@ export function Configuracoes() {
           </div>
           <div>
             <span className="text-gray-600">Criado em:</span>
-            <p className="font-medium">{new Date().toLocaleDateString('pt-BR')}</p>
+            <p className="font-medium">{formatDateTimeBrasilia(new Date().toISOString())}</p>
           </div>
         </div>
       </div>

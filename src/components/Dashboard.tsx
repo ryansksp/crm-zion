@@ -151,7 +151,7 @@ export function Dashboard() {
                   <p className="text-sm text-gray-500">{cliente.etapa}</p>
                 </div>
                 <p className="text-sm text-gray-500">
-                  {new Date(cliente.dataUltimaInteracao).toLocaleDateString('pt-BR')}
+                  {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}
                 </p>
               </div>
             ))}

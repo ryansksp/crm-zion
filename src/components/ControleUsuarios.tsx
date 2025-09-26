@@ -1,6 +1,5 @@
- import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { formatDateTimeBrasilia } from '../utils/date';
 import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
 import { collection, getDocs, doc, updateDoc, deleteDoc, getFirestore } from 'firebase/firestore';
 

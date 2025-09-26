@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
-import { Search, Filter, Eye, Phone, Mail, Calendar, DollarSign, X } from 'lucide-react';
+import { Cliente } from '../types';
+import { Search, Filter, Eye, Phone, Mail, Calendar, X } from 'lucide-react';
 
 export function Leads() {
   const { clientes } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEtapa, setFilterEtapa] = useState('todos');
-  const [selectedCliente, setSelectedCliente] = useState<any>(null);
+  const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
 
   // Definir quais etapas são consideradas "leads"
   const etapasLeads = [
@@ -207,11 +208,11 @@ export function Leads() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Data de Criação</label>
-                  <p className="mt-1 text-sm text-gray-900">{formatarData(selectedCliente.dataCriacao)}</p>
+                  <p className="mt-1 text-sm text-gray-900">{formatDateTimeBrasilia(selectedCliente.dataCriacao)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Última Interação</label>
-                  <p className="mt-1 text-sm text-gray-900">{formatarData(selectedCliente.dataUltimaInteracao)}</p>
+                  <p className="mt-1 text-sm text-gray-900">{formatDateTimeBrasilia(selectedCliente.dataUltimaInteracao)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -232,7 +233,7 @@ export function Leads() {
                             <p className="text-sm font-medium text-gray-900">{interacao.tipo}</p>
                             <p className="text-sm text-gray-600">{interacao.descricao}</p>
                           </div>
-                          <p className="text-xs text-gray-500">{formatarData(interacao.data)}</p>
+                          <p className="text-xs text-gray-500">{formatDateTimeBrasilia(interacao.data)}</p>
                         </div>
                       </div>
                     ))}

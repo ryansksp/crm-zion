@@ -1,21 +1,9 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
+import { Cliente } from '../types';
 import { Users, XCircle } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters.ts';
-
-interface Cliente {
-  id: string;
-  nome: string;
-  telefone: string;
-  email: string;
-  planoInteresse: string;
-  valorCredito?: number;
-  dataVenda?: string;
-  motivoPerda?: string;
-  dataPerda?: string;
-  userId: string;
-}
 
 export function ClientesPerdidos() {
   const { clientes, atualizarCliente, userProfiles } = useApp();
