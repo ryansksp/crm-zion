@@ -353,9 +353,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => {
     if (!user) return;
-    const novoPlano: PlanoEmbracon = {
+    const novoPlano = {
       ...plano,
-      id: Date.now().toString(),
       userId: user.uid
     };
     const docRef = doc(collection(db, 'planos'));
@@ -365,18 +364,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const atualizarPlano = async (id: string, plano: Partial<PlanoEmbracon>) => {
     if (!user) return;
 
-    let q;
-    if (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
-      q = query(collection(db, 'planos'), where('id', '==', id));
-    } else {
-      q = query(collection(db, 'planos'), where('id', '==', id), where('userId', '==', user.uid));
+    const docRef = doc(db, 'planos', id);
+
+    // Check permissions
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return;
+
+    const data = docSnap.data();
+    if (userProfile?.accessLevel !== 'Diretor' && userProfile?.accessLevel !== 'Gerente' && data.userId !== user.uid) {
+      return; // No permission
     }
 
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const docRef = querySnapshot.docs[0].ref;
-      await updateDoc(docRef, plano);
-    }
+    await updateDoc(docRef, plano);
   };
 
   const atualizarMetas = async (metas: Partial<Meta>) => {
