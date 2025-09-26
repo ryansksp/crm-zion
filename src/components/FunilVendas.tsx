@@ -101,17 +101,14 @@ export function FunilVendas() {
               <option key={id} value={id}>{name}</option>
             ))}
           </select>
+          <button
+            onClick={() => setShowNovoCliente(true)}
+            className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 shadow-lg z-50"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Novo Cliente</span>
+          </button>
         </div>
-      </div>
-
-      <div className="flex justify-end mb-4 fixed top-24 right-8 z-50">
-        <button
-          onClick={() => setShowNovoCliente(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Novo Cliente</span>
-        </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
