@@ -2,7 +2,7 @@ import { useApp } from '../contexts/AppContext';
 import { DollarSign, Target, BarChart3, UserX } from 'lucide-react';
 
 export function PainelDesempenho() {
-  const { clientesPorUsuario, metasPorUsuario, userProfile } = useApp();
+  const { clientesPorUsuario, metasPorUsuario, userProfile, userProfiles } = useApp();
 
   if (!userProfile) {
     return <div>Carregando...</div>;
@@ -19,6 +19,7 @@ export function PainelDesempenho() {
 
         {Object.entries(clientesPorUsuario).map(([userId, clientes]) => {
           const metas = metasPorUsuario[userId] || { mensal: 0, vendidoNoMes: 0 };
+          const userName = userProfiles[userId]?.name || userId;
           const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
           const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
           const totalVendido = vendas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
@@ -27,7 +28,7 @@ export function PainelDesempenho() {
 
           return (
             <div key={userId} className="border rounded p-4 mb-6 bg-white shadow">
-              <h3 className="text-xl font-semibold mb-4">Usuário: {userId}</h3>
+              <h3 className="text-xl font-semibold mb-4">Usuário: {userName}</h3>
               <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
                 <div className="flex items-center space-x-4">
                   <UserX className="w-8 h-8 text-blue-600" />

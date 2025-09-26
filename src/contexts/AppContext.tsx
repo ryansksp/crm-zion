@@ -28,6 +28,7 @@ interface AppContextType extends AppState {
 
   clientesPorUsuario: Record<string, Cliente[]>;
   metasPorUsuario: Record<string, Meta>;
+  userProfiles: Record<string, UserProfile>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -71,6 +72,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [clientesPorUsuario, setClientesPorUsuario] = useState<Record<string, Cliente[]>>({});
   const [metasPorUsuario, setMetasPorUsuario] = useState<Record<string, Meta>>({});
+  const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
 
 
@@ -194,11 +196,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMetasPorUsuario(metasPorUser);
     });
 
+    // Load user profiles for Diretor and Gerente
+    let unsubscribeUsers: import('firebase/firestore').Unsubscribe | undefined;
+    if (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
+      unsubscribeUsers = onSnapshot(collection(db, 'users'), (querySnapshot) => {
+        const profiles: Record<string, UserProfile> = {};
+        querySnapshot.forEach((docSnap) => {
+          profiles[docSnap.id] = { id: docSnap.id, ...docSnap.data() } as UserProfile;
+        });
+        setUserProfiles(profiles);
+      });
+    }
+
     return () => {
       unsubscribeClientes();
       unsubscribePlanos();
       unsubscribeSimulacoes();
       unsubscribeMetas();
+      if (unsubscribeUsers) unsubscribeUsers();
     };
   }, [user, userProfile]);
 
@@ -442,7 +457,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       podeAlterarPermissao,
       podeGerenciarUsuarios,
       clientesPorUsuario,
-      metasPorUsuario
+      metasPorUsuario,
+      userProfiles
     }}>
       {children}
     </AppContext.Provider>
