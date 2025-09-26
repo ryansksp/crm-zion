@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { Search, Filter, Eye, Phone, Mail, Calendar, DollarSign, X } from 'lucide-react';
 
 export function Leads() {
@@ -28,10 +29,6 @@ export function Leads() {
   );
 
   const etapasUnicas = [...new Set(clientes.map(c => c.etapa))];
-
-  const formatarData = (dataString: string) => {
-    return new Date(dataString).toLocaleDateString('pt-BR');
-  };
 
   const diasInatividade = (dataUltimaInteracao: string) => {
     return Math.floor((Date.now() - new Date(dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24));
@@ -138,7 +135,7 @@ export function Leads() {
                 <div className="flex justify-between items-center mt-4">
                   <div className="flex items-center space-x-1 text-sm text-gray-600">
                     <Calendar className="w-4 h-4" />
-                    <span>Última interação: {formatarData(cliente.dataUltimaInteracao)}</span>
+                    <span>Última interação: {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}</span>
                   </div>
                   <button
                     onClick={() => setSelectedCliente(cliente)}

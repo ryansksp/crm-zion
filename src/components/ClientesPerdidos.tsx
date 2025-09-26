@@ -1,7 +1,8 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { Users, XCircle } from 'lucide-react';
-import { formatCurrency, formatDate } from '../utils/formatters.ts';
+import { formatCurrency } from '../utils/formatters.ts';
 
 interface Cliente {
   id: string;
@@ -121,7 +122,7 @@ export function ClientesPerdidos() {
                       {cliente.dataVenda && (
                         <div>
                           <span className="font-medium">Data da Venda:</span>{' '}
-                          {formatDate(cliente.dataVenda)}
+                          {formatDateTimeBrasilia(cliente.dataVenda)}
                         </div>
                       )}
                       {cliente.motivoPerda && (
@@ -133,7 +134,7 @@ export function ClientesPerdidos() {
                       {cliente.dataPerda && (
                         <div>
                           <span className="font-medium">Data da Perda:</span>{' '}
-                          {formatDate(cliente.dataPerda)}
+                          {formatDateTimeBrasilia(cliente.dataPerda)}
                         </div>
                       )}
                     </div>

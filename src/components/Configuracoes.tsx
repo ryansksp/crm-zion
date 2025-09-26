@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { Settings, Plus, Trash2, Target, DollarSign } from 'lucide-react';
 
 export function Configuracoes() {

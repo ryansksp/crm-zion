@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User } from 'lucide-react';
 import { EtapaFunil } from '../types';
 import { collection, getDocs, getFirestore } from 'firebase/firestore';

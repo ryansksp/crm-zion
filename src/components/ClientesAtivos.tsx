@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { Users, Calendar, Gift, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Cliente {

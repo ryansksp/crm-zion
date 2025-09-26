@@ -1,4 +1,5 @@
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 
 export function Dashboard() {

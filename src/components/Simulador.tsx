@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { formatDateTimeBrasilia } from '../utils/date';
 import { Calculator, Download, TrendingUp } from 'lucide-react';
 import calculate from '../utils/CalculatorLogic';
 import { formatCurrency, formatPercent, parseNumber } from '../utils/formatters';

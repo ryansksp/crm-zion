@@ -1,40 +1,58 @@
-# TODO: Fix Save Button for Meta and Remove Comissao Estimada
+# TODO: Adicionar Horário de Brasília em Todas as Datas do App
 
 ## Steps to Complete:
 
-1. **Update Configuracoes.tsx - Add Error Handling**  
-   - Add try-catch block in `handleAtualizarMetas` to catch errors from `atualizarMetas`.  
-   - Ensure `setSalvando(false)` is called in both success and error cases.  
-   - Optionally, show an error message if the save fails.
+1. **Create src/utils/date.ts - Centralized Date Formatting**  
+   - Create a new utility file with `formatDateTimeBrasilia` function using `toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })`.  
+   - Export the function for use across components.
 
-2. **Update Configuracoes.tsx - Remove Comissao Estimada**  
-   - Remove `comissaoEstimada` state and `setComissaoEstimada`.  
-   - Remove the input field for "Comissão Estimada".  
-   - Update `handleAtualizarMetas` to only pass `mensal` to `atualizarMetas`.  
-   - Remove `setComissaoEstimada` from useEffect.
+2. **Update src/components/Leads.tsx - Replace formatarData**  
+   - Import `formatDateTimeBrasilia` from utils/date.ts.  
+   - Replace all calls to `formatarData` with `formatDateTimeBrasilia` for dataCriacao, dataUltimaInteracao, and interacao.data in the modal and list.
 
-3. **Update PainelDesempenho.tsx - Remove Comissao Estimada Reference**  
-   - In the default metas object for `metasPorUsuario[userId]`, remove `comissaoEstimada: 0`.  
-   - Ensure no other references to `comissaoEstimada` remain.
+3. **Update src/components/Dashboard.tsx - Update Date Displays**  
+   - Import `formatDateTimeBrasilia`.  
+   - Replace `toLocaleDateString('pt-BR')` with `formatDateTimeBrasilia` for dataUltimaInteracao in Atividades Recentes.
 
-4. **Verify types/index.ts**  
-   - Confirm `Meta` interface does not include `comissaoEstimada` (no change needed).  
-   - If needed, update the interface to remove it, but it's already absent.
+4. **Update src/components/FunilVendas.tsx - Replace formatarData**  
+   - Import `formatDateTimeBrasilia`.  
+   - Replace `formatarData` calls with `formatDateTimeBrasilia` for any date displays (e.g., dataUltimaInteracao).
 
-5. **Update AppContext.tsx if Necessary**  
-   - Check if `atualizarMetas` or initial state references `comissaoEstimada`.  
-   - Remove any references to ensure consistency.
+5. **Update src/components/ClientesAtivos.tsx - Update Date Displays**  
+   - Import `formatDateTimeBrasilia`.  
+   - Replace `toLocaleDateString('pt-BR')` with `formatDateTimeBrasilia` for dataVenda and any other dates.
 
-6. **Test the Changes**  
-   - Run the app and test saving metas in Configuracoes.tsx.  
-   - Verify the button completes (no longer stuck on "Salvando...").  
-   - Confirm the commission field is removed and no errors occur.  
-   - Check PainelDesempenho.tsx displays correctly without the field.
+6. **Update src/components/ClientesPerdidos.tsx - Replace formatDate**  
+   - Import `formatDateTimeBrasilia`.  
+   - Replace `formatDate` calls with `formatDateTimeBrasilia` for dataVenda and dataPerda.
 
-Progress:
-- [x] Step 1
-- [x] Step 2
-- [x] Step 3
-- [x] Step 4
-- [x] Step 5
-- [ ] Step 6
+7. **Update src/components/Simulador.tsx - Add/Update Date Display**  
+   - Import `formatDateTimeBrasilia`.  
+   - If dataSimulacao is displayed, format it with `formatDateTimeBrasilia`; ensure it's shown in the UI if not already.
+
+8. **Update src/components/ControleUsuarios.tsx - Format User Dates**  
+   - Import `formatDateTimeBrasilia`.  
+   - Format `createdAt` and `lastLogin` with `formatDateTimeBrasilia` in the user list or details.
+
+9. **Verify and Update Other Files if Needed**  
+   - Check for any other components using dates (e.g., Profile.tsx, Configuracoes.tsx) and update similarly.  
+   - Ensure no breaking changes in date parsing (e.g., diasInatividade uses getTime(), which is fine).
+
+10. **Test the Changes**  
+    - Run `npm run dev`.  
+    - Navigate to pages with dates: Leads, Dashboard, FunilVendas, ClientesAtivos, ClientesPerdidos, Simulador, ControleUsuarios.  
+    - Verify all dates show full format (e.g., "25/10/2024 14:30:00") in Brasília time.  
+    - Test creating/updating dates (e.g., move etapa) to ensure time is captured.  
+    - Check for timezone conversion issues with existing ISO dates.
+
+Progress:  
+- [ ] Step 1  
+- [ ] Step 2  
+- [ ] Step 3  
+- [ ] Step 4  
+- [ ] Step 5  
+- [ ] Step 6  
+- [ ] Step 7  
+- [ ] Step 8  
+- [ ] Step 9  
+- [ ] Step 10
