@@ -14,10 +14,11 @@ interface Cliente {
   dataVenda?: string;
   motivoPerda?: string;
   dataPerda?: string;
+  userId: string;
 }
 
 export function ClientesPerdidos() {
-  const { clientes, atualizarCliente } = useApp();
+  const { clientes, atualizarCliente, userProfiles } = useApp();
   const clientesPerdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
 
   const obterAlertas = (cliente: Cliente) => {
@@ -118,6 +119,10 @@ export function ClientesPerdidos() {
                       <div>
                         <span className="font-medium">Valor da Venda:</span>{' '}
                         {formatCurrency(cliente.valorCredito)}
+                      </div>
+                      <div>
+                        <span className="font-medium">Vendedor:</span>{' '}
+                        {userProfiles[cliente.userId]?.name || 'Desconhecido'}
                       </div>
                       {cliente.dataVenda && (
                         <div>
