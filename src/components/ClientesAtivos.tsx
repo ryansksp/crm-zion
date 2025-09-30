@@ -82,7 +82,7 @@ export function ClientesAtivos() {
 
   const handleQuotaChange = (clienteId: string, index: number, value: string) => {
     setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [''];
       quotas[index] = value;
       return { ...prev, [clienteId]: quotas };
     });
