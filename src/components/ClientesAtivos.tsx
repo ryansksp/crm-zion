@@ -185,8 +185,16 @@ export function ClientesAtivos() {
                         <span className="font-medium">Vendedor:</span> {userProfiles[cliente.userId]?.name || 'Desconhecido'}
                       </div>
                       <div>
-                        <span className="font-medium">Grupo/Cotas:</span>
-                        <div className="flex flex-wrap items-center space-x-2 mt-1">
+                        <span className="font-medium">Grupo:</span>
+                        <input
+                          type="text"
+                          value={cliente.grupo || ''}
+                          onChange={(e) => atualizarCliente(cliente.id, { grupo: e.target.value })}
+                          className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24 mr-2"
+                          placeholder="Grupo"
+                        />
+                        <span className="font-medium">Cota:</span>
+                        <div className="inline-flex items-center space-x-2">
                           {(editingQuotas[cliente.id] && editingQuotas[cliente.id].length > 0) ? (
                             editingQuotas[cliente.id].map((quota, index) => (
                               <input

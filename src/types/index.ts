@@ -14,6 +14,7 @@ export interface Cliente {
   dataPerda?: string;
   motivoPerda?: string;
   gruposECotas?: string[];
+  grupo?: string;
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
   userId: string;
