@@ -1,11 +1,24 @@
+import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { Cliente } from '../types';
-import { Users, Calendar, Gift, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, Calendar, Gift, CheckCircle2, XCircle, Plus } from 'lucide-react';
 
 export function ClientesAtivos() {
   const { obterClientesAtivos, atualizarCliente, userProfiles } = useApp();
   const clientesAtivos = obterClientesAtivos();
+
+  // State to hold editing quotas per client
+  const [editingQuotas, setEditingQuotas] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    // Initialize editingQuotas state from clientesAtivos
+    const initialQuotas: Record<string, string[]> = {};
+    clientesAtivos.forEach(cliente => {
+      initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
+    });
+    setEditingQuotas(initialQuotas);
+  }, [clientesAtivos]);
 
   const calcularProximaAssembleia = (dataVenda: string) => {
     const venda = new Date(dataVenda);
@@ -19,8 +32,6 @@ export function ClientesAtivos() {
     
     return proximaAssembleia;
   };
-
-
 
   const obterAlertas = (cliente: Cliente) => {
     const alertas = [];
@@ -67,6 +78,30 @@ export function ClientesAtivos() {
     'Ativo': { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle2 },
     'Contemplado': { bg: 'bg-blue-100', text: 'text-blue-700', icon: CheckCircle2 },
     'Cancelado': { bg: 'bg-red-100', text: 'text-red-700', icon: XCircle }
+  };
+
+  const handleQuotaChange = (clienteId: string, index: number, value: string) => {
+    setEditingQuotas(prev => {
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
+      quotas[index] = value;
+      return { ...prev, [clienteId]: quotas };
+    });
+  };
+
+  const addQuotaField = (clienteId: string) => {
+    setEditingQuotas(prev => {
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [''];
+      quotas.push('');
+      return { ...prev, [clienteId]: quotas };
+    });
+  };
+
+  const saveQuotas = (cliente: Cliente) => {
+    const quotas = editingQuotas[cliente.id];
+    if (quotas) {
+      const filteredQuotas = quotas.filter(q => q.trim() !== '');
+      atualizarCliente(cliente.id, { gruposECotas: filteredQuotas });
+    }
   };
 
   return (
@@ -149,11 +184,41 @@ export function ClientesAtivos() {
                       <div>
                         <span className="font-medium">Vendedor:</span> {userProfiles[cliente.userId]?.name || 'Desconhecido'}
                       </div>
-                      {cliente.grupoECota && (
-                        <div>
-                          <span className="font-medium">Grupo/Cota:</span> {cliente.grupoECota}
+                      <div>
+                        <span className="font-medium">Grupo/Cotas:</span>
+                        <div className="flex flex-wrap items-center space-x-2 mt-1">
+                          {(editingQuotas[cliente.id] && editingQuotas[cliente.id].length > 0) ? (
+                            editingQuotas[cliente.id].map((quota, index) => (
+                              <input
+                                key={index}
+                                type="text"
+                                value={quota}
+                                onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
+                                onBlur={() => saveQuotas(cliente)}
+                                className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
+                                placeholder="Cota"
+                              />
+                            ))
+                          ) : (
+                            <input
+                              type="text"
+                              value=""
+                              onChange={(e) => handleQuotaChange(cliente.id, 0, e.target.value)}
+                              onBlur={() => saveQuotas(cliente)}
+                              className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
+                              placeholder="Cota"
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => addQuotaField(cliente.id)}
+                            className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                            title="Adicionar cota"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
                         </div>
-                      )}
+                      </div>
                       {cliente.dataVenda && (
                         <div>
                           <span className="font-medium">Data da Venda:</span>
@@ -197,19 +262,6 @@ export function ClientesAtivos() {
                       <option value="Cancelado">Cancelado</option>
                     </select>
 
-                    {!cliente.grupoECota && (
-                      <input
-                        type="text"
-                        placeholder="Grupo/Cota"
-                        onBlur={(e) => {
-                          if (e.target.value) {
-                            atualizarCliente(cliente.id, { grupoECota: e.target.value });
-                          }
-                        }}
-                        className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    )}
-
                     {!cliente.aniversario && (
                       <input
                         type="date"
@@ -241,3 +293,4 @@ export function ClientesAtivos() {
     </div>
   );
 }
+
