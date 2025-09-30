@@ -184,48 +184,52 @@ export function ClientesAtivos() {
                       <div>
                         <span className="font-medium">Vendedor:</span> {userProfiles[cliente.userId]?.name || 'Desconhecido'}
                       </div>
-                      <div>
-                        <span className="font-medium">Grupo:</span>
-                        <input
-                          type="text"
-                          value={cliente.grupo || ''}
-                          onChange={(e) => atualizarCliente(cliente.id, { grupo: e.target.value })}
-                          className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24 mr-2"
-                          placeholder="Grupo"
-                        />
-                        <span className="font-medium">Cota:</span>
-                        <div className="inline-flex items-center space-x-2">
-                          {(editingQuotas[cliente.id] && editingQuotas[cliente.id].length > 0) ? (
-                            editingQuotas[cliente.id].map((quota, index) => (
+                      <div className="flex flex-wrap items-center space-x-4 mt-1">
+                        <label className="font-medium flex items-center space-x-1">
+                          <span>Grupo:</span>
+                          <input
+                            type="text"
+                            value={cliente.grupo || ''}
+                            onChange={(e) => atualizarCliente(cliente.id, { grupo: e.target.value })}
+                            className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
+                            placeholder="Grupo"
+                          />
+                        </label>
+                        <label className="font-medium flex items-center space-x-1">
+                          <span>Cota:</span>
+                          <div className="inline-flex items-center space-x-2">
+                            {(editingQuotas[cliente.id] && editingQuotas[cliente.id].length > 0) ? (
+                              editingQuotas[cliente.id].map((quota, index) => (
+                                <input
+                                  key={index}
+                                  type="text"
+                                  value={quota}
+                                  onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
+                                  onBlur={() => saveQuotas(cliente)}
+                                  className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
+                                  placeholder="Cota"
+                                />
+                              ))
+                            ) : (
                               <input
-                                key={index}
                                 type="text"
-                                value={quota}
-                                onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
+                                value=""
+                                onChange={(e) => handleQuotaChange(cliente.id, 0, e.target.value)}
                                 onBlur={() => saveQuotas(cliente)}
                                 className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
                                 placeholder="Cota"
                               />
-                            ))
-                          ) : (
-                            <input
-                              type="text"
-                              value=""
-                              onChange={(e) => handleQuotaChange(cliente.id, 0, e.target.value)}
-                              onBlur={() => saveQuotas(cliente)}
-                              className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
-                              placeholder="Cota"
-                            />
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => addQuotaField(cliente.id)}
-                            className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-                            title="Adicionar cota"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => addQuotaField(cliente.id)}
+                              className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                              title="Adicionar cota"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </label>
                       </div>
                       {cliente.dataVenda && (
                         <div>
