@@ -20,7 +20,12 @@
 - [x] Refatorar AppContext para usar os serviços
 - [x] Atualizar imports nos componentes
 
-### 5. Testes e verificações finais
+### 5. Correção da funcionalidade de cotas
+- [x] Corrigir campos de grupo e cotas em ClientesAtivos.tsx
+- [x] Permitir adicionar/remover múltiplas cotas
+- [x] Salvar cotas corretamente no cliente
+
+### 6. Testes e verificações finais
 - [ ] Executar o projeto e verificar se tudo funciona
 - [ ] Verificar se não há imports quebrados
 - [ ] Confirmar que textos estão em pt-br e código em inglês

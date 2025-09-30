@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { Cliente } from '../types';
-import { Users, Calendar, Gift, CheckCircle2, XCircle, Plus } from 'lucide-react';
+import { Users, Calendar, Gift, CheckCircle2, XCircle, Plus, X } from 'lucide-react';
 
 export function ClientesAtivos() {
   const { obterClientesAtivos, atualizarCliente, userProfiles } = useApp();
@@ -96,11 +96,19 @@ export function ClientesAtivos() {
     });
   };
 
+  const removeQuotaField = (clienteId: string, index: number) => {
+    setEditingQuotas(prev => {
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [''];
+      quotas.splice(index, 1);
+      return { ...prev, [clienteId]: quotas };
+    });
+  };
+
   const saveQuotas = (cliente: Cliente) => {
     const quotas = editingQuotas[cliente.id];
     if (quotas) {
       const filteredQuotas = quotas.filter(q => q.trim() !== '');
-      atualizarCliente(cliente.id, { gruposECotas: filteredQuotas });
+      atualizarCliente(cliente.id, { gruposECotas: filteredQuotas.length > 0 ? filteredQuotas : undefined });
     }
   };
 
@@ -195,13 +203,12 @@ export function ClientesAtivos() {
                             placeholder="Grupo"
                           />
                         </label>
-                        <label className="font-medium flex items-center space-x-1">
-                          <span>Cota:</span>
+                        <div className="font-medium flex items-center space-x-1">
+                          <span>Cotas:</span>
                           <div className="inline-flex items-center space-x-2">
-                            {(editingQuotas[cliente.id] && editingQuotas[cliente.id].length > 0) ? (
-                              editingQuotas[cliente.id].map((quota, index) => (
+                            {editingQuotas[cliente.id]?.map((quota, index) => (
+                              <div key={index} className="flex items-center space-x-1">
                                 <input
-                                  key={index}
                                   type="text"
                                   value={quota}
                                   onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
@@ -209,17 +216,18 @@ export function ClientesAtivos() {
                                   className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
                                   placeholder="Cota"
                                 />
-                              ))
-                            ) : (
-                              <input
-                                type="text"
-                                value=""
-                                onChange={(e) => handleQuotaChange(cliente.id, 0, e.target.value)}
-                                onBlur={() => saveQuotas(cliente)}
-                                className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
-                                placeholder="Cota"
-                              />
-                            )}
+                                {editingQuotas[cliente.id].length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeQuotaField(cliente.id, index)}
+                                    className="p-1 rounded bg-red-600 text-white hover:bg-red-700"
+                                    title="Remover cota"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
                             <button
                               type="button"
                               onClick={() => addQuotaField(cliente.id)}
@@ -229,7 +237,7 @@ export function ClientesAtivos() {
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
-                        </label>
+                        </div>
                       </div>
                       {cliente.dataVenda && (
                         <div>
