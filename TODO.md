@@ -20,10 +20,11 @@
 - [x] Refatorar AppContext para usar os serviços
 - [x] Atualizar imports nos componentes
 
-### 5. Correção da funcionalidade de cotas
+### 5. Correção da funcionalidade de cotas e grupo
 - [x] Corrigir campos de grupo e cotas em ClientesAtivos.tsx
+- [x] Implementar estado local para edição do grupo (editingGroups)
 - [x] Permitir adicionar/remover múltiplas cotas
-- [x] Salvar cotas corretamente no cliente
+- [x] Salvar cotas e grupo corretamente no cliente
 
 ### 6. Testes e verificações finais
 - [ ] Executar o projeto e verificar se tudo funciona

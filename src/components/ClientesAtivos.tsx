@@ -10,14 +10,19 @@ export function ClientesAtivos() {
 
   // State to hold editing quotas per client
   const [editingQuotas, setEditingQuotas] = useState<Record<string, string[]>>({});
+  // State to hold editing groups per client
+  const [editingGroups, setEditingGroups] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // Initialize editingQuotas state from clientesAtivos
     const initialQuotas: Record<string, string[]> = {};
+    const initialGroups: Record<string, string> = {};
     clientesAtivos.forEach(cliente => {
       initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
+      initialGroups[cliente.id] = cliente.grupo || '';
     });
     setEditingQuotas(initialQuotas);
+    setEditingGroups(initialGroups);
   }, []);
 
   const calcularProximaAssembleia = (dataVenda: string) => {
@@ -197,8 +202,15 @@ export function ClientesAtivos() {
                           <span>Grupo:</span>
                           <input
                             type="text"
-                            value={cliente.grupo || ''}
-                            onChange={(e) => atualizarCliente(cliente.id, { grupo: e.target.value })}
+                            value={editingGroups[cliente.id] || ''}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingGroups(prev => ({ ...prev, [cliente.id]: value }));
+                            }}
+                            onBlur={() => {
+                              const groupValue = editingGroups[cliente.id];
+                              atualizarCliente(cliente.id, { grupo: groupValue });
+                            }}
                             className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
                             placeholder="Grupo"
                           />
