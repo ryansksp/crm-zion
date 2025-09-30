@@ -212,16 +212,22 @@ export function ClientesAtivos() {
                               const value = e.target.value;
                               setEditingGroups(prev => ({ ...prev, [cliente.id]: value }));
                             }}
-                            onBlur={() => {
+                            className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
+                            placeholder="Grupo"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
                               const groupValue = editingGroups[cliente.id];
-                              console.log('onBlur chamado para grupo, valor:', groupValue);
                               atualizarCliente(cliente.id, { grupo: groupValue }).catch(error => {
                                 console.error('Erro ao salvar grupo:', error);
                               });
                             }}
-                            className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
-                            placeholder="Grupo"
-                          />
+                            className="ml-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                            title="Salvar Grupo"
+                          >
+                            Salvar
+                          </button>
                         </label>
                         <div className="font-medium flex items-center space-x-1">
                           <span>Cotas:</span>
