@@ -340,7 +340,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const adicionarCliente = async (cliente: Omit<Cliente, 'id'>) => {
     if (!user) return;
-    await ClienteService.adicionarCliente({ ...cliente, userId: user.uid });
+    const clienteId = await ClienteService.adicionarCliente({ ...cliente, userId: user.uid });
+    // Atualizar o estado local com o novo cliente
+    const novoCliente: Cliente = {
+      ...cliente,
+      id: clienteId,
+      userId: user.uid
+    };
+    dispatch({ type: 'SET_CLIENTES', payload: [...state.clientes, novoCliente] });
   };
 
   const atualizarCliente = async (id: string, cliente: Partial<Cliente>) => {

@@ -26,8 +26,14 @@
 - [x] Permitir adicionar/remover múltiplas cotas
 - [x] Salvar cotas e grupo corretamente no cliente
 
-### 6. Testes e verificações finais
-- [x] Executar o projeto e verificar se tudo funciona
-- [x] Verificar se não há imports quebrados
-- [x] Confirmar que textos estão em pt-br e código em inglês
+### 6. Corrigir problema de salvamento no Firestore
+- [x] Corrigir inconsistência de IDs entre objeto cliente e documento Firestore
+- [x] Adicionar tratamento de erro e logs de debug em ClienteService
+- [x] Atualizar ClienteService.adicionarCliente para retornar ID correto
+- [x] Atualizar AppContext para usar ID retornado pelo serviço
+
+### 7. Testes e verificações finais
+- [ ] Executar o projeto e verificar se tudo funciona
+- [ ] Verificar se não há imports quebrados
+- [ ] Confirmar que textos estão em pt-br e código em inglês
 - [ ] Testar salvamento de grupo e cotas após refresh da página

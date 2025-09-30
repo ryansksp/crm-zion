@@ -113,7 +113,12 @@ export function ClientesAtivos() {
     const quotas = editingQuotas[cliente.id];
     if (quotas) {
       const filteredQuotas = quotas.filter(q => q.trim() !== '');
-      atualizarCliente(cliente.id, { gruposECotas: filteredQuotas.length > 0 ? filteredQuotas : undefined });
+      try {
+        atualizarCliente(cliente.id, { gruposECotas: filteredQuotas.length > 0 ? filteredQuotas : undefined });
+        console.log('Quotas salvas com sucesso para cliente:', cliente.id);
+      } catch (error) {
+        console.error('Erro ao salvar quotas para cliente:', cliente.id, error);
+      }
     }
   };
 
@@ -209,7 +214,10 @@ export function ClientesAtivos() {
                             }}
                             onBlur={() => {
                               const groupValue = editingGroups[cliente.id];
-                              atualizarCliente(cliente.id, { grupo: groupValue });
+                              console.log('onBlur chamado para grupo, valor:', groupValue);
+                              atualizarCliente(cliente.id, { grupo: groupValue }).catch(error => {
+                                console.error('Erro ao salvar grupo:', error);
+                              });
                             }}
                             className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
                             placeholder="Grupo"

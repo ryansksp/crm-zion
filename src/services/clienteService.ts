@@ -3,19 +3,35 @@ import { collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where } fro
 import { Cliente } from '../types';
 
 export class ClienteService {
-  static async adicionarCliente(cliente: Omit<Cliente, 'id'>): Promise<void> {
+  static async adicionarCliente(cliente: Omit<Cliente, 'id'>): Promise<string> {
     const novoCliente: Cliente = {
       ...cliente,
-      id: Date.now().toString(),
+      id: '', // Será definido com o ID do Firestore
       userId: cliente.userId
     };
     const docRef = doc(collection(db, 'clientes'));
-    await setDoc(docRef, novoCliente);
+    await setDoc(docRef, { ...novoCliente, id: docRef.id });
+    return docRef.id;
   }
 
   static async atualizarCliente(id: string, cliente: Partial<Cliente>): Promise<void> {
-    const docRef = doc(db, 'clientes', id);
-    await updateDoc(docRef, cliente);
+    try {
+      const docRef = doc(db, 'clientes', id);
+
+      // Verificar se o documento existe
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        console.error(`Documento cliente com ID ${id} não encontrado no Firestore`);
+        throw new Error(`Cliente não encontrado: ${id}`);
+      }
+
+      console.log('Atualizando cliente:', id, 'com dados:', cliente);
+      await updateDoc(docRef, cliente);
+      console.log('Cliente atualizado com sucesso:', id);
+    } catch (error) {
+      console.error('Erro ao atualizar cliente:', error);
+      throw error;
+    }
   }
 
   static async moverClienteEtapa(id: string, novaEtapa: Cliente['etapa'], userProfile: any): Promise<void> {
