@@ -66,6 +66,10 @@ function appReducer(state: Omit<AppState, 'userProfile'>, action: Action): Omit<
   }
 }
 
+import { ClienteService } from '../services/clienteService';
+import { PlanoService } from '../services/planoService';
+import { SimulacaoService } from '../services/simulacaoService';
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -74,8 +78,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [clientesPorUsuario, setClientesPorUsuario] = useState<Record<string, Cliente[]>>({});
   const [metasPorUsuario, setMetasPorUsuario] = useState<Record<string, Meta>>({});
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
-
-
 
   useEffect(() => {
     if (!user) {
@@ -182,7 +184,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ];
 
         for (const plano of defaultPlans) {
-          await adicionarPlano(plano);
+          await PlanoService.adicionarPlano(plano, user.uid);
         }
       }
     };
@@ -338,116 +340,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const adicionarCliente = async (cliente: Omit<Cliente, 'id'>) => {
     if (!user) return;
-    const novoCliente: Cliente = {
-      ...cliente,
-      id: Date.now().toString(),
-      userId: user.uid
-    };
-    const docRef = doc(collection(db, 'clientes'));
-    await setDoc(docRef, novoCliente);
+    await ClienteService.adicionarCliente({ ...cliente, userId: user.uid });
   };
 
   const atualizarCliente = async (id: string, cliente: Partial<Cliente>) => {
     if (!user) return;
-
-    let q;
-    if (userProfile?.accessLevel === 'Diretor') {
-      q = query(collection(db, 'clientes'), where('id', '==', id));
-    } else {
-      q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
-    }
-
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const docRef = querySnapshot.docs[0].ref;
-      await updateDoc(docRef, cliente);
-    }
+    await ClienteService.atualizarCliente(id, cliente);
   };
 
   const moverClienteEtapa = async (id: string, novaEtapa: Cliente['etapa']) => {
     if (!user) return;
-
-    // Primeiro, buscar o cliente para obter o valor e etapa atual
-    let q;
-    if (userProfile?.accessLevel === 'Diretor') {
-      q = query(collection(db, 'clientes'), where('id', '==', id));
-    } else {
-      q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', user.uid));
-    }
-
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) return;
-
-    const clienteDoc = querySnapshot.docs[0];
-    const cliente = { id: clienteDoc.id, ...clienteDoc.data() } as Cliente;
-    const etapaAnterior = cliente.etapa;
-
-    // Atualizar a etapa do cliente
-    await atualizarCliente(id, {
-      etapa: novaEtapa,
-      dataUltimaInteracao: new Date().toISOString()
-    });
-
-    // Atualizar o vendidoNoMes se necessário
-    if (cliente.valorCredito && (etapaAnterior === 'Venda Ganha' || novaEtapa === 'Venda Ganha')) {
-      // Para diretores, atualizar as metas do usuário que criou o cliente
-      // Para outros, atualizar suas próprias metas
-      const userIdParaMetas = userProfile?.accessLevel === 'Diretor' ? cliente.userId : user.uid;
-      const docRefMetas = doc(db, 'metas', userIdParaMetas);
-      const docSnap = await getDoc(docRefMetas);
-
-      let novasMetas: Partial<Meta> = {};
-
-      if (docSnap.exists()) {
-        const metasAtuais = docSnap.data() as Meta;
-        let vendidoNoMesAtual = metasAtuais.vendidoNoMes || 0;
-
-        // Se estava em 'Venda Ganha' e agora não está mais, subtrair
-        if (etapaAnterior === 'Venda Ganha' && novaEtapa !== 'Venda Ganha') {
-          vendidoNoMesAtual = Math.max(0, vendidoNoMesAtual - cliente.valorCredito);
-        }
-        // Se não estava em 'Venda Ganha' e agora está, adicionar
-        else if (etapaAnterior !== 'Venda Ganha' && novaEtapa === 'Venda Ganha') {
-          vendidoNoMesAtual += cliente.valorCredito;
-        }
-
-        novasMetas.vendidoNoMes = vendidoNoMesAtual;
-      } else if (novaEtapa === 'Venda Ganha') {
-        // Se o documento não existe e estamos adicionando a primeira venda
-        novasMetas.vendidoNoMes = cliente.valorCredito;
-      }
-
-      if (Object.keys(novasMetas).length > 0) {
-        await setDoc(docRefMetas, novasMetas, { merge: true });
-      }
-    }
+    await ClienteService.moverClienteEtapa(id, novaEtapa, userProfile);
   };
 
   const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => {
     if (!user) return;
-    const novoPlano = {
-      ...plano,
-      userId: user.uid
-    };
-    const docRef = doc(collection(db, 'planos'));
-    await setDoc(docRef, novoPlano);
+    await PlanoService.adicionarPlano(plano, user.uid);
   };
 
   const atualizarPlano = async (id: string, plano: Partial<PlanoEmbracon>) => {
     if (!user) return;
-
-    const docRef = doc(db, 'planos', id);
-
-    // Check permissions
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return;
-
-    const data = docSnap.data();
-    if (userProfile?.accessLevel !== 'Diretor' && userProfile?.accessLevel !== 'Gerente' && data.userId !== user.uid) {
-      return; // No permission
-    }
-
-    await updateDoc(docRef, plano);
+    await PlanoService.atualizarPlano(id, plano, userProfile);
   };
 
   const atualizarMetas = async (metas: Partial<Meta>) => {
@@ -463,13 +376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
     if (!user) return;
-    const novaSimulacao: Simulacao = {
-      ...simulacao,
-      id: Date.now().toString(),
-      userId: user.uid,
-    };
-    const docRef = doc(collection(db, 'simulacoes'));
-    await setDoc(docRef, novaSimulacao);
+    await SimulacaoService.adicionarSimulacao({ ...simulacao, userId: user.uid });
   };
 
   const obterClientesAtivos = () => {
@@ -485,24 +392,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const totalClientes = state.clientes.length;
     const vendas = state.clientes.filter(c => c.etapa === 'Venda Ganha').length;
     return totalClientes > 0 ? (vendas / totalClientes) * 100 : 0;
-  };
-
-  const obterLeads = () => {
-    if (!userProfile) return [];
-    if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
-      return state.clientes.filter(c => c.etapa === 'Lead');
-    }
-    // @ts-ignore
-    return state.clientes.filter(c => c.etapa === 'Lead' && c.userId === userProfile.uid);
-  };
-
-  const obterClientesPerdidos = () => {
-    if (!userProfile) return [];
-    if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
-      return state.clientes.filter(c => c.etapa === 'Venda Perdida');
-    }
-    // @ts-ignore
-    return state.clientes.filter(c => c.etapa === 'Venda Perdida' && c.userId === userProfile.uid);
   };
 
   const podeAlterarPermissao = (novoNivel: 'Operador' | 'Gerente' | 'Diretor') => {

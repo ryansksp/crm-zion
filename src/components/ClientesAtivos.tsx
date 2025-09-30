@@ -18,7 +18,7 @@ export function ClientesAtivos() {
       initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
     });
     setEditingQuotas(initialQuotas);
-  }, [clientesAtivos]);
+  }, []);
 
   const calcularProximaAssembleia = (dataVenda: string) => {
     const venda = new Date(dataVenda);
