@@ -13,7 +13,7 @@ export interface Cliente {
   dataVenda?: string;
   dataPerda?: string;
   motivoPerda?: string;
-  grupoECota?: string;
+  gruposECotas?: string[];
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
   userId: string;
