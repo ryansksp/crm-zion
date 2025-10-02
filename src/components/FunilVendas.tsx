@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User } from 'lucide-react';
-import { EtapaFunil } from '../types';
+import type { EtapaFunil } from '../types'; // 👈 importado apenas como tipo
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
 
 export function FunilVendas() {
@@ -53,7 +53,7 @@ export function FunilVendas() {
     'Venda Perdida'
   ];
 
-  const coresEtapas = {
+  const coresEtapas: Record<EtapaFunil, string> = {
     'Novo Cliente': 'bg-indigo-100 text-indigo-700',
     'Lead': 'bg-gray-100 text-gray-700',
     'Contato Inicial': 'bg-blue-100 text-blue-700',
@@ -73,14 +73,14 @@ export function FunilVendas() {
     const formData = new FormData(e.target as HTMLFormElement);
     
     adicionarCliente({
-      userId: userProfile?.id || '', // Use ID do usuário logado como vendedor
+      userId: userProfile?.id || '',
       nome: formData.get('nome') as string,
       telefone: formData.get('telefone') as string,
       email: formData.get('email') as string,
       planoInteresse: formData.get('planoInteresse') as string,
       valorCredito: parseFloat(formData.get('valorCredito') as string) || 0,
       etapa: 'Lead',
-      dataCriacao: new Date().toISOString(),
+      dataCriacao: new Date().toISOString(),         // 👈 agora está aqui
       dataUltimaInteracao: new Date().toISOString(),
       historico: [],
       simulacoes: []

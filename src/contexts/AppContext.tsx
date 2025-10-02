@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { Cliente, PlanoEmbracon, Meta, Simulacao, UserProfile } from '../types';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 
@@ -30,9 +30,12 @@ interface AppContextType extends AppState {
   clientesPorUsuario: Record<string, Cliente[]>;
   metasPorUsuario: Record<string, Meta>;
   userProfiles: Record<string, UserProfile>;
+
+  isPlanComparisonOpen: boolean;
+  setIsPlanComparisonOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 type Action =
   | { type: 'SET_CLIENTES'; payload: Cliente[] }
@@ -78,6 +81,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [clientesPorUsuario, setClientesPorUsuario] = useState<Record<string, Cliente[]>>({});
   const [metasPorUsuario, setMetasPorUsuario] = useState<Record<string, Meta>>({});
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
+
+  const [isPlanComparisonOpen, setIsPlanComparisonOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -444,7 +449,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       podeGerenciarUsuarios,
       clientesPorUsuario,
       metasPorUsuario,
-      userProfiles
+      userProfiles,
+      isPlanComparisonOpen,
+      setIsPlanComparisonOpen
     }}>
       {children}
     </AppContext.Provider>

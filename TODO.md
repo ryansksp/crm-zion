@@ -35,5 +35,4 @@
 ### 7. Testes e verificações finais
 - [ ] Executar o projeto e verificar se tudo funciona
 - [ ] Verificar se não há imports quebrados
-- [ ] Confirmar que textos estão em pt-br e código em inglês
 - [ ] Testar salvamento de grupo e cotas após refresh da página
