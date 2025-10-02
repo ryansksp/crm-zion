@@ -10,6 +10,18 @@ const PlanComparisonPopup: React.FC = () => {
   const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
   const [comparisonValue, setComparisonValue] = useState<number>(100000);
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
+  const [financingRate, setFinancingRate] = useState<number>(12);
+  const [financingTerm, setFinancingTerm] = useState<number>(240);
+  const [benefits] = useState<string[]>([
+    "Sem juros abusivos - apenas taxas administrativas transparentes",
+    "Possibilidade de lance para antecipar a contemplação",
+    "Poder de compra à vista sem comprometer seu orçamento mensal",
+    "Renda extra através do fundo de reserva durante o plano",
+    "Seguro incluso para maior segurança"
+  ]);
+  const [conclusion, setConclusion] = useState<string>(
+    "O Consórcio Embracon oferece uma alternativa inteligente e econômica ao financiamento tradicional. Com taxas transparentes e benefícios exclusivos, você realiza seu sonho de forma mais vantajosa e segura."
+  );
 
   useEffect(() => {
     if (isPlanComparisonOpen && planos.length > 0) {
@@ -41,8 +53,8 @@ const PlanComparisonPopup: React.FC = () => {
     };
   };
 
-  const calculateTraditionalFinancing = (value: number, prazo: number = 240) => {
-    const taxaJurosAnual = 0.12; // 12% ao ano
+  const calculateTraditionalFinancing = (value: number, rate: number, prazo: number) => {
+    const taxaJurosAnual = rate / 100;
     const taxaJurosMensal = taxaJurosAnual / 12;
     const parcelaMensal = (value * taxaJurosMensal * Math.pow(1 + taxaJurosMensal, prazo)) / (Math.pow(1 + taxaJurosMensal, prazo) - 1);
     const totalPago = parcelaMensal * prazo;
@@ -59,7 +71,7 @@ const PlanComparisonPopup: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-lg max-w-6xl w-full p-6 overflow-auto max-h-[90vh]">
+      <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg shadow-xl max-w-6xl w-full p-6 overflow-auto max-h-[90vh] border border-gray-200">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Comparativo de Planos Embracon</h2>
           <Button onClick={() => setIsPlanComparisonOpen(false)}>Fechar</Button>
@@ -77,6 +89,37 @@ const PlanComparisonPopup: React.FC = () => {
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Ex: 100000"
           />
+        </div>
+
+        {/* Parâmetros do Financiamento */}
+        <div className="mb-6 grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Taxa de Juros Anual (%)
+            </label>
+            <input
+              type="number"
+              value={financingRate}
+              onChange={(e) => setFinancingRate(Number(e.target.value))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Ex: 12"
+              min={0}
+              step={0.1}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Prazo (meses)
+            </label>
+            <input
+              type="number"
+              value={financingTerm}
+              onChange={(e) => setFinancingTerm(Number(e.target.value))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Ex: 240"
+              min={1}
+            />
+          </div>
         </div>
 
         {/* Seleção de Planos */}
@@ -112,7 +155,7 @@ const PlanComparisonPopup: React.FC = () => {
             if (!plan) return null;
 
             const consorcioDetails = calculateFinancingDetails(plan, comparisonValue);
-            const financiamentoDetails = calculateTraditionalFinancing(comparisonValue, plan.prazo);
+            const financiamentoDetails = calculateTraditionalFinancing(comparisonValue, financingRate, financingTerm);
             const economia = financiamentoDetails.totalPago - consorcioDetails.valorFinanciado;
 
             return (
@@ -122,7 +165,7 @@ const PlanComparisonPopup: React.FC = () => {
                 <div className="grid grid-cols-2 gap-6">
                   {/* Consórcio Embracon */}
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-green-700">Consórcio Embracon</h4>
+                    <h4 className="font-semibold text-green-700">🏠 Consórcio Embracon</h4>
                     <div className="space-y-2 text-sm">
                       <p>Valor Financiado: <strong>{formatCurrency(consorcioDetails.valorFinanciado)}</strong></p>
                       <p>Parcela Mensal: <strong>{formatCurrency(consorcioDetails.parcelaMensal)}</strong></p>
@@ -138,8 +181,10 @@ const PlanComparisonPopup: React.FC = () => {
 
                   {/* Financiamento Tradicional */}
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-red-700">Financiamento Tradicional</h4>
+                    <h4 className="font-semibold text-red-700">💰 Financiamento Tradicional</h4>
                     <div className="space-y-2 text-sm">
+                      <p>Taxa de Juros: <strong>{financingRate}% ao ano</strong></p>
+                      <p>Prazo: <strong>{financingTerm} meses</strong></p>
                       <p>Valor Financiado: <strong>{formatCurrency(comparisonValue)}</strong></p>
                       <p>Parcela Mensal: <strong>{formatCurrency(financiamentoDetails.parcelaMensal)}</strong></p>
                       <p>Juros Totais: <strong>{formatCurrency(financiamentoDetails.jurosTotais)}</strong></p>
@@ -155,11 +200,9 @@ const PlanComparisonPopup: React.FC = () => {
                     <p className={economia > 0 ? 'text-green-700' : 'text-red-700'}>
                       {economia > 0 ? 'Economia' : 'Custo Extra'}: <strong>{formatCurrency(Math.abs(economia))}</strong>
                     </p>
-                    <p>• Sem juros abusivos - apenas taxas administrativas transparentes</p>
-                    <p>• Possibilidade de lance para antecipar a contemplação</p>
-                    <p>• Poder de compra à vista sem comprometer seu orçamento mensal</p>
-                    <p>• Renda extra através do fundo de reserva durante o plano</p>
-                    <p>• Seguro incluso para maior segurança</p>
+                    {benefits.map((benefit, idx) => (
+                      <p key={idx}>• {benefit}</p>
+                    ))}
                   </div>
                 </div>
               </Card>
@@ -168,12 +211,15 @@ const PlanComparisonPopup: React.FC = () => {
         </div>
 
         {/* Conclusão */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-semibold text-blue-800 mb-2">Conclusão</h3>
-          <p className="text-sm text-gray-700">
-            O Consórcio Embracon oferece uma alternativa inteligente e econômica ao financiamento tradicional.
-            Com taxas transparentes e benefícios exclusivos, você realiza seu sonho de forma mais vantajosa e segura.
-          </p>
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 className="font-semibold text-blue-800 mb-2">📝 Conclusão</h3>
+          <textarea
+            value={conclusion}
+            onChange={(e) => setConclusion(e.target.value)}
+            className="w-full text-sm text-gray-700 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={3}
+            placeholder="Digite a conclusão aqui..."
+          />
         </div>
       </div>
     </div>

@@ -1,38 +1,10 @@
-# TODO: Revisão e Otimização do Projeto CRM Zion
+# TODO: Improve PlanComparisonPopup Layout
 
-## Etapas a Completar
-
-### 1. Remover arquivos .jsx não utilizados
-- [x] Deletar `src/components/Calculator.jsx`
-- [x] Deletar `src/components/CalculatorForm.jsx`
-- [x] Deletar `src/components/ComparisonSummary.jsx`
-- [x] Deletar `src/components/ConsortiumResults.jsx`
-- [x] Deletar `src/components/FinancingResults.jsx`
-
-### 2. Remover funções não utilizadas no AppContext
-- [x] Funções `obterLeads` e `obterClientesPerdidos` não estavam presentes no arquivo (já removidas ou não existiam)
-
-### 3. Otimizar performance em ClientesAtivos
-- [x] Otimizar `useEffect` em `src/components/ClientesAtivos.tsx` para evitar re-renders desnecessários
-
-### 4. Refatoração MVC
-- [x] Criar serviços para separar lógica de negócio (clienteService, planoService, simulacaoService)
-- [x] Refatorar AppContext para usar os serviços
-- [x] Atualizar imports nos componentes
-
-### 5. Correção da funcionalidade de cotas e grupo
-- [x] Corrigir campos de grupo e cotas em ClientesAtivos.tsx
-- [x] Implementar estado local para edição do grupo (editingGroups)
-- [x] Permitir adicionar/remover múltiplas cotas
-- [x] Salvar cotas e grupo corretamente no cliente
-
-### 6. Corrigir problema de salvamento no Firestore
-- [x] Corrigir inconsistência de IDs entre objeto cliente e documento Firestore
-- [x] Adicionar tratamento de erro e logs de debug em ClienteService
-- [x] Atualizar ClienteService.adicionarCliente para retornar ID correto
-- [x] Atualizar AppContext para usar ID retornado pelo serviço
-
-### 7. Testes e verificações finais
-- [ ] Executar o projeto e verificar se tudo funciona
-- [ ] Verificar se não há imports quebrados
-- [ ] Testar salvamento de grupo e cotas após refresh da página
+## Steps to Complete
+- [ ] Add state variables for editable financing parameters (interest rate, term)
+- [ ] Add state for dynamic benefits list and conclusion text
+- [ ] Update financing calculation function to use editable parameters
+- [ ] Enhance JSX layout with better styling, spacing, and visual elements
+- [ ] Add input fields for financing rate and term in the UI
+- [ ] Convert benefits and conclusion to editable text areas
+- [ ] Test the updated popup for functionality and responsiveness
