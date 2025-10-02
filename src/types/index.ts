@@ -66,6 +66,8 @@ export interface PlanoEmbracon {
   fundoReserva: number; // percentual
   seguro: number; // percentual
   taxaAdesao?: number; // percentual
+  valorCredito?: number; // valor do crédito
+  parcela?: number; // valor da parcela
   userId: string;
 }
 
