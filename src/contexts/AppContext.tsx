@@ -219,13 +219,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setClientesPorUsuario(clientesPorUser);
     });
 
-    // Planos - Master e Diretores veem todos, outros veem apenas os seus
-    let qPlanos;
-    if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
-      qPlanos = query(collection(db, 'planos'));
-    } else {
-      qPlanos = query(collection(db, 'planos'), where('userId', '==', user.uid));
-    }
+    // Planos - Todos os usuários veem todos os planos (planos são globais)
+    const qPlanos = query(collection(db, 'planos'));
 
     const unsubscribePlanos = onSnapshot(qPlanos, (querySnapshot) => {
       const planosFirestore: PlanoEmbracon[] = [];
