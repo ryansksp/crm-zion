@@ -128,49 +128,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const seedDefaultPlans = async () => {
       const planosSnapshot = await getDocs(collection(db, 'planos'));
       if (planosSnapshot.empty) {
-        const defaultPlans: Omit<PlanoEmbracon, 'id' | 'userId'>[] = [
-          // Imóvel plans
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 100000, parcela: 416.67 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 150000, parcela: 625.00 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 200000, parcela: 833.33 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 250000, parcela: 1041.67 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 300000, parcela: 1250.00 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 350000, parcela: 1458.33 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 400000, parcela: 1666.67 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 450000, parcela: 1875.00 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 500000, parcela: 2083.33 },
-          { nome: 'Imóvel 240 Meses', categoria: 'Imóvel', prazo: 240, taxaAdministracao: 28, fundoReserva: 2, seguro: 10, taxaAdesao: 1.2, valorCredito: 550000, parcela: 2291.67 },
-          // Automóvel plans
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 45000, parcela: 370.36 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 50000, parcela: 411.50 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 55000, parcela: 452.66 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 60000, parcela: 493.80 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 65000, parcela: 534.96 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 70000, parcela: 576.10 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 75000, parcela: 617.26 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 80000, parcela: 658.40 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 85000, parcela: 699.56 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 90000, parcela: 740.70 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 95000, parcela: 781.86 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 100000, parcela: 823.00 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 110000, parcela: 905.30 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 120000, parcela: 987.60 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 130000, parcela: 1069.90 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 140000, parcela: 1152.20 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 150000, parcela: 1234.50 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 160000, parcela: 1316.80 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 170000, parcela: 1399.10 },
-          { nome: 'Automóvel 100 Meses', categoria: 'Automóvel', prazo: 100, taxaAdministracao: 22, fundoReserva: 3, seguro: 10, taxaAdesao: 1.2, valorCredito: 180000, parcela: 1481.40 },
-          // Serviços plans
-          { nome: 'Serviços 15k', categoria: 'Serviços', prazo: 40, taxaAdministracao: 21, fundoReserva: 5, seguro: 10, taxaAdesao: 1.2, valorCredito: 15000 },
-          { nome: 'Serviços 20k', categoria: 'Serviços', prazo: 40, taxaAdministracao: 21, fundoReserva: 5, seguro: 10, taxaAdesao: 1.2, valorCredito: 20000 },
-          { nome: 'Serviços 25k', categoria: 'Serviços', prazo: 40, taxaAdministracao: 21, fundoReserva: 5, seguro: 10, taxaAdesao: 1.2, valorCredito: 25000 },
-          { nome: 'Serviços 30k', categoria: 'Serviços', prazo: 40, taxaAdministracao: 21, fundoReserva: 5, seguro: 10, taxaAdesao: 1.2, valorCredito: 30000 }
-        ];
-
-        for (const plano of defaultPlans) {
-          await PlanoService.adicionarPlano(plano, 'global');
-        }
+        await PlanoService.adicionarPlanosConsorcio(user.uid);
       }
     };
 
