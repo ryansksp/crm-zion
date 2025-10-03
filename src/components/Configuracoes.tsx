@@ -25,6 +25,11 @@ export function Configuracoes() {
     return acc;
   }, {});
 
+  // Ordenar os planos dentro de cada categoria por crédito decrescente
+  Object.keys(planosPorCategoria).forEach(cat => {
+    planosPorCategoria[cat].sort((a, b) => (b.credito || 0) - (a.credito || 0));
+  });
+
   useEffect(() => {
     setMetaMensal(metas.mensal);
   }, [metas]);
