@@ -15,19 +15,15 @@ export function Configuracoes() {
 
   const categorias = ['Automóvel', 'Imóvel', 'Serviços'];
 
-  console.log('Planos recebidos:', planos);
-
   const planosPorCategoria = planos.reduce((acc: Record<string, PlanoEmbracon[]>, plano) => {
-    // Agrupar por tipo + prazoMeses, ex: "Imóveis 200 Meses"
+    // Agrupar por tipo + prazoMeses, ex: "Imóveis - 200 Meses"
     const tipo = plano.tipo || 'Outros';
     const prazo = plano.prazoMeses || 'Indefinido';
-    const cat = `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} ${prazo} Meses`;
+    const cat = `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} - ${prazo} Meses`;
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(plano);
     return acc;
   }, {});
-
-  console.log('Planos agrupados por categoria:', planosPorCategoria);
 
   // Ordenar os planos dentro de cada categoria por crédito decrescente
   Object.keys(planosPorCategoria).forEach(cat => {
