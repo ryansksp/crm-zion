@@ -42,25 +42,42 @@ interface ResultadoSimulacao {
 }
 
 export function Simulador() {
-  const { clientes, adicionarSimulacao, setIsPlanComparisonOpen } = useApp();
+  const { clientes, adicionarSimulacao, setIsPlanComparisonOpen, planos } = useApp();
   const [formData, setFormData] = useState<FormularioSimulacao>({
     valorCredito: '120000',
     prazo: '240',
-    taxaAdm: '0.28',
-    fundoReserva: '0.02',
+    taxaAdm: '28',
+    fundoReserva: '2',
     taxaAdesao: '1.2',
     lanceEmbutido: '25',
     lanceProprio: '25',
     entrada: '30000',
     taxaJuros: '1.2',
-    prazoFinanciamento: '240'
+    prazoFinanciamento: '420'
   });
   const [clienteSelecionado, setClienteSelecionado] = useState<string>('');
+  const [planoSelecionado, setPlanoSelecionado] = useState<string>('');
   const [percentualLance, setPercentualLance] = useState<number>(0);
   const [resultado, setResultado] = useState<ResultadoSimulacao | null>(null);
 
   const handleChange = (field: keyof FormularioSimulacao, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePlanoChange = (planoId: string) => {
+    setPlanoSelecionado(planoId);
+    if (planoId) {
+      const plano = planos.find(p => p.id === planoId);
+      if (plano) {
+        setFormData(prev => ({
+          ...prev,
+          prazo: (plano.prazoMeses || plano.prazo || 0).toString(),
+          taxaAdm: (plano.taxaAdministracao || plano.taxaAdmTotal || 0).toString(),
+          fundoReserva: plano.fundoReserva.toString(),
+          taxaAdesao: (plano.taxaAdesao || 0).toString()
+        }));
+      }
+    }
   };
 
   const calcularSimulacao = () => {
@@ -169,19 +186,19 @@ Impacto estimado no prazo e custos
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Prazo (meses)
+                  Plano Embracon
                 </label>
                 <select
-                  value={formData.prazo}
-                  onChange={(e) => handleChange('prazo', e.target.value)}
+                  value={planoSelecionado}
+                  onChange={(e) => handlePlanoChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Selecione o prazo</option>
-                  <option value="200">200 Meses (Imóvel)</option>
-                  <option value="220">220 Meses (Imóvel)</option>
-                  <option value="240">240 Meses (Imóvel)</option>
-                  <option value="100">100 Meses (Automóvel)</option>
-                  <option value="40">40 Meses (Serviços)</option>
+                  <option value="">Selecione um plano</option>
+                  {planos.map(plano => (
+                    <option key={plano.id} value={plano.id}>
+                      {plano.nome} - {plano.prazoMeses || plano.prazo} meses ({plano.categoria || plano.tipo})
+                    </option>
+                  ))}
                 </select>
               </div>
 

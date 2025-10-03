@@ -25,22 +25,23 @@ const PlanComparisonPopup: React.FC = () => {
 
   useEffect(() => {
     if (isPlanComparisonOpen && planos.length > 0) {
-      // Get plans from the first category (or you can determine category from simulation)
-      const category = planos[0]?.categoria || 'Imóvel';
-      const categoryPlans = planos.filter(plan => plan.categoria === category).slice(0, 3);
-      setAvailablePlans(categoryPlans);
-      setSelectedPlans(categoryPlans.map(plan => plan.id));
+      // Show all plans for comparison
+      setAvailablePlans(planos);
+      // Select first 3 plans by default, or all if less than 3
+      const defaultSelected = planos.slice(0, Math.min(3, planos.length)).map(plan => plan.id);
+      setSelectedPlans(defaultSelected);
     }
   }, [isPlanComparisonOpen, planos]);
 
   const calculateFinancingDetails = (plan: PlanoEmbracon, value: number) => {
-    const taxaAdm = (value * plan.taxaAdministracao) / 100;
+    const taxaAdm = (value * (plan.taxaAdministracao || plan.taxaAdmTotal || 0)) / 100;
     const fundoReserva = (value * plan.fundoReserva) / 100;
     const seguro = (value * plan.seguro) / 100;
     const taxaAdesao = (value * (plan.taxaAdesao || 0)) / 100;
     const totalTaxas = taxaAdm + fundoReserva + seguro + taxaAdesao;
     const valorFinanciado = value - totalTaxas;
-    const parcelaMensal = valorFinanciado / plan.prazo;
+    const prazo = plan.prazoMeses || plan.prazo || 1; // avoid division by zero
+    const parcelaMensal = valorFinanciado / prazo;
 
     return {
       valorFinanciado,
@@ -140,8 +141,8 @@ const PlanComparisonPopup: React.FC = () => {
               >
                 <Card className="p-4">
                   <h4 className="font-semibold">{plan.nome}</h4>
-                  <p className="text-sm text-gray-600">Prazo: {plan.prazo} meses</p>
-                  <p className="text-sm text-gray-600">Taxa Adm: {plan.taxaAdministracao}%</p>
+                  <p className="text-sm text-gray-600">Prazo: {plan.prazoMeses || plan.prazo} meses</p>
+                  <p className="text-sm text-gray-600">Taxa Adm: {plan.taxaAdministracao || plan.taxaAdmTotal}%</p>
                 </Card>
               </div>
             ))}

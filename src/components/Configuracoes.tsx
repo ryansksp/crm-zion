@@ -213,7 +213,7 @@ export function Configuracoes() {
                         <p className="font-medium">R$ {formatNumber(plano.credito)}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600">Taxa Admin:</span>
+                        <span className="text-gray-600">Tx Administrativa:</span>
                         <p className="font-medium">{formatNumber(plano.taxaAdmTotal)}%</p>
                       </div>
                       <div>
