@@ -16,7 +16,10 @@ export function Configuracoes() {
   const categorias = ['Automóvel', 'Imóvel', 'Serviços'];
 
   const planosPorCategoria = planos.reduce((acc: Record<string, PlanoEmbracon[]>, plano) => {
-    const cat = plano.categoria || 'Outros';
+    // Agrupar por categoria + prazo, ex: "Imóveis 200 Meses"
+    const categoria = plano.categoria || 'Outros';
+    const prazo = plano.prazo || 'Indefinido';
+    const cat = `${categoria} ${prazo} Meses`;
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(plano);
     return acc;
@@ -166,19 +169,27 @@ export function Configuracoes() {
                         <button 
                           onClick={() => setEditingPlano(plano)}
                           className="text-blue-600 hover:text-blue-800 transition-colors"
+                          aria-label={`Editar plano ${plano.nome}`}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="text-red-600 hover:text-red-800 transition-colors">
+                        <button 
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          aria-label={`Excluir plano ${plano.nome}`}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Prazo:</span>
                         <p className="font-medium">{plano.prazo} meses</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Crédito:</span>
+                        <p className="font-medium">R$ {formatNumber(plano.valorCredito)}</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Taxa Admin:</span>
@@ -220,80 +231,94 @@ export function Configuracoes() {
             <h3 className="text-lg font-semibold mb-4">Novo Plano Embracon</h3>
             <form onSubmit={handleNovoPlano} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Plano</label>
+                <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome do Plano</label>
                 <input
+                  id="nome"
                   type="text"
                   name="nome"
                   required
                   placeholder="Ex: Plano Mais por Menos - Auto"
+                  title="Nome do Plano"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
                 <input
+                  id="categoria"
                   type="text"
                   name="categoria"
                   required
                   placeholder="Digite a categoria (ex: Automóvel, Imóvel, Serviços)"
+                  title="Categoria do Plano"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo (meses)</label>
+                <label htmlFor="prazo" className="block text-sm font-medium text-gray-700 mb-1">Prazo (meses)</label>
                 <input
+                  id="prazo"
                   type="number"
                   name="prazo"
                   required
                   placeholder="Ex: 60"
+                  title="Prazo em meses"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Taxa Adm. (%)</label>
+                  <label htmlFor="taxaAdministracao" className="block text-sm font-medium text-gray-700 mb-1">Taxa Adm. (%)</label>
                   <input
+                    id="taxaAdministracao"
                     type="text"
                     name="taxaAdministracao"
                     required
                     placeholder="Ex: 0,25"
+                    title="Taxa de Administração em percentual"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">F. Reserva (%)</label>
+                  <label htmlFor="fundoReserva" className="block text-sm font-medium text-gray-700 mb-1">F. Reserva (%)</label>
                   <input
+                    id="fundoReserva"
                     type="text"
                     name="fundoReserva"
                     required
                     placeholder="Ex: 0,15"
+                    title="Fundo de Reserva em percentual"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Seguro (%)</label>
-                <input
+                <label htmlFor="seguro" className="block text-sm font-medium text-gray-700 mb-1">Seguro (%)</label>
+                  <input
+                  id="seguro"
                   type="text"
                   name="seguro"
                   required
                   placeholder="Ex: 0,10"
+                  title="Seguro em percentual"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
-                <input
+                <label htmlFor="taxaAdesao" className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
+                  <input
+                  id="taxaAdesao"
                   type="text"
                   name="taxaAdesao"
                   required
                   placeholder="Ex: 1,00"
+                  title="Taxa de Adesão em percentual"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -337,17 +362,19 @@ export function Configuracoes() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-                <select
-                  name="categoria"
-                  required
-                  defaultValue={editingPlano.categoria || ''}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Selecione uma categoria</option>
-                  {categorias.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+          <select
+            id="categoria-select"
+            name="categoria"
+            required
+            defaultValue={editingPlano.categoria || ''}
+            aria-label="Selecione uma categoria"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecione uma categoria</option>
+            {categorias.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
               </div>
               
               <div>
