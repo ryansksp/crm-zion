@@ -30,6 +30,22 @@ export function Configuracoes() {
     planosPorCategoria[cat].sort((a, b) => (b.credito || 0) - (a.credito || 0));
   });
 
+  // Ordenar as categorias: imóveis primeiro, depois automóveis, e dentro de cada tipo por prazo decrescente
+  const categoriasOrdenadas = Object.keys(planosPorCategoria).sort((a, b) => {
+    const tipoA = a.split(' - ')[0].toLowerCase();
+    const tipoB = b.split(' - ')[0].toLowerCase();
+    if (tipoA !== tipoB) {
+      // Imóveis antes de Automóvel
+      if (tipoA === 'imóveis') return -1;
+      if (tipoB === 'imóveis') return 1;
+      return tipoA.localeCompare(tipoB);
+    }
+    // Mesmo tipo, ordenar por prazo decrescente
+    const prazoA = parseInt(a.split(' - ')[1].split(' ')[0]);
+    const prazoB = parseInt(b.split(' - ')[1].split(' ')[0]);
+    return prazoB - prazoA;
+  });
+
   useEffect(() => {
     setMetaMensal(metas.mensal);
   }, [metas]);
@@ -162,23 +178,23 @@ export function Configuracoes() {
         </div>
 
         <div className="space-y-6">
-          {Object.entries(planosPorCategoria).map(([categoria, planosCategoria]) => (
+          {categoriasOrdenadas.map(categoria => (
             <div key={categoria}>
               <h4 className="text-md font-semibold text-gray-800 mb-3 border-b pb-1">{categoria}</h4>
               <div className="space-y-4 mb-6">
-                {planosCategoria.map(plano => (
+                {planosPorCategoria[categoria].map(plano => (
                   <div key={plano.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex justify-between items-start mb-3">
                       <h5 className="font-medium text-gray-900">{plano.nome}</h5>
                       <div className="flex space-x-2">
-                        <button 
+                        <button
                           onClick={() => setEditingPlano(plano)}
                           className="text-blue-600 hover:text-blue-800 transition-colors"
                           aria-label={`Editar plano ${plano.nome}`}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button 
+                        <button
                           className="text-red-600 hover:text-red-800 transition-colors"
                           aria-label={`Excluir plano ${plano.nome}`}
                         >
@@ -186,8 +202,8 @@ export function Configuracoes() {
                         </button>
                       </div>
                     </div>
-                    
-                      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
+
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Prazo:</span>
                         <p className="font-medium">{plano.prazoMeses} meses</p>
@@ -218,7 +234,7 @@ export function Configuracoes() {
               </div>
             </div>
           ))}
-          
+
           {planos.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <Settings className="w-12 h-12 mx-auto mb-4 text-gray-400" />
