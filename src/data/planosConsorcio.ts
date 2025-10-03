@@ -38,8 +38,28 @@ export const planosAutomovel90Meses: PlanoConsorcio[] = [
   { nome: 'Automóvel 90 meses', tipo: 'automovel', credito: 180000, parcela: 1606.14, prazoMeses: 90, taxaAdmTotal: 21, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
 ];
 
+// Automóvel - 100 Meses
 export const planosAutomovel100Meses: PlanoConsorcio[] = [
   { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 45000, parcela: 370.36, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 50000, parcela: 411.50, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 55000, parcela: 452.66, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 60000, parcela: 493.80, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 65000, parcela: 534.96, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 70000, parcela: 576.10, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 75000, parcela: 617.26, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 80000, parcela: 658.40, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 85000, parcela: 699.56, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 90000, parcela: 740.70, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 95000, parcela: 781.86, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 100000, parcela: 823.00, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 110000, parcela: 905.30, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 120000, parcela: 987.60, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 130000, parcela: 1069.90, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 140000, parcela: 1152.20, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 150000, parcela: 1234.50, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 160000, parcela: 1315.80, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 170000, parcela: 1399.10, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
+  { nome: 'Automóvel 100 meses', tipo: 'automovel', credito: 180000, parcela: 1481.40, prazoMeses: 100, taxaAdmTotal: 22, fundoReserva: 3, taxaAdesao: 1.2, seguro: 0 },
 ];
 
 // ########## PLANOS DE IMÓVEL (ATUALIZADO) ##########
@@ -109,3 +129,4 @@ export const planosImovel240Meses: PlanoConsorcio[] = [
   { nome: 'Imóvel 240 meses', tipo: 'imovel', credito: 290000, parcela: 1229.89, prazoMeses: 240, taxaAdmTotal: 28, fundoReserva: 2, taxaAdesao: 1.2, seguro: 0 },
   { nome: 'Imóvel 240 meses', tipo: 'imovel', credito: 300000, parcela: 1272.30, prazoMeses: 240, taxaAdmTotal: 28, fundoReserva: 2, taxaAdesao: 1.2, seguro: 0 },
 ];
+
