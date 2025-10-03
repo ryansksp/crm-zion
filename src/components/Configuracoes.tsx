@@ -16,10 +16,10 @@ export function Configuracoes() {
   const categorias = ['Automóvel', 'Imóvel', 'Serviços'];
 
   const planosPorCategoria = planos.reduce((acc: Record<string, PlanoEmbracon[]>, plano) => {
-    // Agrupar por categoria + prazo, ex: "Imóveis 200 Meses"
-    const categoria = plano.categoria || 'Outros';
-    const prazo = plano.prazo || 'Indefinido';
-    const cat = `${categoria} ${prazo} Meses`;
+    // Agrupar por tipo + prazoMeses, ex: "Imóveis 200 Meses"
+    const tipo = plano.tipo || 'Outros';
+    const prazo = plano.prazoMeses || 'Indefinido';
+    const cat = `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} ${prazo} Meses`;
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(plano);
     return acc;
@@ -185,15 +185,15 @@ export function Configuracoes() {
                       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Prazo:</span>
-                        <p className="font-medium">{plano.prazo} meses</p>
+                        <p className="font-medium">{plano.prazoMeses} meses</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Crédito:</span>
-                        <p className="font-medium">R$ {formatNumber(plano.valorCredito)}</p>
+                        <p className="font-medium">R$ {formatNumber(plano.credito)}</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Taxa Admin:</span>
-                        <p className="font-medium">{formatNumber(plano.taxaAdministracao)}%</p>
+                        <p className="font-medium">{formatNumber(plano.taxaAdmTotal)}%</p>
                       </div>
                       <div>
                         <span className="text-gray-600">Fundo Reserva:</span>

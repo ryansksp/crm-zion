@@ -60,13 +60,17 @@ export interface Interacao {
 export interface PlanoEmbracon {
   id: string;
   nome: string;
+  tipo?: string; // Ex: 'automovel', 'imovel', 'servicos'
   categoria?: string; // Ex: 'Auto', 'Imóveis', 'Serviços'
-  prazo: number; // em meses
-  taxaAdministracao: number; // percentual
+  prazoMeses?: number; // em meses
+  prazo?: number; // em meses (para compatibilidade)
+  taxaAdmTotal?: number; // percentual
+  taxaAdministracao?: number; // percentual (para compatibilidade)
   fundoReserva: number; // percentual
   seguro: number; // percentual
   taxaAdesao?: number; // percentual
-  valorCredito?: number; // valor do crédito
+  credito?: number; // valor do crédito
+  valorCredito?: number; // valor do crédito (para compatibilidade)
   parcela?: number; // valor da parcela
   userId: string;
 }
