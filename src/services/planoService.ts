@@ -48,12 +48,15 @@ export class PlanoService {
 
     for (const plano of todosPlanos) {
       const novoPlano = {
+        nome: plano.nome,
         tipo: plano.tipo,
         credito: plano.credito,
         parcela: plano.parcela,
         prazoMeses: plano.prazoMeses,
         taxaAdmTotal: plano.taxaAdmTotal,
         fundoReserva: plano.fundoReserva,
+        taxaAdesao: plano.taxaAdesao,
+        seguro: plano.seguro,
         userId: userId
       };
       const docRef = doc(collection(db, 'planos'));
