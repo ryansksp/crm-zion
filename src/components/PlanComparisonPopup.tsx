@@ -208,10 +208,11 @@ const PlanComparisonPopup: React.FC = () => {
                         </td>
                         <td className="border border-gray-300 px-4 py-3">
                           <div className="space-y-1 text-sm">
-                            <div><strong>Valor Financiado:</strong> {formatCurrency(consorcioDetails.valorFinanciado)}</div>
+                            <div><strong>Valor de Crédito:</strong> {formatCurrency(comparisonValue)}</div>
+                            <div><strong>Valor Líquido:</strong> {formatCurrency(consorcioDetails.valorFinanciado)}</div>
                             <div><strong>Parcela Mensal:</strong> {formatCurrency(consorcioDetails.parcelaMensal)}</div>
-                            <div><strong>Total Taxas:</strong> {formatCurrency(consorcioDetails.totalTaxas)}</div>
-                            <div className="text-xs text-gray-600 mt-2">
+                            <div><strong>Total de Taxas:</strong> {formatCurrency(consorcioDetails.totalTaxas)}</div>
+                            <div className="text-xs text-gray-600 mt-2 border-t pt-2">
                               <div>Taxa Adm: {formatCurrency(consorcioDetails.taxaAdm)}</div>
                               <div>Fundo Reserva: {formatCurrency(consorcioDetails.fundoReserva)}</div>
                               <div>Seguro: {formatCurrency(consorcioDetails.seguro)}</div>
