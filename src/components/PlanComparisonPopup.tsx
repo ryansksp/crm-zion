@@ -25,6 +25,9 @@ const PlanComparisonPopup: React.FC = () => {
     "O Consórcio Embracon oferece uma alternativa inteligente e econômica ao financiamento tradicional. Com taxas transparentes e benefícios exclusivos, você realiza seu sonho de forma mais vantajosa e segura."
   );
 
+  // State to hold filtered plans by category
+  const [filteredPlans, setFilteredPlans] = useState<PlanoEmbracon[]>([]);
+
   useEffect(() => {
     if (isPlanComparisonOpen && planos.length > 0) {
       // Show all plans for comparison
@@ -32,27 +35,23 @@ const PlanComparisonPopup: React.FC = () => {
       // Select first 3 plans by default, or all if less than 3
       const defaultSelected = planos.slice(0, Math.min(3, planos.length)).map(plan => plan.id);
       setSelectedPlans(defaultSelected);
+      setFilteredPlans(planos);
     }
   }, [isPlanComparisonOpen, planos]);
 
   const calculateFinancingDetails = (plan: PlanoEmbracon, value: number) => {
     const taxaAdm = (value * (plan.taxaAdministracao || plan.taxaAdmTotal || 0)) / 100;
     const fundoReserva = (value * plan.fundoReserva) / 100;
-    const seguro = (value * plan.seguro) / 100;
-    const taxaAdesao = (value * (plan.taxaAdesao || 0)) / 100;
-    const totalTaxas = taxaAdm + fundoReserva + seguro + taxaAdesao;
+    const totalTaxas = taxaAdm + fundoReserva;
     const valorFinanciado = value - totalTaxas;
     const prazo = plan.prazoMeses || plan.prazo || 1; // avoid division by zero
-    const parcelaMensal = valorFinanciado / prazo;
 
     return {
       valorFinanciado,
-      parcelaMensal,
       totalTaxas,
       taxaAdm,
       fundoReserva,
-      seguro,
-      taxaAdesao
+      prazo
     };
   };
 
@@ -85,6 +84,19 @@ const PlanComparisonPopup: React.FC = () => {
         : [...prev, category]
     );
   };
+
+  // Update filtered plans when selectedCategories changes
+  useEffect(() => {
+    if (availablePlans.length === 0) return;
+    const filtered = availablePlans.filter(plan =>
+      selectedCategories.some(cat =>
+        (plan.categoria || plan.tipo || '').toLowerCase().includes(cat.toLowerCase())
+      )
+    );
+    setFilteredPlans(filtered);
+    // Reset selected plans to those in filtered list
+    setSelectedPlans(filtered.map(plan => plan.id));
+  }, [selectedCategories, availablePlans]);
 
   return (
     <div
