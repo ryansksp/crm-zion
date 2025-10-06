@@ -60,11 +60,11 @@ export function Simulador() {
   const [percentualLance, setPercentualLance] = useState<number>(0);
   const [resultado, setResultado] = useState<ResultadoSimulacao | null>(null);
 
-  const handleChange = (field: keyof FormularioSimulacao, value: string) => {
+  const handleChange = (field: keyof FormularioSimulacao, value: string): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePlanoChange = (planoId: string) => {
+  const handlePlanoChange = (planoId: string): void => {
     setPlanoSelecionado(planoId);
     if (planoId) {
       const plano = planos.find(p => p.id === planoId);
