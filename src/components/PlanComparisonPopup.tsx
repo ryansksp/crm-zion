@@ -24,8 +24,6 @@ const PlanComparisonPopup: React.FC = () => {
   const [conclusion, setConclusion] = useState<string>(
     "O Consórcio Embracon oferece uma alternativa inteligente e econômica ao financiamento tradicional. Com taxas transparentes e benefícios exclusivos, você realiza seu sonho de forma mais vantajosa e segura."
   );
-
-  // State to hold filtered plans by category
   const [filteredPlans, setFilteredPlans] = useState<PlanoEmbracon[]>([]);
 
   useEffect(() => {
@@ -37,13 +35,22 @@ const PlanComparisonPopup: React.FC = () => {
       setSelectedPlans(defaultSelected);
       setFilteredPlans(planos);
     }
-    // No return statement here to avoid returning JSX or null
   }, [isPlanComparisonOpen, planos]);
 
-  // Removed any conditional hook calls and ensured all hooks have correct dependencies
+  // ✅ CORREÇÃO: Este useEffect foi movido para o topo, junto com os outros hooks.
+  // Agora ele é declarado em toda renderização, antes de qualquer 'return'.
+  useEffect(() => {
+    if (availablePlans.length === 0) return;
+    const filtered = availablePlans.filter(plan =>
+      selectedCategories.some(cat =>
+        (plan.categoria || plan.tipo || '').toLowerCase().includes(cat.toLowerCase())
+      )
+    );
+    setFilteredPlans(filtered);
+    // Reset selected plans to those in filtered list
+    setSelectedPlans(filtered.map(plan => plan.id));
+  }, [selectedCategories, availablePlans]);
 
-  // Ensure hooks are not called conditionally and dependencies are correct
-  // No conditional hooks found, dependencies are correct
 
   const calculateFinancingDetails = (plan: PlanoEmbracon, value: number) => {
     const taxaAdm = (value * (plan.taxaAdministracao || plan.taxaAdmTotal || 0)) / 100;
@@ -75,6 +82,7 @@ const PlanComparisonPopup: React.FC = () => {
     };
   };
 
+  // Este 'return' agora é seguro, pois todos os hooks já foram declarados acima.
   if (!isPlanComparisonOpen) return null;
 
   const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>): void => {
@@ -90,20 +98,6 @@ const PlanComparisonPopup: React.FC = () => {
         : [...prev, category]
     );
   };
-
-  // Update filtered plans when selectedCategories changes
-  useEffect(() => {
-    if (availablePlans.length === 0) return;
-    const filtered = availablePlans.filter(plan =>
-      selectedCategories.some(cat =>
-        (plan.categoria || plan.tipo || '').toLowerCase().includes(cat.toLowerCase())
-      )
-    );
-    setFilteredPlans(filtered);
-    // Reset selected plans to those in filtered list
-    setSelectedPlans(filtered.map(plan => plan.id));
-    // No return statement here to avoid returning JSX or null
-  }, [selectedCategories, availablePlans]);
 
   return (
     <div
