@@ -13,8 +13,10 @@ Refatorar e melhorar a usabilidade e clareza da interface dos componentes Simula
 - [x] Melhorar o layout e espaçamento para melhor legibilidade
 
 ### 2. src/components/Simulador.tsx
-- [x] Melhorar o dropdown de planos para mostrar mais detalhes úteis (ex: crédito, taxas)
-- [x] Considerar tooltip ou painel de informações para planos selecionados
+- [x] Implementar dropdown de planos com informações detalhadas (taxas, prazos, etc.)
+- [x] Criar painel informativo para plano selecionado mostrando todos os detalhes
+- [x] Melhorar organização visual das informações
+- [x] Criar interface mais intuitiva e informativa com formulário de simulação
 
 ## Próximos Passos
 - [x] Implementar as melhorias no componente PlanComparisonPopup
@@ -25,14 +27,14 @@ Refatorar e melhorar a usabilidade e clareza da interface dos componentes Simula
 ## Resumo das Implementações
 
 ### PlanComparisonPopup.tsx
-- ✅ Seleção de planos agrupada por categoria com checkboxes
-- ✅ Tabela de comparação lado a lado mostrando Consórcio vs Financiamento
-- ✅ Detalhes financeiros organizados em colunas claras
-- ✅ Benefícios do consórcio destacados
-- ✅ Layout responsivo e melhor espaçamento
+- [x] Seleção de planos agrupada por categoria com checkboxes
+- [x] Tabela de comparação lado a lado mostrando Consórcio vs Financiamento
+- [x] Detalhes financeiros organizados em colunas claras
+- [x] Benefícios do consórcio destacados
+- [x] Layout responsivo e melhor espaçamento
 
 ### Simulador.tsx
-- ✅ Dropdown de planos com informações detalhadas (taxas, prazos, etc.)
-- ✅ Painel informativo para plano selecionado mostrando todos os detalhes
-- ✅ Melhor organização visual das informações
-- ✅ Interface mais intuitiva e informativa
+- [x] Dropdown de planos com informações detalhadas (taxas, prazos, etc.)
+- [x] Painel informativo para plano selecionado mostrando todos os detalhes
+- [x] Melhor organização visual das informações
+- [x] Interface mais intuitiva e informativa
