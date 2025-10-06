@@ -196,10 +196,30 @@ Impacto estimado no prazo e custos
                   <option value="">Selecione um plano</option>
                   {planos.map(plano => (
                     <option key={plano.id} value={plano.id}>
-                      {plano.nome} - {plano.prazoMeses || plano.prazo} meses ({plano.categoria || plano.tipo})
+                      {plano.nome} - {plano.prazoMeses || plano.prazo} meses ({plano.categoria || plano.tipo}) - Taxa Adm: {plano.taxaAdministracao || plano.taxaAdmTotal}%, Fundo Reserva: {plano.fundoReserva}%, Seguro: {plano.seguro}%
                     </option>
                   ))}
                 </select>
+
+                {planoSelecionado && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <h5 className="font-medium text-blue-800 mb-2">Detalhes do Plano Selecionado</h5>
+                    {(() => {
+                      const plano = planos.find(p => p.id === planoSelecionado);
+                      if (!plano) return null;
+                      return (
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div><strong>Prazo:</strong> {plano.prazoMeses || plano.prazo} meses</div>
+                          <div><strong>Categoria:</strong> {plano.categoria || plano.tipo}</div>
+                          <div><strong>Taxa Adm:</strong> {formatPercent(plano.taxaAdministracao || plano.taxaAdmTotal || 0)}</div>
+                          <div><strong>Fundo Reserva:</strong> {formatPercent(plano.fundoReserva)}</div>
+                          <div><strong>Seguro:</strong> {formatPercent(plano.seguro)}</div>
+                          <div><strong>Taxa Adesão:</strong> {formatPercent(plano.taxaAdesao || 0)}</div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

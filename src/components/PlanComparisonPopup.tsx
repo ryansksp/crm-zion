@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatPercent } from '../utils/formatters';
 import { PlanoEmbracon } from '../types';
+import { CheckSquare, Square } from 'lucide-react';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
@@ -123,93 +124,140 @@ const PlanComparisonPopup: React.FC = () => {
           </div>
         </div>
 
-        {/* Seleção de Planos */}
+        {/* Seleção de Planos por Categoria */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">Selecione os Planos para Comparar</h3>
-          <div className="grid grid-cols-3 gap-4">
-            {availablePlans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`cursor-pointer transition-all ${selectedPlans.includes(plan.id) ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
-                onClick={() => {
-                  setSelectedPlans(prev =>
-                    prev.includes(plan.id)
-                      ? prev.filter(id => id !== plan.id)
-                      : [...prev, plan.id]
-                  );
-                }}
-              >
-                <Card className="p-4">
-                  <h4 className="font-semibold">{plan.nome}</h4>
-                  <p className="text-sm text-gray-600">Prazo: {plan.prazoMeses || plan.prazo} meses</p>
-                  <p className="text-sm text-gray-600">Taxa Adm: {plan.taxaAdministracao || plan.taxaAdmTotal}%</p>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Comparação Detalhada */}
-        <div className="space-y-6">
-          {selectedPlans.map(planId => {
-            const plan = availablePlans.find(p => p.id === planId);
-            if (!plan) return null;
-
-            const consorcioDetails = calculateFinancingDetails(plan, comparisonValue);
-            const financiamentoDetails = calculateTraditionalFinancing(comparisonValue, financingRate, financingTerm);
-            const economia = financiamentoDetails.totalPago - consorcioDetails.valorFinanciado;
+          <h3 className="text-lg font-semibold mb-4">Selecione os Planos para Comparar</h3>
+          {['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços'].map(categoria => {
+            const planosCategoria = availablePlans.filter(plan =>
+              (plan.categoria || plan.tipo || '').toLowerCase().includes(categoria.toLowerCase())
+            );
+            if (planosCategoria.length === 0) return null;
 
             return (
-              <Card key={planId} className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-center">{plan.nome}</h3>
-
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Consórcio Embracon */}
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-green-700">🏠 Consórcio Embracon</h4>
-                    <div className="space-y-2 text-sm">
-                      <p>Valor Financiado: <strong>{formatCurrency(consorcioDetails.valorFinanciado)}</strong></p>
-                      <p>Parcela Mensal: <strong>{formatCurrency(consorcioDetails.parcelaMensal)}</strong></p>
-                      <p>Total de Taxas: <strong>{formatCurrency(consorcioDetails.totalTaxas)}</strong></p>
-                      <div className="ml-4 text-xs text-gray-600">
-                        <p>Taxa Adm: {formatCurrency(consorcioDetails.taxaAdm)}</p>
-                        <p>Fundo Reserva: {formatCurrency(consorcioDetails.fundoReserva)}</p>
-                        <p>Seguro: {formatCurrency(consorcioDetails.seguro)}</p>
-                        <p>Taxa Adesão: {formatCurrency(consorcioDetails.taxaAdesao)}</p>
+              <div key={categoria} className="mb-4">
+                <h4 className="font-medium text-gray-800 mb-2">{categoria}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {planosCategoria.map((plan) => (
+                    <div
+                      key={plan.id}
+                      className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <button
+                        onClick={() => {
+                          setSelectedPlans(prev =>
+                            prev.includes(plan.id)
+                              ? prev.filter(id => id !== plan.id)
+                              : [...prev, plan.id]
+                          );
+                        }}
+                        className="mt-1"
+                      >
+                        {selectedPlans.includes(plan.id) ? (
+                          <CheckSquare className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <Square className="w-5 h-5 text-gray-400" />
+                        )}
+                      </button>
+                      <div className="flex-1">
+                        <h5 className="font-medium text-sm">{plan.nome}</h5>
+                        <div className="text-xs text-gray-600 space-y-1">
+                          <p>Prazo: {plan.prazoMeses || plan.prazo} meses</p>
+                          <p>Taxa Adm: {formatPercent(plan.taxaAdministracao || plan.taxaAdmTotal || 0)}</p>
+                          <p>Fundo Reserva: {formatPercent(plan.fundoReserva)}</p>
+                          <p>Seguro: {formatPercent(plan.seguro)}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Financiamento Tradicional */}
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-red-700">💰 Financiamento Tradicional</h4>
-                    <div className="space-y-2 text-sm">
-                      <p>Taxa de Juros: <strong>{financingRate}% ao ano</strong></p>
-                      <p>Prazo: <strong>{financingTerm} meses</strong></p>
-                      <p>Valor Financiado: <strong>{formatCurrency(comparisonValue)}</strong></p>
-                      <p>Parcela Mensal: <strong>{formatCurrency(financiamentoDetails.parcelaMensal)}</strong></p>
-                      <p>Juros Totais: <strong>{formatCurrency(financiamentoDetails.jurosTotais)}</strong></p>
-                      <p>Total a Pagar: <strong>{formatCurrency(financiamentoDetails.totalPago)}</strong></p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Vantagem do Consórcio */}
-                <div className="mt-6 p-4 bg-green-50 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-2">Por que escolher o Consórcio Embracon?</h4>
-                  <div className="space-y-1 text-sm">
-                    <p className={economia > 0 ? 'text-green-700' : 'text-red-700'}>
-                      {economia > 0 ? 'Economia' : 'Custo Extra'}: <strong>{formatCurrency(Math.abs(economia))}</strong>
-                    </p>
-                    {benefits.map((benefit, idx) => (
-                      <p key={idx}>• {benefit}</p>
-                    ))}
-                  </div>
-                </div>
-              </Card>
+              </div>
             );
           })}
         </div>
+
+        {/* Tabela de Comparação Lado a Lado */}
+        {selectedPlans.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">Comparação Detalhada</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Plano</th>
+                    <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-green-700">Consórcio Embracon</th>
+                    <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-red-700">Financiamento Tradicional</th>
+                    <th className="border border-gray-300 px-4 py-2 text-center font-semibold">Diferença</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedPlans.map(planId => {
+                    const plan = availablePlans.find(p => p.id === planId);
+                    if (!plan) return null;
+
+                    const consorcioDetails = calculateFinancingDetails(plan, comparisonValue);
+                    const financiamentoDetails = calculateTraditionalFinancing(comparisonValue, financingRate, financingTerm);
+                    const economia = financiamentoDetails.totalPago - consorcioDetails.valorFinanciado;
+
+                    return (
+                      <tr key={planId} className="hover:bg-gray-50">
+                        <td className="border border-gray-300 px-4 py-3">
+                          <div className="font-medium">{plan.nome}</div>
+                          <div className="text-xs text-gray-600">
+                            Prazo: {plan.prazoMeses || plan.prazo} meses
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-3">
+                          <div className="space-y-1 text-sm">
+                            <div><strong>Valor Financiado:</strong> {formatCurrency(consorcioDetails.valorFinanciado)}</div>
+                            <div><strong>Parcela Mensal:</strong> {formatCurrency(consorcioDetails.parcelaMensal)}</div>
+                            <div><strong>Total Taxas:</strong> {formatCurrency(consorcioDetails.totalTaxas)}</div>
+                            <div className="text-xs text-gray-600 mt-2">
+                              <div>Taxa Adm: {formatCurrency(consorcioDetails.taxaAdm)}</div>
+                              <div>Fundo Reserva: {formatCurrency(consorcioDetails.fundoReserva)}</div>
+                              <div>Seguro: {formatCurrency(consorcioDetails.seguro)}</div>
+                              <div>Taxa Adesão: {formatCurrency(consorcioDetails.taxaAdesao)}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-3">
+                          <div className="space-y-1 text-sm">
+                            <div><strong>Taxa Juros:</strong> {financingRate}% ao ano</div>
+                            <div><strong>Prazo:</strong> {financingTerm} meses</div>
+                            <div><strong>Valor Financiado:</strong> {formatCurrency(comparisonValue)}</div>
+                            <div><strong>Parcela Mensal:</strong> {formatCurrency(financiamentoDetails.parcelaMensal)}</div>
+                            <div><strong>Juros Totais:</strong> {formatCurrency(financiamentoDetails.jurosTotais)}</div>
+                            <div><strong>Total a Pagar:</strong> {formatCurrency(financiamentoDetails.totalPago)}</div>
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-3 text-center">
+                          <div className={`font-semibold ${economia > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                            {economia > 0 ? 'Economia' : 'Custo Extra'}
+                          </div>
+                          <div className={`text-lg font-bold ${economia > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                            {formatCurrency(Math.abs(economia))}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Benefícios do Consórcio */}
+            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <h4 className="font-semibold text-green-800 mb-3">Por que escolher o Consórcio Embracon?</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {benefits.map((benefit, idx) => (
+                  <div key={idx} className="flex items-start space-x-2 text-sm">
+                    <span className="text-green-600 mt-1">✓</span>
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Conclusão */}
         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
