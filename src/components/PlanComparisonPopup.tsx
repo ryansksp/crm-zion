@@ -4,7 +4,7 @@ import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { PlanoEmbracon } from '../types';
-import { CheckSquare, Square } from 'lucide-react';
+import { CheckSquare, Square, X, Filter } from 'lucide-react';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
@@ -13,6 +13,7 @@ const PlanComparisonPopup: React.FC = () => {
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
   const [financingRate, setFinancingRate] = useState<number>(12);
   const [financingTerm, setFinancingTerm] = useState<number>(240);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços']);
   const [benefits] = useState<string[]>([
     "Sem juros abusivos - apenas taxas administrativas transparentes",
     "Possibilidade de lance para antecipar a contemplação",
@@ -71,12 +72,29 @@ const PlanComparisonPopup: React.FC = () => {
 
   if (!isPlanComparisonOpen) return null;
 
+  const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setIsPlanComparisonOpen(false);
+    }
+  };
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg shadow-xl max-w-6xl w-full p-6 overflow-auto max-h-[90vh] border border-gray-200">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      onClick={handleOutsideClick}
+    >
+      <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg shadow-xl max-w-5xl w-full p-6 overflow-auto max-h-[90vh] border border-gray-200">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Comparativo de Planos Embracon</h2>
-          <Button onClick={() => setIsPlanComparisonOpen(false)}>Fechar</Button>
+          <Button onClick={() => setIsPlanComparisonOpen(false)}><X className="w-5 h-5" /></Button>
         </div>
 
         {/* Valor para Comparação */}
@@ -124,10 +142,27 @@ const PlanComparisonPopup: React.FC = () => {
           </div>
         </div>
 
+        {/* Filtros de Categoria */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          {['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços'].map(category => (
+            <button
+              key={category}
+              onClick={() => toggleCategory(category)}
+              className={`px-3 py-1 rounded-full border ${
+                selectedCategories.includes(category)
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300'
+              } transition-colors`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
         {/* Seleção de Planos por Categoria */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4">Selecione os Planos para Comparar</h3>
-          {['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços'].map(categoria => {
+          {selectedCategories.map(categoria => {
             const planosCategoria = availablePlans.filter(plan =>
               (plan.categoria || plan.tipo || '').toLowerCase().includes(categoria.toLowerCase())
             );
@@ -164,7 +199,6 @@ const PlanComparisonPopup: React.FC = () => {
                           <p>Prazo: {plan.prazoMeses || plan.prazo} meses</p>
                           <p>Taxa Adm: {formatPercent(plan.taxaAdministracao || plan.taxaAdmTotal || 0)}</p>
                           <p>Fundo Reserva: {formatPercent(plan.fundoReserva)}</p>
-                          <p>Seguro: {formatPercent(plan.seguro)}</p>
                         </div>
                       </div>
                     </div>
@@ -210,13 +244,10 @@ const PlanComparisonPopup: React.FC = () => {
                           <div className="space-y-1 text-sm">
                             <div><strong>Valor de Crédito:</strong> {formatCurrency(comparisonValue)}</div>
                             <div><strong>Valor Líquido:</strong> {formatCurrency(consorcioDetails.valorFinanciado)}</div>
-                            <div><strong>Parcela Mensal:</strong> {formatCurrency(consorcioDetails.parcelaMensal)}</div>
                             <div><strong>Total de Taxas:</strong> {formatCurrency(consorcioDetails.totalTaxas)}</div>
                             <div className="text-xs text-gray-600 mt-2 border-t pt-2">
                               <div>Taxa Adm: {formatCurrency(consorcioDetails.taxaAdm)}</div>
                               <div>Fundo Reserva: {formatCurrency(consorcioDetails.fundoReserva)}</div>
-                              <div>Seguro: {formatCurrency(consorcioDetails.seguro)}</div>
-                              <div>Taxa Adesão: {formatCurrency(consorcioDetails.taxaAdesao)}</div>
                             </div>
                           </div>
                         </td>
@@ -225,7 +256,6 @@ const PlanComparisonPopup: React.FC = () => {
                             <div><strong>Taxa Juros:</strong> {financingRate}% ao ano</div>
                             <div><strong>Prazo:</strong> {financingTerm} meses</div>
                             <div><strong>Valor Financiado:</strong> {formatCurrency(comparisonValue)}</div>
-                            <div><strong>Parcela Mensal:</strong> {formatCurrency(financiamentoDetails.parcelaMensal)}</div>
                             <div><strong>Juros Totais:</strong> {formatCurrency(financiamentoDetails.jurosTotais)}</div>
                             <div><strong>Total a Pagar:</strong> {formatCurrency(financiamentoDetails.totalPago)}</div>
                           </div>
