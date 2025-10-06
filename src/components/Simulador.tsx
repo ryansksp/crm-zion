@@ -41,8 +41,16 @@ interface ResultadoSimulacao {
   };
 }
 
+import { useEffect } from 'react';
+import { useApp } from '../contexts/AppContext';
+import PlanComparisonPopup from './PlanComparisonPopup';
+
 export function Simulador() {
   const { setIsPlanComparisonOpen } = useApp();
+
+  useEffect(() => {
+    setIsPlanComparisonOpen(true);
+  }, [setIsPlanComparisonOpen]);
 
   return (
     <>

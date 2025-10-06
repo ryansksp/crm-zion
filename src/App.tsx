@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { FunilVendas } from './components/FunilVendas';
-import { Simulador } from './components/Simulador';
+
 import { ClientesAtivos } from './components/ClientesAtivos';
 import { ClientesPerdidos } from './components/ClientesPerdidos';
 import { Leads } from './components/Leads';
@@ -13,6 +13,7 @@ import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
 import { Profile } from './components/Profile';
 import { ControleUsuarios } from './components/ControleUsuarios';
+import PlanComparisonPopup from './components/PlanComparisonPopup';
 
 function AppContent() {
   const { user, loading, error, clearError } = useAuth();
@@ -62,7 +63,7 @@ function AppContent() {
 }
 
 function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
-  const { userProfile } = useApp();
+  const { userProfile, setIsPlanComparisonOpen } = useApp();
 
   // Check if user is approved
   if (userProfile && userProfile.status !== 'approved') {
@@ -143,6 +144,14 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
     setActiveTab(availableTabs[0].key);
   }
 
+  const handleTabChange = (tab: string) => {
+    if (tab === 'simulador') {
+      setIsPlanComparisonOpen(true);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -151,8 +160,6 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         return <FunilVendas />;
       case 'leads':
         return <Leads />;
-      case 'simulador':
-        return <Simulador />;
       case 'clientes-ativos':
         return <ClientesAtivos />;
       case 'clientes-perdidos':
@@ -171,9 +178,12 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab} availableTabs={availableTabs}>
-      {renderContent()}
-    </Layout>
+    <>
+      <Layout activeTab={activeTab} onTabChange={handleTabChange} availableTabs={availableTabs}>
+        {renderContent()}
+      </Layout>
+      <PlanComparisonPopup />
+    </>
   );
 }
 
