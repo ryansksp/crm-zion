@@ -45,8 +45,10 @@ interface ResultadoSimulacao {
 
 export function Simulador() {
   const { planos, setIsPlanComparisonOpen } = useApp();
+  console.log('Planos data:', planos);
   const [selectedPlano, setSelectedPlano] = useState<PlanoEmbracon | null>(null);
   const [formData, setFormData] = useState<FormularioSimulacao>({
+
     valorCredito: '',
     prazo: '',
     taxaAdm: '',

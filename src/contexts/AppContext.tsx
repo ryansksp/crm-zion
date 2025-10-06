@@ -166,10 +166,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         planosFirestore.push({ id: docSnap.id, ...docSnap.data() } as PlanoEmbracon);
       });
       dispatch({ type: 'SET_PLANOS', payload: planosFirestore });
+      console.log('Planos data from AppContext:', planosFirestore);
     });
 
     // Simulacoes - Master e Diretores veem todas, outros veem apenas as suas
     let qSimulacoes;
+
     if (userProfile?.isMaster || userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente') {
       qSimulacoes = query(collection(db, 'simulacoes'));
     } else {
