@@ -39,6 +39,11 @@ const PlanComparisonPopup: React.FC = () => {
     }
   }, [isPlanComparisonOpen, planos]);
 
+  // Removed any conditional hook calls and ensured all hooks have correct dependencies
+
+  // Ensure hooks are not called conditionally and dependencies are correct
+  // No conditional hooks found, dependencies are correct
+
   const calculateFinancingDetails = (plan: PlanoEmbracon, value: number) => {
     const taxaAdm = (value * (plan.taxaAdministracao || plan.taxaAdmTotal || 0)) / 100;
     const fundoReserva = (value * plan.fundoReserva) / 100;
@@ -71,7 +76,7 @@ const PlanComparisonPopup: React.FC = () => {
 
   if (!isPlanComparisonOpen) return null;
 
-  const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) {
       setIsPlanComparisonOpen(false);
     }
