@@ -37,6 +37,7 @@ const PlanComparisonPopup: React.FC = () => {
       setSelectedPlans(defaultSelected);
       setFilteredPlans(planos);
     }
+    // No return statement here to avoid returning JSX or null
   }, [isPlanComparisonOpen, planos]);
 
   // Removed any conditional hook calls and ensured all hooks have correct dependencies
@@ -101,6 +102,7 @@ const PlanComparisonPopup: React.FC = () => {
     setFilteredPlans(filtered);
     // Reset selected plans to those in filtered list
     setSelectedPlans(filtered.map(plan => plan.id));
+    // No return statement here to avoid returning JSX or null
   }, [selectedCategories, availablePlans]);
 
   return (
