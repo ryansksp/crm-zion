@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { PlanoEmbracon } from '../types';
-import { CheckSquare, Square, X, Filter } from 'lucide-react';
+import { CheckSquare, Square, X } from 'lucide-react';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
@@ -47,8 +46,8 @@ const PlanComparisonPopup: React.FC = () => {
       )
     );
     setFilteredPlans(filtered);
-    // Reset selected plans to those in filtered list
-    setSelectedPlans(filtered.map(plan => plan.id));
+    // Filter selected plans to only include those in the filtered list
+    setSelectedPlans(prev => prev.filter(id => filtered.some(plan => plan.id === id)));
   }, [selectedCategories, availablePlans]);
 
 
