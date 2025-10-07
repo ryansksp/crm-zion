@@ -15,7 +15,7 @@ interface LayoutProps {
   availableTabs: Tab[];
 }
 
-const iconMap: { [key: string]: any } = {
+const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
   '📊': BarChart3,
   '🔄': Activity,
   '🎯': UserCheck,

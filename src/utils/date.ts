@@ -1,6 +1,8 @@
 export const getCurrentDateTimeBrasiliaISO = (): string => {
   const now = new Date();
-  const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  // Brasília is UTC-3
+  const brasiliaOffset = -3 * 60; // offset in minutes
+  const brasiliaTime = new Date(now.getTime() + (brasiliaOffset * 60 * 1000));
   return brasiliaTime.toISOString();
 };
 

@@ -43,11 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no login com Google:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
+      const err = error as { code?: string };
+      if (err.code === 'auth/popup-closed-by-user') {
         setError('Login cancelado pelo usuário');
-      } else if (error.code === 'auth/popup-blocked') {
+      } else if (err.code === 'auth/popup-blocked') {
         setError('Popup bloqueado pelo navegador');
       } else {
         setError('Erro ao fazer login. Tente novamente.');
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       await signOut(auth);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no logout:', error);
       setError('Erro ao fazer logout');
       throw error;

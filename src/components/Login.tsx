@@ -7,7 +7,7 @@ export function Login() {
   const handleLogin = async () => {
     try {
       await loginWithGoogle();
-    } catch (error) {
+    } catch {
       alert('Erro no login. Tente novamente.');
     }
   };

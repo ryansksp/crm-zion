@@ -21,7 +21,7 @@ export class PlanoService {
     await setDoc(docRef, novoPlano);
   }
 
-  static async atualizarPlano(id: string, plano: Partial<PlanoEmbracon>, userProfile: any): Promise<void> {
+  static async atualizarPlano(id: string, plano: Partial<PlanoEmbracon>, userProfile: { accessLevel?: string; uid?: string } | null): Promise<void> {
     const docRef = doc(db, 'planos', id);
 
     // Check permissions

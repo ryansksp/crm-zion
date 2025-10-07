@@ -238,7 +238,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Se o nível de acesso foi alterado, atualizar as permissões padrão
     if (profile.accessLevel) {
-      let newPermissions = {
+      let newPermissions: UserProfile['permissions'] = {
         canViewAllClients: false,
         canViewAllLeads: false,
         canViewAllSimulations: false,
@@ -270,8 +270,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      // Usar type assertion para evitar erro de propriedade inexistente
-      (profile as any).permissions = newPermissions;
+      (profile as Partial<UserProfile>).permissions = newPermissions;
     }
 
     await updateDoc(docRef, profile);
@@ -331,7 +330,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
       return state.clientes.filter(c => c.etapa === 'Venda Ganha');
     }
-    // @ts-ignore
+    // @ts-expect-error - userProfile is checked above
     return state.clientes.filter(c => c.etapa === 'Venda Ganha' && c.userId === userProfile.uid);
   };
 

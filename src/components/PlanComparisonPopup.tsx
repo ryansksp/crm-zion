@@ -4,7 +4,6 @@ import { Button } from './ui/button';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { PlanoEmbracon } from '../types';
 import { CheckSquare, Square, X, Calculator, TrendingUp, Home, Car, Truck, Wrench, Bike } from 'lucide-react';
-import calculate from '../utils/CalculatorLogic';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
@@ -20,14 +19,6 @@ const PlanComparisonPopup: React.FC = () => {
     'Caminhão': [],
     'Serviços': []
   });
-
-  const maxPlansPerCategory: Record<string, number> = {
-    'Imóvel': 3,
-    'Automóvel': 2,
-    'Moto': 3,
-    'Caminhão': 3,
-    'Serviços': 3
-  };
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel']);
   const [formData, setFormData] = useState({

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
-import { Cliente } from '../types';
+import { Cliente, Interacao, Simulacao } from '../types';
 import { Search, Filter, Eye, Phone, Mail, Calendar, X } from 'lucide-react';
 
 export function Leads() {
@@ -235,7 +235,7 @@ export function Leads() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Histórico de Interações</label>
                   <div className="space-y-2">
-                    {selectedCliente.historico.map((interacao: any, index: number) => (
+                    {selectedCliente.historico.map((interacao: Interacao, index: number) => (
                       <div key={index} className="bg-gray-50 p-3 rounded-md">
                         <div className="flex justify-between items-start">
                           <div>
@@ -254,7 +254,7 @@ export function Leads() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Simulações</label>
                   <div className="space-y-2">
-                    {selectedCliente.simulacoes.map((simulacao: any, index: number) => (
+                    {selectedCliente.simulacoes.map((simulacao: Simulacao, index: number) => (
                       <div key={index} className="bg-gray-50 p-3 rounded-md">
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>

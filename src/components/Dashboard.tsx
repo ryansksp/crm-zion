@@ -23,51 +23,6 @@ export function Dashboard() {
   const totalVendido = vendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const totalPerdido = vendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
 
-  const estatisticas = [
-    {
-      titulo: 'Total de Leads',
-      valor: clientes.length,
-      icon: Users,
-      cor: 'text-blue-600',
-      bgCor: 'bg-blue-50'
-    },
-    {
-      titulo: 'Vendas no Mês',
-      valor: vendasGanhas.length,
-      icon: TrendingUp,
-      cor: 'text-green-600',
-      bgCor: 'bg-green-50'
-    },
-    {
-      titulo: 'Valor Total Vendido',
-      valor: `R$ ${totalVendido.toLocaleString('pt-BR')}`,
-      icon: TrendingUp,
-      cor: 'text-green-600',
-      bgCor: 'bg-green-50'
-    },
-    {
-      titulo: 'Leads Perdidos',
-      valor: vendasPerdidas.length,
-      icon: AlertTriangle,
-      cor: 'text-red-600',
-      bgCor: 'bg-red-50'
-    },
-    {
-      titulo: 'Valor Total Perdido',
-      valor: `R$ ${totalPerdido.toLocaleString('pt-BR')}`,
-      icon: AlertTriangle,
-      cor: 'text-red-600',
-      bgCor: 'bg-red-50'
-    },
-    {
-      titulo: 'Taxa de Conversão',
-      valor: `${obterTaxaConversao().toFixed(1)}%`,
-      icon: Target,
-      cor: 'text-purple-600',
-      bgCor: 'bg-purple-50'
-    }
-  ];
-
   // Date filtering logic
   const [year, month] = selectedMonth.split('-').map(Number);
   const startOfMonth = new Date(year, month - 1, 1);

@@ -35,7 +35,7 @@ export class ClienteService {
     }
   }
 
-  static async moverClienteEtapa(id: string, novaEtapa: Cliente['etapa'], userProfile: any): Promise<void> {
+  static async moverClienteEtapa(id: string, novaEtapa: Cliente['etapa'], userProfile: { accessLevel?: string; uid?: string } | null): Promise<void> {
     // Primeiro, buscar o cliente para obter o valor e etapa atual
     let q;
     if (userProfile?.accessLevel === 'Diretor') {
@@ -77,10 +77,10 @@ export class ClienteService {
       const docRefMetas = doc(db, 'metas', userIdParaMetas);
       const docSnap = await getDoc(docRefMetas);
 
-      let novasMetas: Partial<any> = {};
+      let novasMetas: Partial<{ vendidoNoMes: number }> = {};
 
       if (docSnap.exists()) {
-        const metasAtuais = docSnap.data() as any;
+        const metasAtuais = docSnap.data() as { vendidoNoMes?: number };
         let vendidoNoMesAtual = metasAtuais.vendidoNoMes || 0;
 
         // Se estava em 'Venda Ganha' e agora não está mais, subtrair

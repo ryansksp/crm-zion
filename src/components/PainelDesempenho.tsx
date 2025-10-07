@@ -2,7 +2,7 @@ import { useApp } from '../contexts/AppContext';
 import { DollarSign, Target, BarChart3, UserX } from 'lucide-react';
 
 export function PainelDesempenho() {
-  const { clientesPorUsuario, metasPorUsuario, userProfile, userProfiles } = useApp();
+  const { clientesPorUsuario, metasPorUsuario, userProfile, userProfiles, clientes, metas, obterTaxaConversao } = useApp();
 
   if (!userProfile) {
     return <div>Carregando...</div>;
@@ -94,26 +94,11 @@ export function PainelDesempenho() {
     );
   }
 
-  // Para outros usuários, mostrar dados agregados normais
-  const { clientes, metas, obterTaxaConversao } = useApp();
-
   const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
   const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
   const totalVendido = vendas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const totalPerdido = perdidos.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const progressoMeta = metas.mensal > 0 ? (totalVendido / metas.mensal) * 100 : 0;
-
-  // Dados para o gráfico de conversão por etapa
-  const etapas = [
-    'Lead',
-    'Contato Inicial',
-    'Envio de Simulação',
-    'Follow-up',
-    'Negociação Final',
-    'Venda Ganha'
-  ];
-
-  // Removido dadosConversao pois não está sendo usado para evitar warning
 
   return (
     <div className="space-y-6">
