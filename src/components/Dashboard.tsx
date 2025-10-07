@@ -6,6 +6,10 @@ import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 export function Dashboard() {
   const { clientes, metas, obterTaxaConversao } = useApp();
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'all'>('monthly');
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   const clientesInativos = clientes.filter(c => {
     const diasInatividade = Math.floor(
@@ -65,9 +69,9 @@ export function Dashboard() {
   ];
 
   // Date filtering logic
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const [year, month] = selectedMonth.split('-').map(Number);
+  const startOfMonth = new Date(year, month - 1, 1);
+  const endOfMonth = new Date(year, month, 0, 23, 59, 59);
 
   const isMonthly = selectedPeriod === 'monthly';
 
@@ -94,6 +98,16 @@ export function Dashboard() {
     : clientes
         .sort((a, b) => new Date(b.dataUltimaInteracao).getTime() - new Date(a.dataUltimaInteracao).getTime())
         .slice(0, 5);
+
+  // Generate month options (last 12 months)
+  const monthOptions = [];
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const label = date.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' });
+    monthOptions.push({ value, label });
+  }
 
   const filteredEstatisticas = [
     {
@@ -168,6 +182,19 @@ export function Dashboard() {
           >
             Todo Período
           </button>
+          {selectedPeriod === 'monthly' && (
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="ml-4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {monthOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
