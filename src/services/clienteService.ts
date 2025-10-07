@@ -74,10 +74,11 @@ export class ClienteService {
       // Para diretores, atualizar as metas do usuário que criou o cliente
       // Para outros, atualizar suas próprias metas
       const userIdParaMetas = userProfile?.accessLevel === 'Diretor' ? cliente.userId : userProfile?.uid;
+      if (!userIdParaMetas) return; // Skip if no user ID
       const docRefMetas = doc(db, 'metas', userIdParaMetas);
       const docSnap = await getDoc(docRefMetas);
 
-      let novasMetas: Partial<{ vendidoNoMes: number }> = {};
+      const novasMetas: Partial<{ vendidoNoMes: number }> = {};
 
       if (docSnap.exists()) {
         const metasAtuais = docSnap.data() as { vendidoNoMes?: number };

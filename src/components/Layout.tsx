@@ -34,7 +34,7 @@ export function Layout({ children, activeTab, onTabChange, availableTabs }: Layo
   const handleLogout = async () => {
     try {
       await logout();
-    } catch (error) {
+    } catch {
       alert('Erro ao fazer logout.');
     }
   };

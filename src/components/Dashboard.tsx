@@ -4,7 +4,7 @@ import { formatDateTimeBrasilia } from '../utils/date';
 import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 
 export function Dashboard() {
-  const { clientes, metas, obterTaxaConversao } = useApp();
+  const { clientes, metas } = useApp();
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'all'>('monthly');
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
@@ -20,8 +20,6 @@ export function Dashboard() {
 
   const vendasGanhas = clientes.filter(c => c.etapa === 'Venda Ganha');
   const vendasPerdidas = clientes.filter(c => c.etapa === 'Venda Perdida');
-  const totalVendido = vendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
-  const totalPerdido = vendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
 
   // Date filtering logic
   const [year, month] = selectedMonth.split('-').map(Number);
@@ -45,6 +43,17 @@ export function Dashboard() {
   const filteredTotalVendido = filteredVendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const filteredTotalPerdido = filteredVendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const filteredTaxaConversao = filteredClientes.length > 0 ? (filteredVendasGanhas.length / filteredClientes.length) * 100 : 0;
+
+  // Calculate current month sales for meta
+  const currentMonth = new Date();
+  const startOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const endOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0, 23, 59, 59);
+
+  const currentMonthSales = vendasGanhas
+    .filter(c => c.dataVenda && new Date(c.dataVenda) >= startOfCurrentMonth && new Date(c.dataVenda) <= endOfCurrentMonth)
+    .reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+
+  const currentMonthName = currentMonth.toLocaleDateString('pt-BR', { month: 'long' });
 
   const filteredAtividades = isMonthly
     ? clientes.filter(c => new Date(c.dataUltimaInteracao) >= startOfMonth)
@@ -176,21 +185,21 @@ export function Dashboard() {
       {/* Progress da Meta */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Meta Mensal</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Meta Mensal ({currentMonthName})</h3>
           <span className="text-sm text-gray-500">
-            R$ {(metas?.vendidoNoMes ?? 0).toLocaleString('pt-BR')} / R$ {(metas?.mensal ?? 0).toLocaleString('pt-BR')}
+            R$ {currentMonthSales.toLocaleString('pt-BR')} / R$ {(metas?.mensal ?? 0).toLocaleString('pt-BR')}
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-          <div 
+          <div
             className="bg-blue-600 h-3 rounded-full transition-all duration-300"
             style={{
-              width: `${Math.min(((metas?.vendidoNoMes ?? 0) / (metas?.mensal || 1)) * 100, 100)}%`
+              width: `${Math.min((currentMonthSales / (metas?.mensal || 1)) * 100, 100)}%`
             }}
           ></div>
         </div>
         <p className="text-sm text-gray-600">
-          {(((metas?.vendidoNoMes ?? 0) / (metas?.mensal || 1)) * 100).toFixed(1)}% da meta atingida
+          {((currentMonthSales / (metas?.mensal || 1)) * 100).toFixed(1)}% da meta atingida
         </p>
       </div>
 
