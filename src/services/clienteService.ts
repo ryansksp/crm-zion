@@ -1,6 +1,7 @@
 import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where } from 'firebase/firestore';
 import { Cliente } from '../types';
+import { getCurrentDateTimeBrasiliaISO } from '../utils/date';
 
 export class ClienteService {
   static async adicionarCliente(cliente: Omit<Cliente, 'id'>): Promise<string> {
@@ -58,12 +59,12 @@ export class ClienteService {
 
     // Definir dataVenda quando mover para Venda Ganha
     if (novaEtapa === 'Venda Ganha' && etapaAnterior !== 'Venda Ganha') {
-      updateData.dataVenda = new Date().toISOString();
+      updateData.dataVenda = getCurrentDateTimeBrasiliaISO();
     }
 
     // Definir dataPerda quando mover para Venda Perdida
     if (novaEtapa === 'Venda Perdida' && etapaAnterior !== 'Venda Perdida') {
-      updateData.dataPerda = new Date().toISOString();
+      updateData.dataPerda = getCurrentDateTimeBrasiliaISO();
     }
 
     await this.atualizarCliente(id, updateData);

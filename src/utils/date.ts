@@ -1,3 +1,9 @@
+export const getCurrentDateTimeBrasiliaISO = (): string => {
+  const now = new Date();
+  const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  return brasiliaTime.toISOString();
+};
+
 export const formatDateTimeBrasilia = (dateString: string): string => {
   let date: Date;
   if (dateString.includes('T') || dateString.length > 10) {
