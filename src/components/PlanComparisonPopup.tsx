@@ -8,6 +8,11 @@ import calculate from '../utils/CalculatorLogic';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
+
+  // Função para normalizar strings removendo acentos e convertendo para minúsculo
+  const normalizeString = (str: string) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  };
   const [selectedPlans, setSelectedPlans] = useState<{ [key: string]: string[] }>({
     'Imóvel': [],
     'Automóvel': [],
@@ -316,7 +321,9 @@ const PlanComparisonPopup: React.FC = () => {
           {selectedCategories.map(categoria => {
             const planosCategoria = availablePlans.filter(plan => {
               const planCategory = plan.categoria || plan.tipo || '';
-              return planCategory.toLowerCase().includes(categoria.toLowerCase());
+              const normalizedPlanCategory = normalizeString(planCategory);
+              const normalizedCategoria = normalizeString(categoria);
+              return normalizedPlanCategory.includes(normalizedCategoria);
             });
             
             if (planosCategoria.length === 0) {
