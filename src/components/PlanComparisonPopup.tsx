@@ -4,15 +4,25 @@ import { Button } from './ui/button';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { PlanoEmbracon } from '../types';
 import { CheckSquare, Square, X } from 'lucide-react';
+import calculate from '../utils/CalculatorLogic';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
   const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
-  const [comparisonValue, setComparisonValue] = useState<number>(100000);
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
-  const [financingRate, setFinancingRate] = useState<number>(12);
-  const [financingTerm, setFinancingTerm] = useState<number>(240);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços']);
+  const [formData, setFormData] = useState({
+    valorCredito: '100000',
+    prazo: '240',
+    taxaAdm: '0',
+    fundoReserva: '0',
+    taxaAdesao: '0',
+    lanceEmbutido: '0',
+    lanceProprio: '0',
+    entrada: '0',
+    taxaJuros: '1',
+    prazoFinanciamento: '240',
+  });
   const [benefits] = useState<string[]>([
     "Sem juros abusivos - apenas taxas administrativas transparentes",
     "Possibilidade de lance para antecipar a contemplação",
@@ -98,6 +108,11 @@ const PlanComparisonPopup: React.FC = () => {
     );
   };
 
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
@@ -109,50 +124,99 @@ const PlanComparisonPopup: React.FC = () => {
           <Button onClick={() => setIsPlanComparisonOpen(false)}><X className="w-5 h-5" /></Button>
         </div>
 
-        {/* Valor para Comparação */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Valor para Comparação (R$)
-          </label>
-          <input
-            type="number"
-            value={comparisonValue}
-            onChange={(e) => setComparisonValue(Number(e.target.value))}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ex: 100000"
-          />
-        </div>
-
-        {/* Parâmetros do Financiamento */}
-        <div className="mb-6 grid grid-cols-2 gap-4">
+        {/* Parâmetros do Simulador (campos do simulador antigo) */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Taxa de Juros Anual (%)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Valor do Crédito (R$)</label>
             <input
               type="number"
-              value={financingRate}
-              onChange={(e) => setFinancingRate(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Ex: 12"
+              name="valorCredito"
+              value={formData.valorCredito}
+              onChange={(e) => setFormData(prev => ({ ...prev, valorCredito: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 100000"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Taxa de Adesão (%)</label>
+            <input
+              type="number"
+              name="taxaAdesao"
+              value={formData.taxaAdesao}
+              onChange={handleFormChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 0"
               min={0}
               step={0.1}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Prazo (meses)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Lance Embutido (%)</label>
             <input
               type="number"
-              value={financingTerm}
-              onChange={(e) => setFinancingTerm(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              name="lanceEmbutido"
+              value={formData.lanceEmbutido}
+              onChange={handleFormChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 0"
+              min={0}
+              step={0.1}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Lance Próprio (%)</label>
+            <input
+              type="number"
+              name="lanceProprio"
+              value={formData.lanceProprio}
+              onChange={handleFormChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 0"
+              min={0}
+              step={0.1}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Entrada (R$)</label>
+            <input
+              type="number"
+              name="entrada"
+              value={formData.entrada}
+              onChange={(e) => setFormData(prev => ({ ...prev, entrada: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 0"
+              min={0}
+              step={100}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Taxa de Juros Mensal (%)</label>
+            <input
+              type="number"
+              name="taxaJuros"
+              value={formData.taxaJuros}
+              onChange={(e) => setFormData(prev => ({ ...prev, taxaJuros: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 1"
+              min={0}
+              step={0.01}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Prazo Financiamento (meses)</label>
+            <input
+              type="number"
+              name="prazoFinanciamento"
+              value={formData.prazoFinanciamento}
+              onChange={(e) => setFormData(prev => ({ ...prev, prazoFinanciamento: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ex: 240"
               min={1}
             />
           </div>
         </div>
+
+
 
         {/* Filtros de Categoria */}
         <div className="mb-6 flex flex-wrap gap-2">
@@ -191,11 +255,15 @@ const PlanComparisonPopup: React.FC = () => {
                     >
                       <button
                         onClick={() => {
-                          setSelectedPlans(prev =>
-                            prev.includes(plan.id)
-                              ? prev.filter(id => id !== plan.id)
-                              : [...prev, plan.id]
-                          );
+                          setSelectedPlans(prev => {
+                            if (prev.includes(plan.id)) {
+                              return prev.filter(id => id !== plan.id);
+                            }
+                            if (prev.length < 3) {
+                              return [...prev, plan.id];
+                            }
+                            return [...prev.slice(1), plan.id];
+                          });
                         }}
                         className="mt-1"
                       >
@@ -240,8 +308,12 @@ const PlanComparisonPopup: React.FC = () => {
                     const plan = availablePlans.find(p => p.id === planId);
                     if (!plan) return null;
 
-                    const consorcioDetails = calculateFinancingDetails(plan, comparisonValue);
-                    const financiamentoDetails = calculateTraditionalFinancing(comparisonValue, financingRate, financingTerm);
+                    const valorCredito = parseFloat(formData.valorCredito) || 0;
+                    const taxaJurosAnual = parseFloat(formData.taxaJuros) * 12 || 0; // Convert monthly to annual
+                    const prazoFinanciamento = parseInt(formData.prazoFinanciamento) || 240;
+                    
+                    const consorcioDetails = calculateFinancingDetails(plan, valorCredito);
+                    const financiamentoDetails = calculateTraditionalFinancing(valorCredito, taxaJurosAnual, prazoFinanciamento);
                     const economia = financiamentoDetails.totalPago - consorcioDetails.valorFinanciado;
 
                     return (
@@ -254,7 +326,7 @@ const PlanComparisonPopup: React.FC = () => {
                         </td>
                         <td className="border border-gray-300 px-4 py-3">
                           <div className="space-y-1 text-sm">
-                            <div><strong>Valor de Crédito:</strong> {formatCurrency(comparisonValue)}</div>
+                            <div><strong>Valor de Crédito:</strong> {formatCurrency(valorCredito)}</div>
                             <div><strong>Valor Líquido:</strong> {formatCurrency(consorcioDetails.valorFinanciado)}</div>
                             <div><strong>Total de Taxas:</strong> {formatCurrency(consorcioDetails.totalTaxas)}</div>
                             <div className="text-xs text-gray-600 mt-2 border-t pt-2">
@@ -265,9 +337,9 @@ const PlanComparisonPopup: React.FC = () => {
                         </td>
                         <td className="border border-gray-300 px-4 py-3">
                           <div className="space-y-1 text-sm">
-                            <div><strong>Taxa Juros:</strong> {financingRate}% ao ano</div>
-                            <div><strong>Prazo:</strong> {financingTerm} meses</div>
-                            <div><strong>Valor Financiado:</strong> {formatCurrency(comparisonValue)}</div>
+                            <div><strong>Taxa Juros:</strong> {taxaJurosAnual.toFixed(2)}% ao ano</div>
+                            <div><strong>Prazo:</strong> {prazoFinanciamento} meses</div>
+                            <div><strong>Valor Financiado:</strong> {formatCurrency(valorCredito)}</div>
                             <div><strong>Juros Totais:</strong> {formatCurrency(financiamentoDetails.jurosTotais)}</div>
                             <div><strong>Total a Pagar:</strong> {formatCurrency(financiamentoDetails.totalPago)}</div>
                           </div>
