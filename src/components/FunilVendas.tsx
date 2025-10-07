@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User } from 'lucide-react';
+import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User, Clock } from 'lucide-react';
 import type { EtapaFunil } from '../types'; // 👈 importado apenas como tipo
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import { formatDateTimeBrasilia, getCurrentDateTimeBrasiliaISO } from '../utils/date';
 
 export function FunilVendas() {
   const { clientes, moverClienteEtapa, adicionarCliente, userProfile, planos } = useApp();
@@ -80,11 +81,11 @@ export function FunilVendas() {
       planoInteresse: formData.get('planoInteresse') as string,
       valorCredito: parseFloat(formData.get('valorCredito') as string) || 0,
       etapa: 'Lead',
-      dataCriacao: new Date().toISOString(),         // 👈 agora está aqui
-      dataUltimaInteracao: new Date().toISOString(),
+      dataCriacao: getCurrentDateTimeBrasiliaISO(),
+      dataUltimaInteracao: getCurrentDateTimeBrasiliaISO(),
       historico: [],
       simulacoes: []
-    });    
+    });
     
     setShowNovoCliente(false);
   };
@@ -166,6 +167,10 @@ export function FunilVendas() {
                           <div className="flex items-center space-x-1">
                             <Phone className="w-3 h-3" />
                             <span className="truncate">{cliente.telefone}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="w-3 h-3" />
+                            <span className="truncate">{formatDateTimeBrasilia(cliente.dataUltimaInteracao)}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <User className="w-3 h-3" />

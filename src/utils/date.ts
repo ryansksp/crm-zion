@@ -1,8 +1,8 @@
 export const getCurrentDateTimeBrasiliaISO = (): string => {
+  // Get current UTC time
   const now = new Date();
-  // Brasília is UTC-3
-  const brasiliaOffset = -3 * 60; // offset in minutes
-  const brasiliaTime = new Date(now.getTime() + (brasiliaOffset * 60 * 1000));
+  // Brasília is UTC-3, so subtract 3 hours from UTC
+  const brasiliaTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
   return brasiliaTime.toISOString();
 };
 
