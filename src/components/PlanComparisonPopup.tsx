@@ -3,16 +3,22 @@ import { useApp } from '../contexts/AppContext';
 import { Button } from './ui/button';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { PlanoEmbracon } from '../types';
-import { CheckSquare, Square, X } from 'lucide-react';
+import { CheckSquare, Square, X, Calculator, TrendingUp, Home, Car, Truck, Wrench, Bike } from 'lucide-react';
 import calculate from '../utils/CalculatorLogic';
 
 const PlanComparisonPopup: React.FC = () => {
   const { isPlanComparisonOpen, setIsPlanComparisonOpen, planos } = useApp();
-  const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
+  const [selectedPlans, setSelectedPlans] = useState<{ [key: string]: string[] }>({
+    'Imóvel': [],
+    'Automóvel': [],
+    'Moto': [],
+    'Caminhão': [],
+    'Serviços': []
+  });
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel']);
   const [formData, setFormData] = useState({
-    valorCredito: '100000',
+    valorCredito: '200000',
     prazo: '240',
     taxaAdm: '0',
     fundoReserva: '0',
@@ -33,65 +39,69 @@ const PlanComparisonPopup: React.FC = () => {
   const [conclusion, setConclusion] = useState<string>(
     "O Consórcio Embracon oferece uma alternativa inteligente e econômica ao financiamento tradicional. Com taxas transparentes e benefícios exclusivos, você realiza seu sonho de forma mais vantajosa e segura."
   );
-  const [filteredPlans, setFilteredPlans] = useState<PlanoEmbracon[]>([]);
 
   useEffect(() => {
     if (isPlanComparisonOpen && planos.length > 0) {
-      // Show all plans for comparison
       setAvailablePlans(planos);
-      // Select first 3 plans by default, or all if less than 3
-      const defaultSelected = planos.slice(0, Math.min(3, planos.length)).map(plan => plan.id);
-      setSelectedPlans(defaultSelected);
-      setFilteredPlans(planos);
     }
   }, [isPlanComparisonOpen, planos]);
 
-  // ✅ CORREÇÃO: Este useEffect foi movido para o topo, junto com os outros hooks.
-  // Agora ele é declarado em toda renderização, antes de qualquer 'return'.
-  useEffect(() => {
-    if (availablePlans.length === 0) return;
-    const filtered = availablePlans.filter(plan =>
-      selectedCategories.some(cat =>
-        (plan.categoria || plan.tipo || '').toLowerCase().includes(cat.toLowerCase())
-      )
-    );
-    setFilteredPlans(filtered);
-    // Filter selected plans to only include those in the filtered list
-    setSelectedPlans(prev => prev.filter(id => filtered.some(plan => plan.id === id)));
-  }, [selectedCategories, availablePlans]);
-
-
-  const calculateFinancingDetails = (plan: PlanoEmbracon, value: number) => {
-    const taxaAdm = (value * (plan.taxaAdministracao || plan.taxaAdmTotal || 0)) / 100;
-    const fundoReserva = (value * plan.fundoReserva) / 100;
-    const totalTaxas = taxaAdm + fundoReserva;
-    const valorFinanciado = value - totalTaxas;
-    const prazo = plan.prazoMeses || plan.prazo || 1; // avoid division by zero
+  const calculateConsorcioTotal = (plan: PlanoEmbracon, valorCredito: number) => {
+    const taxaAdm = valorCredito * ((plan.taxaAdministracao || plan.taxaAdmTotal || 0) / 100);
+    const fundoReserva = valorCredito * (plan.fundoReserva / 100);
+    const taxaAdesao = valorCredito * (parseFloat(formData.taxaAdesao) / 100);
+    const lanceEmbutido = valorCredito * (parseFloat(formData.lanceEmbutido) / 100);
+    const lanceProprio = valorCredito * (parseFloat(formData.lanceProprio) / 100);
+    
+    // Valor total a pagar = crédito + taxas (não subtrai as taxas do crédito)
+    const totalAPagar = valorCredito + taxaAdm + fundoReserva + taxaAdesao;
+    const creditoDisponivel = valorCredito - lanceEmbutido; // Lance embutido reduz o crédito disponível
+    const prazo = plan.prazoMeses || plan.prazo || 240;
+    const parcelaMensal = totalAPagar / prazo;
 
     return {
-      valorFinanciado,
-      totalTaxas,
+      creditoDisponivel,
+      totalAPagar,
       taxaAdm,
       fundoReserva,
+      taxaAdesao,
+      lanceEmbutido,
+      lanceProprio,
+      parcelaMensal,
       prazo
     };
   };
 
-  const calculateTraditionalFinancing = (value: number, rate: number, prazo: number) => {
-    const taxaJurosAnual = rate / 100;
-    const taxaJurosMensal = taxaJurosAnual / 12;
-    const parcelaMensal = (value * taxaJurosMensal * Math.pow(1 + taxaJurosMensal, prazo)) / (Math.pow(1 + taxaJurosMensal, prazo) - 1);
-    const totalPago = parcelaMensal * prazo;
-    const jurosTotais = totalPago - value;
+  const calculateFinanciamentoTotal = (valorCredito: number) => {
+    const entrada = parseFloat(formData.entrada) || 0;
+    const valorFinanciado = valorCredito - entrada;
+    const taxaJurosMensal = parseFloat(formData.taxaJuros) / 100;
+    const prazo = parseInt(formData.prazoFinanciamento) || 240;
+    
+    let parcelaMensal = 0;
+    let totalPago = entrada;
+    let jurosTotais = 0;
+
+    if (taxaJurosMensal > 0) {
+      parcelaMensal = valorFinanciado * (taxaJurosMensal * Math.pow(1 + taxaJurosMensal, prazo)) / 
+                      (Math.pow(1 + taxaJurosMensal, prazo) - 1);
+      totalPago = entrada + (parcelaMensal * prazo);
+      jurosTotais = totalPago - valorCredito;
+    } else {
+      parcelaMensal = valorFinanciado / prazo;
+      totalPago = valorCredito;
+    }
 
     return {
+      valorFinanciado,
+      entrada,
       parcelaMensal,
       totalPago,
-      jurosTotais
+      jurosTotais,
+      taxaJurosAnual: parseFloat(formData.taxaJuros) * 12
     };
   };
 
-  // Este 'return' agora é seguro, pois todos os hooks já foram declarados acima.
   if (!isPlanComparisonOpen) return null;
 
   const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>): void => {
@@ -113,172 +123,249 @@ const PlanComparisonPopup: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const togglePlanSelection = (category: string, planId: string) => {
+    setSelectedPlans(prev => {
+      const categoryPlans = prev[category] || [];
+      if (categoryPlans.includes(planId)) {
+        return {
+          ...prev,
+          [category]: categoryPlans.filter(id => id !== planId)
+        };
+      }
+      // Limite de 3 planos por categoria
+      if (categoryPlans.length >= 3) {
+        return {
+          ...prev,
+          [category]: [...categoryPlans.slice(1), planId]
+        };
+      }
+      return {
+        ...prev,
+        [category]: [...categoryPlans, planId]
+      };
+    });
+  };
+
+  const getAllSelectedPlans = () => {
+    const allPlans: string[] = [];
+    Object.values(selectedPlans).forEach(categoryPlans => {
+      allPlans.push(...categoryPlans);
+    });
+    return allPlans;
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch(category) {
+      case 'Imóvel': return <Home className="w-4 h-4" />;
+      case 'Automóvel': return <Car className="w-4 h-4" />;
+      case 'Moto': return <Bike className="w-4 h-4" />;
+      case 'Caminhão': return <Truck className="w-4 h-4" />;
+      case 'Serviços': return <Wrench className="w-4 h-4" />;
+      default: return null;
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
       onClick={handleOutsideClick}
     >
-      <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg shadow-xl max-w-5xl w-full p-6 overflow-auto max-h-[90vh] border border-gray-200">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">Comparativo de Planos Embracon</h2>
-          <Button onClick={() => setIsPlanComparisonOpen(false)}><X className="w-5 h-5" /></Button>
+      <div className="bg-white rounded-lg shadow-2xl max-w-7xl w-full p-6 overflow-auto max-h-[95vh]">
+        <div className="flex justify-between items-center mb-6 border-b pb-4">
+          <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <Calculator className="w-8 h-8 text-blue-600" />
+            Simulador e Comparativo de Planos Embracon
+          </h2>
+          <Button 
+            onClick={() => setIsPlanComparisonOpen(false)}
+            className="hover:bg-gray-100 rounded-full p-2"
+          >
+            <X className="w-6 h-6" />
+          </Button>
         </div>
 
-        {/* Parâmetros do Simulador (campos do simulador antigo) */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Valor do Crédito (R$)</label>
-            <input
-              type="number"
-              name="valorCredito"
-              value={formData.valorCredito}
-              onChange={(e) => setFormData(prev => ({ ...prev, valorCredito: e.target.value }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 100000"
-            />
+        {/* Seção de Parâmetros dividida em duas colunas */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Parâmetros do Consórcio */}
+          <div className="bg-green-50 p-5 rounded-lg border border-green-200">
+            <h3 className="text-lg font-semibold mb-4 text-green-800 flex items-center gap-2">
+              <Calculator className="w-5 h-5" />
+              Parâmetros do Consórcio
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Valor do Crédito (R$)</label>
+                <input
+                  type="number"
+                  name="valorCredito"
+                  value={formData.valorCredito}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 200000"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
+                <input
+                  type="number"
+                  name="taxaAdesao"
+                  value={formData.taxaAdesao}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 0"
+                  step="0.1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lance Embutido (%)</label>
+                <input
+                  type="number"
+                  name="lanceEmbutido"
+                  value={formData.lanceEmbutido}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 0"
+                  step="0.1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lance Próprio (%)</label>
+                <input
+                  type="number"
+                  name="lanceProprio"
+                  value={formData.lanceProprio}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: 0"
+                  step="0.1"
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Taxa de Adesão (%)</label>
-            <input
-              type="number"
-              name="taxaAdesao"
-              value={formData.taxaAdesao}
-              onChange={handleFormChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 0"
-              min={0}
-              step={0.1}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Lance Embutido (%)</label>
-            <input
-              type="number"
-              name="lanceEmbutido"
-              value={formData.lanceEmbutido}
-              onChange={handleFormChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 0"
-              min={0}
-              step={0.1}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Lance Próprio (%)</label>
-            <input
-              type="number"
-              name="lanceProprio"
-              value={formData.lanceProprio}
-              onChange={handleFormChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 0"
-              min={0}
-              step={0.1}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Entrada (R$)</label>
-            <input
-              type="number"
-              name="entrada"
-              value={formData.entrada}
-              onChange={(e) => setFormData(prev => ({ ...prev, entrada: e.target.value }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 0"
-              min={0}
-              step={100}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Taxa de Juros Mensal (%)</label>
-            <input
-              type="number"
-              name="taxaJuros"
-              value={formData.taxaJuros}
-              onChange={(e) => setFormData(prev => ({ ...prev, taxaJuros: e.target.value }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 1"
-              min={0}
-              step={0.01}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Prazo Financiamento (meses)</label>
-            <input
-              type="number"
-              name="prazoFinanciamento"
-              value={formData.prazoFinanciamento}
-              onChange={(e) => setFormData(prev => ({ ...prev, prazoFinanciamento: e.target.value }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 240"
-              min={1}
-            />
+
+          {/* Parâmetros do Financiamento */}
+          <div className="bg-red-50 p-5 rounded-lg border border-red-200">
+            <h3 className="text-lg font-semibold mb-4 text-red-800 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Parâmetros do Financiamento
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Entrada (R$)</label>
+                <input
+                  type="number"
+                  name="entrada"
+                  value={formData.entrada}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Ex: 0"
+                  step="1000"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Juros Mensal (%)</label>
+                <input
+                  type="number"
+                  name="taxaJuros"
+                  value={formData.taxaJuros}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Ex: 1"
+                  step="0.01"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo Financiamento (meses)</label>
+                <input
+                  type="number"
+                  name="prazoFinanciamento"
+                  value={formData.prazoFinanciamento}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Ex: 240"
+                />
+              </div>
+            </div>
           </div>
         </div>
-
-
 
         {/* Filtros de Categoria */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços'].map(category => (
-            <button
-              key={category}
-              onClick={() => toggleCategory(category)}
-              className={`px-3 py-1 rounded-full border ${
-                selectedCategories.includes(category)
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300'
-              } transition-colors`}
-            >
-              {category}
-            </button>
-          ))}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Categorias</h3>
+          <div className="flex flex-wrap gap-2">
+            {['Imóvel', 'Automóvel', 'Moto', 'Caminhão', 'Serviços'].map(category => (
+              <button
+                key={category}
+                onClick={() => toggleCategory(category)}
+                className={`px-4 py-2 rounded-full border flex items-center gap-2 transition-all ${
+                  selectedCategories.includes(category)
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                {getCategoryIcon(category)}
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Seleção de Planos por Categoria */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4">Selecione os Planos para Comparar</h3>
+          <h3 className="text-lg font-semibold mb-4">Selecione até 3 Planos por Categoria</h3>
           {selectedCategories.map(categoria => {
-            const planosCategoria = availablePlans.filter(plan =>
-              (plan.categoria || plan.tipo || '').toLowerCase().includes(categoria.toLowerCase())
-            );
-            if (planosCategoria.length === 0) return null;
+            const planosCategoria = availablePlans.filter(plan => {
+              const planCategory = plan.categoria || plan.tipo || '';
+              return planCategory.toLowerCase().includes(categoria.toLowerCase());
+            });
+            
+            if (planosCategoria.length === 0) {
+              return (
+                <div key={categoria} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
+                    {getCategoryIcon(categoria)}
+                    {categoria}
+                  </h4>
+                  <p className="text-gray-500 text-sm">Nenhum plano disponível nesta categoria</p>
+                </div>
+              );
+            }
 
             return (
-              <div key={categoria} className="mb-4">
-                <h4 className="font-medium text-gray-800 mb-2">{categoria}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div key={categoria} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                  {getCategoryIcon(categoria)}
+                  {categoria}
+                  <span className="text-sm text-gray-500 ml-2">
+                    ({selectedPlans[categoria]?.length || 0}/3 selecionados)
+                  </span>
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {planosCategoria.map((plan) => (
                     <div
                       key={plan.id}
-                      className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      className={`p-3 border rounded-lg transition-all cursor-pointer ${
+                        selectedPlans[categoria]?.includes(plan.id)
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 bg-white hover:border-gray-300'
+                      }`}
+                      onClick={() => togglePlanSelection(categoria, plan.id)}
                     >
-                      <button
-                        onClick={() => {
-                          setSelectedPlans(prev => {
-                            if (prev.includes(plan.id)) {
-                              return prev.filter(id => id !== plan.id);
-                            }
-                            if (prev.length < 3) {
-                              return [...prev, plan.id];
-                            }
-                            return [...prev.slice(1), plan.id];
-                          });
-                        }}
-                        className="mt-1"
-                      >
-                        {selectedPlans.includes(plan.id) ? (
-                          <CheckSquare className="w-5 h-5 text-blue-600" />
-                        ) : (
-                          <Square className="w-5 h-5 text-gray-400" />
-                        )}
-                      </button>
-                      <div className="flex-1">
-                        <h5 className="font-medium text-sm">{plan.nome}</h5>
-                        <div className="text-xs text-gray-600 space-y-1">
-                          <p>Prazo: {plan.prazoMeses || plan.prazo} meses</p>
-                          <p>Taxa Adm: {formatPercent(plan.taxaAdministracao || plan.taxaAdmTotal || 0)}</p>
-                          <p>Fundo Reserva: {formatPercent(plan.fundoReserva)}</p>
+                      <div className="flex items-start gap-2">
+                        <div className="mt-1">
+                          {selectedPlans[categoria]?.includes(plan.id) ? (
+                            <CheckSquare className="w-5 h-5 text-blue-600" />
+                          ) : (
+                            <Square className="w-5 h-5 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h5 className="font-medium text-sm">{plan.nome}</h5>
+                          <div className="text-xs text-gray-600 space-y-1 mt-1">
+                            <p>Prazo: {plan.prazoMeses || plan.prazo} meses</p>
+                            <p>Taxa Adm: {formatPercent(plan.taxaAdministracao || plan.taxaAdmTotal || 0)}</p>
+                            <p>Fundo: {formatPercent(plan.fundoReserva)}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -289,67 +376,98 @@ const PlanComparisonPopup: React.FC = () => {
           })}
         </div>
 
-        {/* Tabela de Comparação Lado a Lado */}
-        {selectedPlans.length > 0 && (
+        {/* Tabela de Comparação */}
+        {getAllSelectedPlans().length > 0 && (
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4">Comparação Detalhada</h3>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
+              <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Plano</th>
-                    <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-green-700">Consórcio Embracon</th>
-                    <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-red-700">Financiamento Tradicional</th>
-                    <th className="border border-gray-300 px-4 py-2 text-center font-semibold">Diferença</th>
+                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Plano</th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold text-green-700">
+                      Consórcio Embracon
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold text-red-700">
+                      Financiamento Tradicional
+                    </th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">
+                      Economia/Custo Extra
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedPlans.map(planId => {
+                  {getAllSelectedPlans().map(planId => {
                     const plan = availablePlans.find(p => p.id === planId);
                     if (!plan) return null;
 
                     const valorCredito = parseFloat(formData.valorCredito) || 0;
-                    const taxaJurosAnual = parseFloat(formData.taxaJuros) * 12 || 0; // Convert monthly to annual
-                    const prazoFinanciamento = parseInt(formData.prazoFinanciamento) || 240;
-                    
-                    const consorcioDetails = calculateFinancingDetails(plan, valorCredito);
-                    const financiamentoDetails = calculateTraditionalFinancing(valorCredito, taxaJurosAnual, prazoFinanciamento);
-                    const economia = financiamentoDetails.totalPago - consorcioDetails.valorFinanciado;
+                    const consorcio = calculateConsorcioTotal(plan, valorCredito);
+                    const financiamento = calculateFinanciamentoTotal(valorCredito);
+                    const diferenca = financiamento.totalPago - consorcio.totalAPagar;
 
                     return (
                       <tr key={planId} className="hover:bg-gray-50">
                         <td className="border border-gray-300 px-4 py-3">
-                          <div className="font-medium">{plan.nome}</div>
-                          <div className="text-xs text-gray-600">
-                            Prazo: {plan.prazoMeses || plan.prazo} meses
-                          </div>
-                        </td>
-                        <td className="border border-gray-300 px-4 py-3">
-                          <div className="space-y-1 text-sm">
-                            <div><strong>Valor de Crédito:</strong> {formatCurrency(valorCredito)}</div>
-                            <div><strong>Valor Líquido:</strong> {formatCurrency(consorcioDetails.valorFinanciado)}</div>
-                            <div><strong>Total de Taxas:</strong> {formatCurrency(consorcioDetails.totalTaxas)}</div>
-                            <div className="text-xs text-gray-600 mt-2 border-t pt-2">
-                              <div>Taxa Adm: {formatCurrency(consorcioDetails.taxaAdm)}</div>
-                              <div>Fundo Reserva: {formatCurrency(consorcioDetails.fundoReserva)}</div>
+                          <div>
+                            <div className="font-medium">{plan.nome}</div>
+                            <div className="text-xs text-gray-600">
+                              {plan.categoria || plan.tipo} • {plan.prazoMeses || plan.prazo} meses
                             </div>
                           </div>
                         </td>
                         <td className="border border-gray-300 px-4 py-3">
-                          <div className="space-y-1 text-sm">
-                            <div><strong>Taxa Juros:</strong> {taxaJurosAnual.toFixed(2)}% ao ano</div>
-                            <div><strong>Prazo:</strong> {prazoFinanciamento} meses</div>
-                            <div><strong>Valor Financiado:</strong> {formatCurrency(valorCredito)}</div>
-                            <div><strong>Juros Totais:</strong> {formatCurrency(financiamentoDetails.jurosTotais)}</div>
-                            <div><strong>Total a Pagar:</strong> {formatCurrency(financiamentoDetails.totalPago)}</div>
+                          <div className="space-y-2 text-sm">
+                            <div className="font-semibold text-green-700">
+                              Crédito: {formatCurrency(valorCredito)}
+                            </div>
+                            <div className="space-y-1 text-xs">
+                              <div>Taxa Adm: {formatCurrency(consorcio.taxaAdm)}</div>
+                              <div>Fundo Reserva: {formatCurrency(consorcio.fundoReserva)}</div>
+                              {consorcio.taxaAdesao > 0 && (
+                                <div>Taxa Adesão: {formatCurrency(consorcio.taxaAdesao)}</div>
+                              )}
+                              {consorcio.lanceEmbutido > 0 && (
+                                <div>Lance Embutido: {formatCurrency(consorcio.lanceEmbutido)}</div>
+                              )}
+                              {consorcio.lanceProprio > 0 && (
+                                <div>Lance Próprio: {formatCurrency(consorcio.lanceProprio)}</div>
+                              )}
+                            </div>
+                            <div className="pt-2 border-t">
+                              <div className="font-semibold">Total: {formatCurrency(consorcio.totalAPagar)}</div>
+                              <div className="text-xs">Parcela: {formatCurrency(consorcio.parcelaMensal)}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-3">
+                          <div className="space-y-2 text-sm">
+                            <div className="font-semibold text-red-700">
+                              Crédito: {formatCurrency(valorCredito)}
+                            </div>
+                            <div className="space-y-1 text-xs">
+                              {financiamento.entrada > 0 && (
+                                <div>Entrada: {formatCurrency(financiamento.entrada)}</div>
+                              )}
+                              <div>Financiado: {formatCurrency(financiamento.valorFinanciado)}</div>
+                              <div>Taxa: {financiamento.taxaJurosAnual.toFixed(2)}% a.a.</div>
+                              <div>Juros Total: {formatCurrency(financiamento.jurosTotais)}</div>
+                            </div>
+                            <div className="pt-2 border-t">
+                              <div className="font-semibold">Total: {formatCurrency(financiamento.totalPago)}</div>
+                              <div className="text-xs">Parcela: {formatCurrency(financiamento.parcelaMensal)}</div>
+                            </div>
                           </div>
                         </td>
                         <td className="border border-gray-300 px-4 py-3 text-center">
-                          <div className={`font-semibold ${economia > 0 ? 'text-green-700' : 'text-red-700'}`}>
-                            {economia > 0 ? 'Economia' : 'Custo Extra'}
+                          <div className={`font-bold text-lg ${diferenca > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {diferenca > 0 ? 'Economia' : 'Custo Extra'}
                           </div>
-                          <div className={`text-lg font-bold ${economia > 0 ? 'text-green-700' : 'text-red-700'}`}>
-                            {formatCurrency(Math.abs(economia))}
+                          <div className={`text-2xl font-bold ${diferenca > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {formatCurrency(Math.abs(diferenca))}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            {((Math.abs(diferenca) / financiamento.totalPago) * 100).toFixed(1)}%
                           </div>
                         </td>
                       </tr>
@@ -359,13 +477,13 @@ const PlanComparisonPopup: React.FC = () => {
               </table>
             </div>
 
-            {/* Benefícios do Consórcio */}
+            {/* Benefícios */}
             <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-              <h4 className="font-semibold text-green-800 mb-3">Por que escolher o Consórcio Embracon?</h4>
+              <h4 className="font-semibold text-green-800 mb-3">✓ Vantagens do Consórcio Embracon</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {benefits.map((benefit, idx) => (
-                  <div key={idx} className="flex items-start space-x-2 text-sm">
-                    <span className="text-green-600 mt-1">✓</span>
+                  <div key={idx} className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✓</span>
                     <span>{benefit}</span>
                   </div>
                 ))}
