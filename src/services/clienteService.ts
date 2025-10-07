@@ -51,10 +51,22 @@ export class ClienteService {
     const etapaAnterior = cliente.etapa;
 
     // Atualizar a etapa do cliente
-    await this.atualizarCliente(id, {
+    const updateData: Partial<Cliente> = {
       etapa: novaEtapa,
       dataUltimaInteracao: new Date().toISOString()
-    });
+    };
+
+    // Definir dataVenda quando mover para Venda Ganha
+    if (novaEtapa === 'Venda Ganha' && etapaAnterior !== 'Venda Ganha') {
+      updateData.dataVenda = new Date().toISOString();
+    }
+
+    // Definir dataPerda quando mover para Venda Perdida
+    if (novaEtapa === 'Venda Perdida' && etapaAnterior !== 'Venda Perdida') {
+      updateData.dataPerda = new Date().toISOString();
+    }
+
+    await this.atualizarCliente(id, updateData);
 
     // Atualizar o vendidoNoMes se necessário
     if (cliente.valorCredito && (etapaAnterior === 'Venda Ganha' || novaEtapa === 'Venda Ganha')) {
