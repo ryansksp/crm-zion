@@ -20,6 +20,14 @@ const PlanComparisonPopup: React.FC = () => {
     'Caminhão': [],
     'Serviços': []
   });
+
+  const maxPlansPerCategory: Record<string, number> = {
+    'Imóvel': 3,
+    'Automóvel': 2,
+    'Moto': 3,
+    'Caminhão': 3,
+    'Serviços': 3
+  };
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel']);
   const [formData, setFormData] = useState({
@@ -137,8 +145,8 @@ const PlanComparisonPopup: React.FC = () => {
           [category]: categoryPlans.filter(id => id !== planId)
         };
       }
-      // Limite de 3 planos por categoria
-      if (categoryPlans.length >= 3) {
+      const maxPlans = category === 'Automóvel' ? 2 : 3;
+      if (categoryPlans.length >= maxPlans) {
         return {
           ...prev,
           [category]: [...categoryPlans.slice(1), planId]
@@ -345,7 +353,7 @@ const PlanComparisonPopup: React.FC = () => {
                   {getCategoryIcon(categoria)}
                   {categoria}
                   <span className="text-sm text-gray-500 ml-2">
-                    ({selectedPlans[categoria]?.length || 0}/3 selecionados)
+                    ({selectedPlans[categoria]?.length || 0}/{categoria === 'Automóvel' ? 2 : 3} selecionados)
                   </span>
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
