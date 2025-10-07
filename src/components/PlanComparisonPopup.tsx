@@ -23,7 +23,7 @@ const PlanComparisonPopup: React.FC = () => {
   const [availablePlans, setAvailablePlans] = useState<PlanoEmbracon[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Imóvel']);
   const [formData, setFormData] = useState({
-    valorCredito: '200000',
+    valorCredito: '120000',
     prazo: '240',
     taxaAdm: '0',
     fundoReserva: '0',
