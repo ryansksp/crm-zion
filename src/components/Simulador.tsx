@@ -140,10 +140,7 @@ export function Simulador() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione um plano...</option>
-                {planos.filter(plano => {
-                  if (!formData.valorCredito) return true;
-                  return plano.credito === parseFloat(formData.valorCredito);
-                }).map((plano) => (
+                {planos.map((plano) => (
                   <option key={plano.id} value={plano.id}>
                     {plano.nome} - {plano.categoria || plano.tipo} - Prazo: {plano.prazoMeses || plano.prazo} meses
                   </option>
