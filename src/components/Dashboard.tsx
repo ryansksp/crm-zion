@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 
 export function Dashboard() {
   const { clientes, metas, obterTaxaConversao } = useApp();
+  const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'all'>('monthly');
 
   const clientesInativos = clientes.filter(c => {
     const diasInatividade = Math.floor(
@@ -62,16 +64,116 @@ export function Dashboard() {
     }
   ];
 
+  // Date filtering logic
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  const isMonthly = selectedPeriod === 'monthly';
+
+  const filteredClientes = isMonthly
+    ? clientes.filter(c => new Date(c.dataCriacao) >= startOfMonth && new Date(c.dataCriacao) <= endOfMonth)
+    : clientes;
+
+  const filteredVendasGanhas = isMonthly
+    ? vendasGanhas.filter(c => c.dataVenda && new Date(c.dataVenda) >= startOfMonth && new Date(c.dataVenda) <= endOfMonth)
+    : vendasGanhas;
+
+  const filteredVendasPerdidas = isMonthly
+    ? vendasPerdidas.filter(c => c.dataPerda && new Date(c.dataPerda) >= startOfMonth && new Date(c.dataPerda) <= endOfMonth)
+    : vendasPerdidas;
+
+  const filteredTotalVendido = filteredVendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const filteredTotalPerdido = filteredVendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const filteredTaxaConversao = filteredClientes.length > 0 ? (filteredVendasGanhas.length / filteredClientes.length) * 100 : 0;
+
+  const filteredAtividades = isMonthly
+    ? clientes.filter(c => new Date(c.dataUltimaInteracao) >= startOfMonth)
+        .sort((a, b) => new Date(b.dataUltimaInteracao).getTime() - new Date(a.dataUltimaInteracao).getTime())
+        .slice(0, 5)
+    : clientes
+        .sort((a, b) => new Date(b.dataUltimaInteracao).getTime() - new Date(a.dataUltimaInteracao).getTime())
+        .slice(0, 5);
+
+  const filteredEstatisticas = [
+    {
+      titulo: isMonthly ? 'Total de Leads (Mês)' : 'Total de Leads',
+      valor: filteredClientes.length,
+      icon: Users,
+      cor: 'text-blue-600',
+      bgCor: 'bg-blue-50'
+    },
+    {
+      titulo: isMonthly ? 'Vendas no Mês' : 'Vendas Totais',
+      valor: filteredVendasGanhas.length,
+      icon: TrendingUp,
+      cor: 'text-green-600',
+      bgCor: 'bg-green-50'
+    },
+    {
+      titulo: isMonthly ? 'Valor Vendido (Mês)' : 'Valor Total Vendido',
+      valor: `R$ ${filteredTotalVendido.toLocaleString('pt-BR')}`,
+      icon: TrendingUp,
+      cor: 'text-green-600',
+      bgCor: 'bg-green-50'
+    },
+    {
+      titulo: isMonthly ? 'Leads Perdidos (Mês)' : 'Leads Perdidos',
+      valor: filteredVendasPerdidas.length,
+      icon: AlertTriangle,
+      cor: 'text-red-600',
+      bgCor: 'bg-red-50'
+    },
+    {
+      titulo: isMonthly ? 'Valor Perdido (Mês)' : 'Valor Total Perdido',
+      valor: `R$ ${filteredTotalPerdido.toLocaleString('pt-BR')}`,
+      icon: AlertTriangle,
+      cor: 'text-red-600',
+      bgCor: 'bg-red-50'
+    },
+    {
+      titulo: isMonthly ? 'Taxa de Conversão (Mês)' : 'Taxa de Conversão',
+      valor: `${filteredTaxaConversao.toFixed(1)}%`,
+      icon: Target,
+      cor: 'text-purple-600',
+      bgCor: 'bg-purple-50'
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Dashboard</h2>
         <p className="text-gray-600">Visão geral da sua performance de vendas</p>
+
+        {/* Seletor de Período */}
+        <div className="flex space-x-2 mt-4">
+          <button
+            onClick={() => setSelectedPeriod('monthly')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              selectedPeriod === 'monthly'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Mensal
+          </button>
+          <button
+            onClick={() => setSelectedPeriod('all')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              selectedPeriod === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Todo Período
+          </button>
+        </div>
       </div>
 
       {/* Cards de Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {estatisticas.map((stat, index) => {
+        {filteredEstatisticas.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <div key={index} className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -139,22 +241,21 @@ export function Dashboard() {
 
       {/* Atividades Recentes */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Atividades Recentes</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          {isMonthly ? 'Atividades Recentes (Mês)' : 'Atividades Recentes'}
+        </h3>
         <div className="space-y-3">
-          {clientes
-            .sort((a, b) => new Date(b.dataUltimaInteracao).getTime() - new Date(a.dataUltimaInteracao).getTime())
-            .slice(0, 5)
-            .map(cliente => (
-              <div key={cliente.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                <div>
-                  <p className="font-medium text-gray-900">{cliente.nome}</p>
-                  <p className="text-sm text-gray-500">{cliente.etapa}</p>
-                </div>
-                <p className="text-sm text-gray-500">
-                  {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}
-                </p>
+          {filteredAtividades.map(cliente => (
+            <div key={cliente.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div>
+                <p className="font-medium text-gray-900">{cliente.nome}</p>
+                <p className="text-sm text-gray-500">{cliente.etapa}</p>
               </div>
-            ))}
+              <p className="text-sm text-gray-500">
+                {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

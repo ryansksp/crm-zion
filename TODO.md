@@ -1,3 +1,4 @@
 - [x] Modificar a lógica de filtragem em PlanComparisonPopup.tsx para incluir filtro por valor exato do crédito
 - [x] Testar a filtragem inserindo 120000 e categoria Imóvel, verificar se mostra apenas planos de 120000 para 200, 220, 240 meses
 - [x] Verificar se a tabela de comparação funciona com os planos filtrados
+- [x] Implementar relatórios mensais e de todo período no Dashboard para melhor medição de desempenho de vendas, leads perdidos, etc.
