@@ -38,7 +38,7 @@ export class ClienteService {
   static async moverClienteEtapa(id: string, novaEtapa: Cliente['etapa'], userProfile: { accessLevel?: string; uid?: string } | null): Promise<void> {
     // Primeiro, buscar o cliente para obter o valor e etapa atual
     let q;
-    if (userProfile?.accessLevel === 'Diretor') {
+    if (userProfile?.accessLevel === 'Diretor' || novaEtapa === 'Venda Ganha') {
       q = query(collection(db, 'clientes'), where('id', '==', id));
     } else {
       q = query(collection(db, 'clientes'), where('id', '==', id), where('userId', '==', userProfile?.uid));
@@ -67,13 +67,17 @@ export class ClienteService {
       updateData.dataPerda = getCurrentDateTimeBrasiliaISO();
     }
 
+    // Atualizar userId quando mover para Venda Ganha para dar crédito ao vendedor
+    if (novaEtapa === 'Venda Ganha') {
+      updateData.userId = userProfile?.uid;
+    }
+
     await this.atualizarCliente(id, updateData);
 
     // Atualizar o vendidoNoMes se necessário
     if (cliente.valorCredito && (etapaAnterior === 'Venda Ganha' || novaEtapa === 'Venda Ganha')) {
-      // Para diretores, atualizar as metas do usuário que criou o cliente
-      // Para outros, atualizar suas próprias metas
-      const userIdParaMetas = userProfile?.accessLevel === 'Diretor' ? cliente.userId : userProfile?.uid;
+      // Dar crédito ao usuário que moveu para Venda Ganha
+      const userIdParaMetas = userProfile?.uid;
       if (!userIdParaMetas) return; // Skip if no user ID
       const docRefMetas = doc(db, 'metas', userIdParaMetas);
       const docSnap = await getDoc(docRefMetas);

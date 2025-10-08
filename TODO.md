@@ -1,13 +1,11 @@
-# TODO: Implementar Reatribuição de Leads
+# TODO: Corrigir exibição de vendas em Clientes Ativos para Manuela
 
-## Tarefas Pendentes
-- [x] Modificar Leads.tsx para adicionar funcionalidade de reatribuição no modal de detalhes
-- [x] Atualizar CadastroLeads.tsx para permitir diretores atribuírem leads para qualquer usuário
-- [ ] Testar a funcionalidade de reatribuição
-- [ ] Verificar permissões de reatribuição (apenas diretores podem reatribuir)
+## Tarefas
+- [x] Modificar moverClienteEtapa em clienteService.ts para permitir que qualquer usuário mova para 'Venda Ganha'
+- [x] Atualizar userId para o usuário que move quando for 'Venda Ganha'
+- [x] Alterar lógica de metas para dar crédito ao usuário que move
 
-## Detalhes da Implementação
-- Adicionar dropdown de usuários no modal de detalhes do lead
-- Botão "Reatribuir" que chama reatribuirLead do contexto
-- Para diretores, mostrar todos os usuários no dropdown de atribuição
-- Garantir que apenas usuários com permissão possam reatribuir leads
+## Status
+- [x] Análise concluída
+- [x] Implementação concluída
+- [ ] Teste pendente

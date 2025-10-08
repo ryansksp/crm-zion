@@ -106,7 +106,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           id: user.uid,
           name: user.displayName || '',
           email: user.email || '',
-          photoURL: user.photoURL || '',
           phone: '',
           accessLevel: 'Operador',
           status: 'pending' // Novo campo para controle de aprovação
@@ -336,8 +335,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
       return state.clientes.filter(c => c.etapa === 'Venda Ganha');
     }
-    // @ts-expect-error - userProfile is checked above
-    return state.clientes.filter(c => c.etapa === 'Venda Ganha' && c.userId === userProfile.uid);
+    return state.clientes.filter(c => c.etapa === 'Venda Ganha' && c.userId === userProfile.id);
   };
 
   const obterTaxaConversao = () => {
