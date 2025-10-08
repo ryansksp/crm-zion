@@ -319,12 +319,20 @@ const PlanComparisonPopup: React.FC = () => {
           <h3 className="text-lg font-semibold mb-4">Selecione até 3 Planos por Categoria</h3>
           {selectedCategories.map(categoria => {
             const valorCredito = parseFloat(formData.valorCredito) || 0;
-            const planosCategoria = availablePlans.filter(plan => {
-              const planCategory = plan.categoria || plan.tipo || '';
-              const normalizedPlanCategory = normalizeString(planCategory);
-              const normalizedCategoria = normalizeString(categoria);
-              return normalizedPlanCategory.includes(normalizedCategoria) && plan.credito === valorCredito;
-            });
+            const planosCategoria = availablePlans
+              .filter(plan => {
+                const planCategory = plan.categoria || plan.tipo || '';
+                const normalizedPlanCategory = normalizeString(planCategory);
+                const normalizedCategoria = normalizeString(categoria);
+                return normalizedPlanCategory.includes(normalizedCategoria) && plan.credito === valorCredito;
+              })
+              .filter((plan, index, self) =>
+                index === self.findIndex(p =>
+                  p.nome === plan.nome &&
+                  (p.prazoMeses || p.prazo) === (plan.prazoMeses || plan.prazo) &&
+                  p.credito === plan.credito
+                )
+              );
             
             if (planosCategoria.length === 0) {
               return (
