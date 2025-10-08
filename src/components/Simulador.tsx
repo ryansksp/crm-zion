@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Calculator, TrendingUp, Info, Eye } from 'lucide-react';
 import calculate from '../utils/CalculatorLogic';
@@ -47,6 +47,9 @@ export function Simulador() {
   const { planos, setIsPlanComparisonOpen } = useApp();
   console.log('Planos data:', planos);
   const [selectedPlano, setSelectedPlano] = useState<PlanoEmbracon | null>(null);
+
+  // Obter valores únicos de crédito disponíveis nos planos
+  const uniqueCredits = Array.from(new Set(planos.map(p => p.credito).filter((c): c is number => c != null))).sort((a, b) => a - b);
   const [formData, setFormData] = useState<FormularioSimulacao>({
 
     valorCredito: '',
@@ -181,13 +184,18 @@ export function Simulador() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Valor do Crédito (R$)
                 </label>
-                <input
-                  type="number"
+                <select
                   value={formData.valorCredito}
                   onChange={(e) => handleInputChange('valorCredito', e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Ex: 100000"
-                />
+                >
+                  <option value="">Selecione um valor...</option>
+                  {uniqueCredits.map((credito) => (
+                    <option key={credito} value={credito.toString()}>
+                      {formatCurrency(credito)}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
