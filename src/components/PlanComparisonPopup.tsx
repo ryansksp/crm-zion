@@ -337,7 +337,7 @@ const PlanComparisonPopup: React.FC = () => {
               .filter((plan, index, self) =>
                 index === self.findIndex(p =>
                   p.nome === plan.nome &&
-                  (p.prazoMeses || p.prazo) === (plan.prazoMeses || plan.prazo) &&
+                  parseInt(String(p.prazoMeses || p.prazo || 0)) === parseInt(String(plan.prazoMeses || plan.prazo || 0)) &&
                   p.credito === plan.credito
                 )
               );
@@ -385,7 +385,7 @@ const PlanComparisonPopup: React.FC = () => {
                         <div className="flex-1">
                           <h5 className="font-medium text-sm">{plan.nome}</h5>
                           <div className="text-xs text-gray-600 space-y-1 mt-1">
-                            <p>Prazo: {plan.prazoMeses || plan.prazo} meses</p>
+                            <p>Prazo: {String(plan.prazoMeses || plan.prazo)} meses</p>
                             <p>Taxa Adm: {formatPercent(plan.taxaAdministracao || plan.taxaAdmTotal || 0)}</p>
                             <p>Fundo: {formatPercent(plan.fundoReserva)}</p>
                           </div>
@@ -435,7 +435,7 @@ const PlanComparisonPopup: React.FC = () => {
                           <div>
                             <div className="font-medium">{plan.nome}</div>
                             <div className="text-xs text-gray-600">
-                              {plan.categoria || plan.tipo} • {plan.prazoMeses || plan.prazo} meses
+                              {String(plan.categoria || plan.tipo || '')} • {String(plan.prazoMeses || plan.prazo || 0)} meses
                             </div>
                           </div>
                         </td>

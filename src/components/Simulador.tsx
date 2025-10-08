@@ -54,8 +54,8 @@ export function Simulador() {
 
   // Obter planos únicos para o select
   const uniquePlanos = Array.from(
-    new Map(
-      planos.map(plano => [`${plano.nome}-${plano.prazoMeses || plano.prazo}-${plano.categoria || plano.tipo}-${plano.credito}`, plano])
+    new Map<string, PlanoEmbracon>(
+      planos.map(plano => [`${String(plano.nome)}-${String(parseInt(String(plano.prazoMeses || plano.prazo || 0)))}-${String(plano.categoria || plano.tipo)}-${String(plano.credito)}`, plano])
     ).values()
   );
 
@@ -161,7 +161,7 @@ export function Simulador() {
                 <option value="">Selecione um plano...</option>
                 {uniquePlanos.map((plano) => (
                   <option key={plano.id} value={plano.id}>
-                    {plano.nome} - {plano.categoria || plano.tipo} - Prazo: {plano.prazoMeses || plano.prazo} meses
+                    {String(plano.nome)} - {String(plano.categoria || plano.tipo)} - Prazo: {String(plano.prazoMeses || plano.prazo)} meses
                   </option>
                 ))}
               </select>

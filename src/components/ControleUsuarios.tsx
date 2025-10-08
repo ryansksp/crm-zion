@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
 import { collection, getDocs, doc, updateDoc, deleteDoc, getFirestore } from 'firebase/firestore';
@@ -59,13 +59,7 @@ export function ControleUsuarios() {
 
   const db = getFirestore();
 
-  useEffect(() => {
-    if (podeGerenciarUsuarios()) {
-      loadUsers();
-    }
-  }, [userProfile]);
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const usersRef = collection(db, 'users');
@@ -79,7 +73,7 @@ export function ControleUsuarios() {
         if (data.status === 'approved') {
           // Calcular estatísticas reais do usuário
           console.log(`Processando usuário: ${data.name || 'Unknown'} (UID: ${userId})`);
-          
+
           const clientsQuery = collection(db, 'clientes');
           const clientsSnapshot = await getDocs(clientsQuery);
           let totalClients = 0;
@@ -162,7 +156,13 @@ export function ControleUsuarios() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (podeGerenciarUsuarios()) {
+      loadUsers();
+    }
+  }, [loadUsers, podeGerenciarUsuarios]);
 
   const handleEditUser = (user: UserProfile) => {
     console.log('handleEditUser userProfile.accessLevel:', userProfile?.accessLevel);

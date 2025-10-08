@@ -23,7 +23,7 @@ export function ClientesAtivos() {
     });
     setEditingQuotas(initialQuotas);
     setEditingGroups(initialGroups);
-  }, []);
+  }, [clientesAtivos]);
 
   const calcularProximaAssembleia = (dataVenda: string) => {
     const venda = new Date(dataVenda);
