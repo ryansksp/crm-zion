@@ -350,7 +350,8 @@ const PlanComparisonPopup: React.FC = () => {
                   parseInt(String(p.prazoMeses || p.prazo || 0)) === parseInt(String(plan.prazoMeses || plan.prazo || 0)) &&
                   p.credito === plan.credito
                 )
-              );
+              )
+              .sort((a, b) => (b.prazoMeses || b.prazo || 0) - (a.prazoMeses || a.prazo || 0));
             
             if (planosCategoria.length === 0) {
               return (
