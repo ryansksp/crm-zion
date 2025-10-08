@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { Cliente } from '../types';
-import { Users, Calendar, Gift, CheckCircle2, XCircle, Plus, X } from 'lucide-react';
+import { Users, Calendar, Gift, CheckCircle2, XCircle, Plus, X, Filter } from 'lucide-react';
 
 export function ClientesAtivos() {
   const { obterClientesAtivos, atualizarCliente, userProfiles } = useApp();
@@ -13,17 +13,48 @@ export function ClientesAtivos() {
   // State to hold editing groups per client
   const [editingGroups, setEditingGroups] = useState<Record<string, string>>({});
 
+  // Refs to track if initialized
+  const initializedQuotas = useRef<Record<string, boolean>>({});
+  const initializedGroups = useRef<Record<string, boolean>>({});
+
+  // State for seller filter
+  const [selectedSeller, setSelectedSeller] = useState<string>('all');
+
   useEffect(() => {
-    // Initialize editingQuotas state from clientesAtivos
+    // Initialize editingQuotas and editingGroups state from clientesAtivos, but only if not already initialized
     const initialQuotas: Record<string, string[]> = {};
     const initialGroups: Record<string, string> = {};
     clientesAtivos.forEach(cliente => {
-      initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
-      initialGroups[cliente.id] = cliente.grupo || '';
+      if (!initializedQuotas.current[cliente.id]) {
+        initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
+        initializedQuotas.current[cliente.id] = true;
+      }
+      if (!initializedGroups.current[cliente.id]) {
+        initialGroups[cliente.id] = cliente.grupo || '';
+        initializedGroups.current[cliente.id] = true;
+      }
     });
-    setEditingQuotas(initialQuotas);
-    setEditingGroups(initialGroups);
+    setEditingQuotas(prev => ({ ...prev, ...initialQuotas }));
+    setEditingGroups(prev => ({ ...prev, ...initialGroups }));
   }, [clientesAtivos]);
+
+  // Get unique sellers
+  const uniqueSellers = Array.from(new Set(clientesAtivos.map(c => c.userId)));
+
+  // Filter clients based on selected seller
+  const filteredClientes = selectedSeller === 'all' ? clientesAtivos : clientesAtivos.filter(c => c.userId === selectedSeller);
+
+  // Calculate sales per seller
+  const vendasPorVendedor = uniqueSellers.reduce((acc, sellerId) => {
+    const clientesDoVendedor = clientesAtivos.filter(c => c.userId === sellerId);
+    acc[sellerId] = {
+      totalClientes: clientesDoVendedor.length,
+      ativos: clientesDoVendedor.filter(c => c.statusConsorcio === 'Ativo').length,
+      contemplados: clientesDoVendedor.filter(c => c.statusConsorcio === 'Contemplado').length,
+      cancelados: clientesDoVendedor.filter(c => c.statusConsorcio === 'Cancelado').length,
+    };
+    return acc;
+  }, {} as Record<string, { totalClientes: number; ativos: number; contemplados: number; cancelados: number }>);
 
   const calcularProximaAssembleia = (dataVenda: string) => {
     const venda = new Date(dataVenda);
@@ -165,14 +196,50 @@ export function ClientesAtivos() {
         </div>
       </div>
 
+      {/* Vendas por Vendedor */}
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Vendas por Vendedor</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(vendasPorVendedor).map(([sellerId, stats]) => (
+            <div key={sellerId} className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium text-gray-900">{userProfiles[sellerId]?.name || 'Desconhecido'}</h4>
+              <div className="mt-2 space-y-1 text-sm text-gray-600">
+                <div>Total: {stats.totalClientes}</div>
+                <div>Ativos: {stats.ativos}</div>
+                <div>Contemplados: {stats.contemplados}</div>
+                <div>Cancelados: {stats.cancelados}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filtro por Vendedor */}
+      <div className="bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex items-center space-x-4">
+          <Filter className="w-5 h-5 text-gray-600" />
+          <label className="text-sm font-medium text-gray-700">Filtrar por Vendedor:</label>
+          <select
+            value={selectedSeller}
+            onChange={(e) => setSelectedSeller(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">Todos os Vendedores</option>
+            {uniqueSellers.map(sellerId => (
+              <option key={sellerId} value={sellerId}>{userProfiles[sellerId]?.name || 'Desconhecido'}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {/* Lista de Clientes */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Lista de Clientes</h3>
         </div>
-        
+
         <div className="divide-y divide-gray-200">
-          {clientesAtivos.map(cliente => {
+          {filteredClientes.map(cliente => {
             const alertas = obterAlertas(cliente);
             const statusInfo = cliente.statusConsorcio ? statusCores[cliente.statusConsorcio] : statusCores['Ativo'];
             const StatusIcon = statusInfo.icon;

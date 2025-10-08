@@ -1,11 +1,14 @@
-# TODO: Corrigir exibição de vendas em Clientes Ativos para Manuela
+# TODO: Adicionar filtro por vendedor e corrigir campos de grupo e cotas em Clientes Ativos
 
 ## Tarefas
-- [x] Modificar moverClienteEtapa em clienteService.ts para permitir que qualquer usuário mova para 'Venda Ganha'
-- [x] Atualizar userId para o usuário que move quando for 'Venda Ganha'
-- [x] Alterar lógica de metas para dar crédito ao usuário que move
+- [ ] Corrigir campo de entrada para grupo tornando-o não controlado
+- [ ] Corrigir campos de entrada para cotas tornando-os não controlados
+- [ ] Adicionar estado para vendedor selecionado
+- [ ] Adicionar dropdown de filtro por vendedor
+- [ ] Filtrar clientes exibidos com base no vendedor selecionado
+- [ ] Adicionar seção de resumo mostrando vendas por vendedor
 
 ## Status
 - [x] Análise concluída
-- [x] Implementação concluída
+- [ ] Implementação em andamento
 - [ ] Teste pendente
