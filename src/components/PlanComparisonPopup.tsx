@@ -33,6 +33,9 @@ const PlanComparisonPopup: React.FC = () => {
     taxaJuros: '1',
     prazoFinanciamento: '240',
   });
+
+  // Obter valores únicos de crédito disponíveis nos planos
+  const uniqueCredits = Array.from(new Set(planos.map(p => p.credito).filter((c): c is number => c != null))).sort((a, b) => a - b);
   const [benefits] = useState<string[]>([
     "Sem juros abusivos - apenas taxas administrativas transparentes",
     "Possibilidade de lance para antecipar a contemplação",
@@ -199,14 +202,19 @@ const PlanComparisonPopup: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Valor do Crédito (R$)</label>
-                <input
-                  type="number"
+                <select
                   name="valorCredito"
                   value={formData.valorCredito}
                   onChange={handleFormChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Ex: 200000"
-                />
+                >
+                  <option value="">Selecione um valor...</option>
+                  {uniqueCredits.map((credito) => (
+                    <option key={credito} value={credito.toString()}>
+                      {formatCurrency(credito)}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Taxa de Adesão (%)</label>
