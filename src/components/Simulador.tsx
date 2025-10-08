@@ -62,7 +62,7 @@ export function Simulador() {
   // Obter valores únicos de crédito disponíveis nos planos, filtrados por categoria
   const uniqueCredits = Array.from(new Set(
     planos
-      .filter(p => !selectedCategoria || (p.categoria || p.tipo || '').toLowerCase().includes(selectedCategoria.toLowerCase()))
+      .filter(p => selectedCategoria && (p.categoria || p.tipo || '').toLowerCase().includes(selectedCategoria.toLowerCase()))
       .map(p => p.credito)
       .filter((c): c is number => c != null)
   )).sort((a, b) => a - b);
