@@ -47,7 +47,7 @@ export function Simulador() {
   const { planos, setIsPlanComparisonOpen } = useApp();
   console.log('Planos data:', planos);
   const [selectedPlano, setSelectedPlano] = useState<PlanoEmbracon | null>(null);
-  const [selectedCategoria, setSelectedCategoria] = useState<string>('');
+  const [selectedCategoria, setSelectedCategoria] = useState<string | null>(null);
 
   // Obter categorias únicas
   const uniqueCategories = Array.from(new Set(planos.map(p => p.categoria || p.tipo).filter(Boolean)));
@@ -201,9 +201,9 @@ export function Simulador() {
                   Categoria
                 </label>
                 <select
-                  value={selectedCategoria}
+                  value={selectedCategoria || ''}
                   onChange={(e) => {
-                    setSelectedCategoria(e.target.value);
+                    setSelectedCategoria(e.target.value === '' ? null : e.target.value);
                     setFormData(prev => ({ ...prev, valorCredito: '' })); // reset credit
                   }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
