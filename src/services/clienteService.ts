@@ -68,8 +68,8 @@ export class ClienteService {
     }
 
     // Atualizar userId quando mover para Venda Ganha para dar crédito ao vendedor
-    if (novaEtapa === 'Venda Ganha') {
-      updateData.userId = userProfile?.uid;
+    if (novaEtapa === 'Venda Ganha' && userProfile?.uid) {
+      updateData.userId = userProfile.uid;
     }
 
     await this.atualizarCliente(id, updateData);
