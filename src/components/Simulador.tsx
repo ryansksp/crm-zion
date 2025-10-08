@@ -47,9 +47,18 @@ export function Simulador() {
   const { planos, setIsPlanComparisonOpen } = useApp();
   console.log('Planos data:', planos);
   const [selectedPlano, setSelectedPlano] = useState<PlanoEmbracon | null>(null);
+  const [selectedCategoria, setSelectedCategoria] = useState<string>('');
 
-  // Obter valores únicos de crédito disponíveis nos planos
-  const uniqueCredits = Array.from(new Set(planos.map(p => p.credito).filter((c): c is number => c != null))).sort((a, b) => a - b);
+  // Obter categorias únicas
+  const uniqueCategories = Array.from(new Set(planos.map(p => p.categoria || p.tipo).filter(Boolean)));
+
+  // Obter valores únicos de crédito disponíveis nos planos, filtrados por categoria
+  const uniqueCredits = Array.from(new Set(
+    planos
+      .filter(p => !selectedCategoria || (p.categoria || p.tipo || '').toLowerCase().includes(selectedCategoria.toLowerCase()))
+      .map(p => p.credito)
+      .filter((c): c is number => c != null)
+  )).sort((a, b) => a - b);
   const [formData, setFormData] = useState<FormularioSimulacao>({
 
     valorCredito: '',
@@ -182,12 +191,34 @@ export function Simulador() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Categoria
+                </label>
+                <select
+                  value={selectedCategoria}
+                  onChange={(e) => {
+                    setSelectedCategoria(e.target.value);
+                    setFormData(prev => ({ ...prev, valorCredito: '' })); // reset credit
+                  }}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione uma categoria...</option>
+                  {uniqueCategories.map((categoria) => (
+                    <option key={categoria} value={categoria}>
+                      {categoria}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Valor do Crédito (R$)
                 </label>
                 <select
                   value={formData.valorCredito}
                   onChange={(e) => handleInputChange('valorCredito', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!selectedCategoria}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">Selecione um valor...</option>
                   {uniqueCredits.map((credito) => (
