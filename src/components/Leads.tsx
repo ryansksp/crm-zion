@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { Cliente, Interacao, Simulacao } from '../types';
-import { Search, Filter, Eye, Phone, Mail, Calendar, X } from 'lucide-react';
+import { Search, Filter, Eye, Phone, Mail, Calendar, X, UserPlus } from 'lucide-react';
+import { CadastroLeads } from './CadastroLeads';
 
 export function Leads() {
-  const { clientes } = useApp();
+  const { clientes, userProfiles } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEtapa, setFilterEtapa] = useState('todos');
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
+  const [showCadastro, setShowCadastro] = useState(false);
+  const filterUser = 'todos';
 
   // Definir quais etapas são consideradas "leads"
   const etapasLeads = [
@@ -20,17 +23,27 @@ export function Leads() {
     'Negociação Final'
   ];
 
+  const etapasUnicas = [...new Set(clientes.map(c => c.etapa))];
+
   // Filtrar clientes que são leads
   const leads = clientes.filter(cliente =>
     etapasLeads.includes(cliente.etapa) &&
     (filterEtapa === 'todos' || cliente.etapa === filterEtapa) &&
+    (filterUser === 'todos' || cliente.userId === filterUser) &&
     (cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
      cliente.telefone.includes(searchTerm) ||
      cliente.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const { userProfiles } = useApp();
-  const etapasUnicas = [...new Set(clientes.map(c => c.etapa))];
+  // Group leads by owner
+  const leadsByOwner = leads.reduce((acc, lead) => {
+    const ownerId = lead.userId;
+    if (!acc[ownerId]) {
+      acc[ownerId] = [];
+    }
+    acc[ownerId].push(lead);
+    return acc;
+  }, {} as Record<string, Cliente[]>);
 
   const diasInatividade = (dataUltimaInteracao: string) => {
     return Math.floor((Date.now() - new Date(dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24));
@@ -38,9 +51,18 @@ export function Leads() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Leads</h2>
-        <p className="text-gray-600">Gerencie todos os seus leads em potencial</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Leads</h2>
+          <p className="text-gray-600">Gerencie todos os seus leads em potencial</p>
+        </div>
+        <button
+          onClick={() => setShowCadastro(true)}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <UserPlus className="w-4 h-4" />
+          Cadastrar Lead
+        </button>
       </div>
 
       {/* Filtros e Busca */}
@@ -76,97 +98,116 @@ export function Leads() {
         </div>
       </div>
 
-      {/* Lista de Leads */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {leads.length} Lead{leads.length !== 1 ? 's' : ''} encontrado{leads.length !== 1 ? 's' : ''}
-          </h3>
-        </div>
+      {/* Lista de Leads por Proprietário */}
+      <div className="space-y-6">
+        {Object.entries(leadsByOwner).map(([userId, userLeads]) => {
+          const userName = userProfiles[userId]?.name || 'Desconhecido';
+          const userRole = userProfiles[userId]?.accessLevel || 'Desconhecido';
 
-        <div className="divide-y divide-gray-200">
-          {leads.map(cliente => {
-            const dias = diasInatividade(cliente.dataUltimaInteracao);
-            const inativo = dias > 3;
-
-            return (
-              <div key={cliente.id} className="p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 text-lg">{cliente.nome}</h4>
-                    <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <Phone className="w-4 h-4" />
-                        <span>{cliente.telefone}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Mail className="w-4 h-4" />
-                        <span>{cliente.email}</span>
-                      </div>
-                    </div>
+          return (
+            <div key={userId} className="bg-white rounded-lg shadow-sm">
+              <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {userName} ({userRole})
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {userLeads.length} lead{userLeads.length !== 1 ? 's' : ''} atribuído{userLeads.length !== 1 ? 's' : ''}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      inativo
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {inativo ? 'Inativo' : 'Ativo'}
+                    <span className="text-sm text-gray-500">
+                      Meta diária: 5 leads
                     </span>
-                    {inativo && (
-                      <p className="text-xs text-red-600 mt-1">{dias} dias sem interação</p>
-                    )}
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Etapa:</span>
-                    <p className="font-medium">{cliente.etapa}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Plano de Interesse:</span>
-                    <p className="font-medium">{cliente.planoInteresse}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Valor do Crédito:</span>
-                    <p className="font-medium">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Vendedor:</span>
-                    <p className="font-medium">{userProfiles[cliente.userId]?.name || 'Desconhecido'}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center mt-4">
-                  <div className="flex items-center space-x-1 text-sm text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    <span>Última interação: {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}</span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedCliente(cliente)}
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                    <span>Ver Detalhes</span>
-                  </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
+
+              <div className="divide-y divide-gray-200">
+                {userLeads.map(cliente => {
+                  const dias = diasInatividade(cliente.dataUltimaInteracao);
+                  const inativo = dias > 3;
+
+                  return (
+                    <div key={cliente.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 text-lg">{cliente.nome}</h4>
+                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Phone className="w-4 h-4" />
+                              <span>{cliente.telefone}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Mail className="w-4 h-4" />
+                              <span>{cliente.email}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            inativo
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {inativo ? 'Inativo' : 'Ativo'}
+                          </span>
+                          {inativo && (
+                            <p className="text-xs text-red-600 mt-1">{dias} dias sem interação</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Etapa:</span>
+                          <p className="font-medium">{cliente.etapa}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Plano de Interesse:</span>
+                          <p className="font-medium">{cliente.planoInteresse}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Valor do Crédito:</span>
+                          <p className="font-medium">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center mt-4">
+                        <div className="flex items-center space-x-1 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span>Última interação: {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}</span>
+                        </div>
+                        <button
+                          onClick={() => setSelectedCliente(cliente)}
+                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Ver Detalhes</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
 
         {leads.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Search className="w-12 h-12 mx-auto" />
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Search className="w-12 h-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum lead encontrado</h3>
+              <p className="text-gray-600">
+                {searchTerm || filterEtapa !== 'todos'
+                  ? 'Tente ajustar os filtros de busca'
+                  : 'Você ainda não tem leads cadastrados'}
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum lead encontrado</h3>
-            <p className="text-gray-600">
-              {searchTerm || filterEtapa !== 'todos'
-                ? 'Tente ajustar os filtros de busca'
-                : 'Você ainda não tem leads cadastrados'}
-            </p>
           </div>
         )}
       </div>
@@ -270,6 +311,15 @@ export function Leads() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Cadastro de Leads */}
+      {showCadastro && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="max-w-2xl w-full mx-4">
+            <CadastroLeads onClose={() => setShowCadastro(false)} />
           </div>
         </div>
       )}

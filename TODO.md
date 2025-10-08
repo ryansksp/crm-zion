@@ -2,3 +2,6 @@
 - [x] Testar a filtragem inserindo 120000 e categoria Imóvel, verificar se mostra apenas planos de 120000 para 200, 220, 240 meses
 - [x] Verificar se a tabela de comparação funciona com os planos filtrados
 - [x] Implementar relatórios mensais e de todo período no Dashboard para melhor medição de desempenho de vendas, leads perdidos, etc.
+- [x] Modificar Dashboard.tsx para usar meta apropriada baseada no nível de acesso: agregada para Diretor/Gerente, individual para Operador
+- [ ] Verificar se a capitalização do nome do mês está funcionando corretamente
+- [ ] Testar o dashboard para diferentes níveis de usuário

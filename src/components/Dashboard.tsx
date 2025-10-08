@@ -4,8 +4,13 @@ import { formatDateTimeBrasilia } from '../utils/date';
 import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 
 export function Dashboard() {
-  const { clientes, metas } = useApp();
+  const { clientes, metas, metasPorUsuario, userProfile } = useApp();
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'all'>('monthly');
+
+  // Determine which meta to use based on user level
+  const userMeta = (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente')
+    ? metas.mensal
+    : (metasPorUsuario[userProfile?.uid || '']?.mensal || 0);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -44,16 +49,24 @@ export function Dashboard() {
   const filteredTotalPerdido = filteredVendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
   const filteredTaxaConversao = filteredClientes.length > 0 ? (filteredVendasGanhas.length / filteredClientes.length) * 100 : 0;
 
-  // Calculate current month sales for meta
-  const currentMonth = new Date();
-  const startOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-  const endOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0, 23, 59, 59);
+  // Calculate selected month sales for meta
+  const selectedMonthSales = isMonthly
+    ? filteredVendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0)
+    : vendasGanhas
+        .filter(c => {
+          const currentMonth = new Date();
+          const startOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+          const endOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0, 23, 59, 59);
+          return c.dataVenda && new Date(c.dataVenda) >= startOfCurrentMonth && new Date(c.dataVenda) <= endOfCurrentMonth;
+        })
+        .reduce((sum, c) => sum + (c.valorCredito || 0), 0);
 
-  const currentMonthSales = vendasGanhas
-    .filter(c => c.dataVenda && new Date(c.dataVenda) >= startOfCurrentMonth && new Date(c.dataVenda) <= endOfCurrentMonth)
-    .reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const selectedMonthName = isMonthly
+    ? new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long' })
+    : new Date().toLocaleDateString('pt-BR', { month: 'long' });
 
-  const currentMonthName = currentMonth.toLocaleDateString('pt-BR', { month: 'long' });
+  // Capitalize first letter of month name
+  const capitalizedMonthName = selectedMonthName.charAt(0).toUpperCase() + selectedMonthName.slice(1);
 
   const filteredAtividades = isMonthly
     ? clientes.filter(c => new Date(c.dataUltimaInteracao) >= startOfMonth)
@@ -185,21 +198,21 @@ export function Dashboard() {
       {/* Progress da Meta */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Meta Mensal ({currentMonthName})</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Meta Mensal ({capitalizedMonthName})</h3>
           <span className="text-sm text-gray-500">
-            R$ {currentMonthSales.toLocaleString('pt-BR')} / R$ {(metas?.mensal ?? 0).toLocaleString('pt-BR')}
+            R$ {selectedMonthSales.toLocaleString('pt-BR')} / R$ {userMeta.toLocaleString('pt-BR')}
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
           <div
             className="bg-blue-600 h-3 rounded-full transition-all duration-300"
             style={{
-              width: `${Math.min((currentMonthSales / (metas?.mensal || 1)) * 100, 100)}%`
+              width: `${Math.min((selectedMonthSales / (userMeta || 1)) * 100, 100)}%`
             }}
           ></div>
         </div>
         <p className="text-sm text-gray-600">
-          {((currentMonthSales / (metas?.mensal || 1)) * 100).toFixed(1)}% da meta atingida
+          {((selectedMonthSales / (userMeta || 1)) * 100).toFixed(1)}% da meta atingida
         </p>
       </div>
 
