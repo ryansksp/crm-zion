@@ -210,24 +210,25 @@ export function Simulador() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Valor do Crédito (R$)
-                </label>
-                <select
-                  value={formData.valorCredito}
-                  onChange={(e) => handleInputChange('valorCredito', e.target.value)}
-                  disabled={!selectedCategoria}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Selecione um valor...</option>
-                  {uniqueCredits.map((credito) => (
-                    <option key={credito} value={credito.toString()}>
-                      {formatCurrency(credito)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {selectedCategoria && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Valor do Crédito (R$)
+                  </label>
+                  <select
+                    value={formData.valorCredito}
+                    onChange={(e) => handleInputChange('valorCredito', e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Selecione um valor...</option>
+                    {uniqueCredits.map((credito) => (
+                      <option key={credito} value={credito.toString()}>
+                        {formatCurrency(credito)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
