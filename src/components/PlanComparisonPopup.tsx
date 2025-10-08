@@ -34,8 +34,18 @@ const PlanComparisonPopup: React.FC = () => {
     prazoFinanciamento: '240',
   });
 
-  // Obter valores únicos de crédito disponíveis nos planos
-  const uniqueCredits = Array.from(new Set(planos.map(p => p.credito).filter((c): c is number => c != null))).sort((a, b) => a - b);
+  // Obter valores únicos de crédito disponíveis nos planos, filtrados por categorias selecionadas
+  const uniqueCredits = Array.from(new Set(
+    planos
+      .filter(p => selectedCategories.some(cat => {
+        const planCategory = p.categoria || p.tipo || '';
+        const normalizedPlanCategory = normalizeString(planCategory);
+        const normalizedCat = normalizeString(cat);
+        return normalizedPlanCategory.includes(normalizedCat);
+      }))
+      .map(p => p.credito)
+      .filter((c): c is number => c != null)
+  )).sort((a, b) => a - b);
   const [benefits] = useState<string[]>([
     "Sem juros abusivos - apenas taxas administrativas transparentes",
     "Possibilidade de lance para antecipar a contemplação",
