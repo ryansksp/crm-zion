@@ -84,6 +84,7 @@ export function Simulador() {
   // Atualizar campos quando um plano é selecionado
   useEffect(() => {
     if (selectedPlano) {
+      setSelectedCategoria(selectedPlano.categoria || selectedPlano.tipo || null);
       setFormData(prev => ({
         ...prev,
         prazo: selectedPlano.prazoMeses?.toString() || selectedPlano.prazo?.toString() || '',
@@ -92,6 +93,8 @@ export function Simulador() {
         taxaAdesao: selectedPlano.taxaAdesao?.toString() || '',
         valorCredito: selectedPlano.credito?.toString() || selectedPlano.valorCredito?.toString() || ''
       }));
+    } else {
+      setSelectedCategoria(null);
     }
   }, [selectedPlano]);
 
@@ -204,6 +207,7 @@ export function Simulador() {
                   value={selectedCategoria || ''}
                   onChange={(e) => {
                     setSelectedCategoria(e.target.value === '' ? null : e.target.value);
+                    setSelectedPlano(null); // reset selected plan when category changes
                     setFormData(prev => ({ ...prev, valorCredito: '' })); // reset credit
                   }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
