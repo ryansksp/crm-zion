@@ -52,6 +52,13 @@ export function Simulador() {
   // Obter categorias únicas
   const uniqueCategories = Array.from(new Set(planos.map(p => p.categoria || p.tipo).filter(Boolean)));
 
+  // Obter planos únicos para o select
+  const uniquePlanos = Array.from(
+    new Map(
+      planos.map(plano => [`${plano.nome}-${plano.prazoMeses || plano.prazo}-${plano.categoria || plano.tipo}-${plano.credito}`, plano])
+    ).values()
+  );
+
   // Obter valores únicos de crédito disponíveis nos planos, filtrados por categoria
   const uniqueCredits = Array.from(new Set(
     planos
@@ -152,7 +159,7 @@ export function Simulador() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione um plano...</option>
-                {planos.map((plano) => (
+                {uniquePlanos.map((plano) => (
                   <option key={plano.id} value={plano.id}>
                     {plano.nome} - {plano.categoria || plano.tipo} - Prazo: {plano.prazoMeses || plano.prazo} meses
                   </option>
