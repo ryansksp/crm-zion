@@ -53,7 +53,7 @@ export type EtapaFunil =
 export interface Interacao {
   id: string;
   data: string;
-  tipo: 'Ligação' | 'WhatsApp' | 'Email' | 'Reunião';
+  tipo: 'Ligação' | 'WhatsApp' | 'Email' | 'Reunião' | 'Cadastro';
   descricao: string;
 }
 

@@ -17,6 +17,7 @@ interface AppContextType extends AppState {
   adicionarCliente: (cliente: Omit<Cliente, 'id'>) => Promise<void>;
   atualizarCliente: (id: string, cliente: Partial<Cliente>) => Promise<void>;
   moverClienteEtapa: (id: string, novaEtapa: Cliente['etapa']) => Promise<void>;
+  reatribuirLead: (id: string, novoUserId: string) => Promise<void>;
   adicionarPlano: (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => Promise<void>;
   atualizarPlano: (id: string, plano: Partial<PlanoEmbracon>) => Promise<void>;
   atualizarMetas: (metas: Partial<Meta>) => Promise<void>;
@@ -299,6 +300,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await ClienteService.moverClienteEtapa(id, novaEtapa, userProfile);
   };
 
+  const reatribuirLead = async (id: string, novoUserId: string) => {
+    if (!user) return;
+    await ClienteService.reatribuirLead(id, novoUserId);
+  };
+
   const adicionarPlano = async (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => {
     if (!user) return;
     await PlanoService.adicionarPlano(plano, user.uid);
@@ -372,6 +378,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       adicionarCliente,
       atualizarCliente,
       moverClienteEtapa,
+      reatribuirLead,
       adicionarPlano,
       atualizarPlano,
       atualizarMetas,

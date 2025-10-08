@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { formatDateTimeBrasilia } from '../utils/date';
 import { Cliente, Interacao, Simulacao } from '../types';
-import { Search, Filter, Eye, Phone, Mail, Calendar, X, UserPlus } from 'lucide-react';
+import { Search, Filter, Eye, Phone, Mail, Calendar, X, UserPlus, UserCheck } from 'lucide-react';
 import { CadastroLeads } from './CadastroLeads';
 
 export function Leads() {
-  const { clientes, userProfiles } = useApp();
+  const { clientes, userProfiles, userProfile, reatribuirLead } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEtapa, setFilterEtapa] = useState('todos');
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [showCadastro, setShowCadastro] = useState(false);
+  const [novoUserId, setNovoUserId] = useState('');
   const filterUser = 'todos';
 
   // Definir quais etapas são consideradas "leads"
@@ -47,6 +48,19 @@ export function Leads() {
 
   const diasInatividade = (dataUltimaInteracao: string) => {
     return Math.floor((Date.now() - new Date(dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const handleReatribuirLead = async () => {
+    if (!selectedCliente || !novoUserId) return;
+    try {
+      await reatribuirLead(selectedCliente.id, novoUserId);
+      setNovoUserId('');
+      setSelectedCliente(null);
+      alert('Lead reatribuído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao reatribuir lead:', error);
+      alert('Erro ao reatribuir lead. Tente novamente.');
+    }
   };
 
   return (
@@ -307,6 +321,35 @@ export function Leads() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reatribuição de Lead - Apenas para Diretores */}
+              {userProfile?.accessLevel === 'Diretor' && (
+                <div className="border-t pt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Reatribuir Lead</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={novoUserId}
+                      onChange={(e) => setNovoUserId(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Selecione um usuário</option>
+                      {Object.values(userProfiles).map(user => (
+                        <option key={user.id} value={user.id}>
+                          {user.name} ({user.accessLevel})
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={handleReatribuirLead}
+                      disabled={!novoUserId}
+                      className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      Reatribuir
+                    </button>
                   </div>
                 </div>
               )}

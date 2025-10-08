@@ -10,7 +10,7 @@ interface CadastroLeadsProps {
 }
 
 export function CadastroLeads({ onClose }: CadastroLeadsProps) {
-  const { adicionarCliente, userProfiles } = useApp();
+  const { adicionarCliente, userProfiles, userProfile } = useApp();
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
@@ -21,8 +21,9 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
   });
   const [loading, setLoading] = useState(false);
 
-  // Get only users with Operador or Gerente access level
+  // Get users: Directors can assign to anyone, others only to Operador or Gerente
   const colaboradores = Object.values(userProfiles).filter(user =>
+    userProfile?.accessLevel === 'Diretor' ||
     user.accessLevel === 'Operador' || user.accessLevel === 'Gerente'
   );
 
@@ -47,10 +48,12 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
         dataCriacao: new Date().toISOString(),
         dataUltimaInteracao: new Date().toISOString(),
         historico: [{
+          id: `cadastro-${Date.now()}`,
           tipo: 'Cadastro',
           descricao: 'Lead cadastrado manualmente',
           data: new Date().toISOString()
-        }]
+        }],
+        simulacoes: []
       };
 
       await adicionarCliente(novoCliente);
@@ -179,7 +182,7 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
               >
                 <option value="">Selecione um colaborador</option>
                 {colaboradores.map(user => (
-                  <option key={user.uid} value={user.uid}>
+                  <option key={user.id} value={user.id}>
                     {user.name} ({user.accessLevel})
                   </option>
                 ))}
