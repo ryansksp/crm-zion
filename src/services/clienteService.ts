@@ -104,4 +104,27 @@ export class ClienteService {
       }
     }
   }
+
+  static async reatribuirLead(id: string, novoUserId: string): Promise<void> {
+    try {
+      const docRef = doc(db, 'clientes', id);
+
+      // Verificar se o documento existe
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        console.error(`Documento cliente com ID ${id} não encontrado no Firestore`);
+        throw new Error(`Cliente não encontrado: ${id}`);
+      }
+
+      console.log('Reatribuindo lead:', id, 'para usuário:', novoUserId);
+      await updateDoc(docRef, {
+        userId: novoUserId,
+        dataUltimaInteracao: new Date().toISOString()
+      });
+      console.log('Lead reatribuído com sucesso:', id);
+    } catch (error) {
+      console.error('Erro ao reatribuir lead:', error);
+      throw error;
+    }
+  }
 }
