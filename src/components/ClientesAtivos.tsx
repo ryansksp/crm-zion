@@ -20,6 +20,9 @@ export function ClientesAtivos() {
   // State for success message
   const [successMessage, setSuccessMessage] = useState<string>('');
 
+  // State for action feedback
+  const [actionMessage, setActionMessage] = useState<string>('');
+
   // Ref for details element
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
@@ -139,6 +142,8 @@ export function ClientesAtivos() {
       groups.push({ grupo: '', cotas: [''] });
       return { ...prev, [clienteId]: groups };
     });
+    setActionMessage('Grupo adicionado com sucesso!');
+    setTimeout(() => setActionMessage(''), 3000);
   };
 
   const removeGroup = (clienteId: string, groupIndex: number) => {
@@ -147,6 +152,8 @@ export function ClientesAtivos() {
       groups.splice(groupIndex, 1);
       return { ...prev, [clienteId]: groups };
     });
+    setActionMessage('Grupo removido com sucesso!');
+    setTimeout(() => setActionMessage(''), 3000);
   };
 
   const addQuotaToGroup = (clienteId: string, groupIndex: number) => {
@@ -155,6 +162,8 @@ export function ClientesAtivos() {
       groups[groupIndex].cotas.push('');
       return { ...prev, [clienteId]: groups };
     });
+    setActionMessage('Cota adicionada com sucesso!');
+    setTimeout(() => setActionMessage(''), 3000);
   };
 
   const removeQuotaFromGroup = (clienteId: string, groupIndex: number, quotaIndex: number) => {
@@ -163,6 +172,8 @@ export function ClientesAtivos() {
       groups[groupIndex].cotas.splice(quotaIndex, 1);
       return { ...prev, [clienteId]: groups };
     });
+    setActionMessage('Cota removida com sucesso!');
+    setTimeout(() => setActionMessage(''), 3000);
   };
 
   const saveGroupsDetailed = (cliente: Cliente) => {
@@ -185,6 +196,11 @@ export function ClientesAtivos() {
         {successMessage && (
           <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
             {successMessage}
+          </div>
+        )}
+        {actionMessage && (
+          <div className="mt-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
+            {actionMessage}
           </div>
         )}
       </div>
