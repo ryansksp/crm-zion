@@ -15,3 +15,4 @@
 - [x] Implementar função para salvar o dia de vencimento padrão junto com os pagamentos
 - [x] Substituir checkbox por select com opções "Pendente", "Pago" e "Atrasado" para maior clareza
 - [x] Atualizar permissões para serem modulares por aba (canViewDashboard, canViewFunil, etc.)
+- [x] Corrigir erro do Firestore removendo valores undefined dos dados enviados

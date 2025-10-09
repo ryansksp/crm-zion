@@ -113,7 +113,19 @@ export function Pagamentos() {
     const payments = editingPayments[cliente.id];
     const dueDay = editingDueDays[cliente.id];
     if (payments) {
-      atualizarCliente(cliente.id, { pagamentos: payments, diaVencimentoPadrao: dueDay });
+      // Clean payments to remove undefined values
+      const cleanedPayments = payments.map(p => {
+        const cleaned = { pago: p.pago };
+        if (p.dataPagamento) {
+          cleaned.dataPagamento = p.dataPagamento;
+        }
+        return cleaned;
+      });
+      const updateData: any = { pagamentos: cleanedPayments };
+      if (dueDay !== undefined) {
+        updateData.diaVencimentoPadrao = dueDay;
+      }
+      atualizarCliente(cliente.id, updateData);
       setShowSuccessPopup(true);
       setTimeout(() => setShowSuccessPopup(false), 3000);
     }
