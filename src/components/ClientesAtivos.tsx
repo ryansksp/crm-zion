@@ -17,14 +17,14 @@ export function ClientesAtivos() {
   // State for seller filter
   const [selectedSeller, setSelectedSeller] = useState<string>('all');
 
-  // State for success message
-  const [successMessage, setSuccessMessage] = useState<string>('');
-
   // State for action feedback
   const [actionMessage, setActionMessage] = useState<string>('');
 
   // State for details open/close
   const [openDetails, setOpenDetails] = useState<Record<string, boolean>>({});
+
+  // State for success popup
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
     // Initialize editingGroupsDetailed state from clientesAtivos, but only if not already initialized
@@ -37,7 +37,7 @@ export function ClientesAtivos() {
           // Migrate from old structure
           initialGroupsDetailed[cliente.id] = [{ grupo: cliente.grupo, cotas: [...cliente.gruposECotas] }];
         } else {
-          initialGroupsDetailed[cliente.id] = [{ grupo: '', cotas: [''] }];
+          initialGroupsDetailed[cliente.id] = [];
         }
         initializedGroupsDetailed.current[cliente.id] = true;
       }
@@ -122,8 +122,6 @@ export function ClientesAtivos() {
     'Cancelado': { bg: 'bg-red-100', text: 'text-red-700', icon: XCircle }
   };
 
-
-
   const handleGroupChange = (clienteId: string, groupIndex: number, field: 'grupo' | 'cotas', value: string | string[]) => {
     setEditingGroupsDetailed(prev => {
       const groups = prev[clienteId] ? [...prev[clienteId]] : [];
@@ -180,9 +178,7 @@ export function ClientesAtivos() {
     const groupsDetailed = editingGroupsDetailed[cliente.id];
     if (groupsDetailed) {
       atualizarCliente(cliente.id, { gruposDetalhados: groupsDetailed });
-      setSuccessMessage('Grupos e cotas salvos com sucesso!');
-      setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
-      setOpenDetails(prev => ({ ...prev, [cliente.id]: false })); // Close the details
+      setShowSuccessPopup(true);
     }
   };
 
@@ -191,11 +187,6 @@ export function ClientesAtivos() {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Clientes Ativos</h2>
         <p className="text-gray-600">Gerencie o relacionamento pós-venda</p>
-        {successMessage && (
-          <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-            {successMessage}
-          </div>
-        )}
         {actionMessage && (
           <div className="mt-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
             {actionMessage}
@@ -280,7 +271,7 @@ export function ClientesAtivos() {
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Lista de Clientes</h3>
         </div>
-
+            
         <div className="divide-y divide-gray-200">
           {filteredClientes.map(cliente => {
             const alertas = obterAlertas(cliente);
@@ -345,7 +336,7 @@ export function ClientesAtivos() {
                                   value={group.grupo}
                                   onChange={(e) => handleGroupChange(cliente.id, groupIndex, 'grupo', e.target.value)}
                                   className="border border-gray-300 rounded-md px-2 py-1 text-sm w-full mb-2"
-                                  placeholder="Nome do Grupo"
+                                  placeholder="Grupo"
                                 />
                                 <div className="font-medium text-sm mb-1">Cotas:</div>
                                 <div className="flex flex-wrap items-center gap-2">
@@ -419,65 +410,43 @@ export function ClientesAtivos() {
                         </div>
                       )}
                     </div>
-
-                    {/* Alertas */}
-                    {alertas.length > 0 && (
-                      <div className="mt-3 space-y-1">
-                        {alertas.map((alerta, index) => {
-                          const AlertIcon = alerta.icon;
-                          return (
-                            <div key={index} className={`flex items-center space-x-2 text-sm ${alerta.cor}`}>
-                              <AlertIcon className="w-4 h-4" />
-                              <span className="font-medium">{alerta.mensagem}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
 
-                  <div className="ml-4 flex flex-col space-y-2">
-                    <select
-                      value={cliente.statusConsorcio || 'Ativo'}
-                      onChange={(e) => atualizarCliente(cliente.id, { 
-                        statusConsorcio: e.target.value as 'Ativo' | 'Contemplado' | 'Cancelado' 
+                  {/* Alertas */}
+                  {alertas.length > 0 && (
+                    <div className="mt-3 space-y-1">
+                      {alertas.map((alerta, index) => {
+                        const AlertIcon = alerta.icon;
+                        return (
+                          <div key={index} className={`flex items-center space-x-2 text-sm ${alerta.cor}`}>
+                            <AlertIcon className="w-4 h-4" />
+                            <span className="font-medium">{alerta.mensagem}</span>
+                          </div>
+                        );
                       })}
-                      className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="Ativo">Ativo</option>
-                      <option value="Contemplado">Contemplado</option>
-                      <option value="Cancelado">Cancelado</option>
-                    </select>
-
-                    {!cliente.aniversario && (
-                      <input
-                        type="date"
-                        max={new Date().toISOString().split('T')[0]}
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            atualizarCliente(cliente.id, { aniversario: e.target.value });
-                          }
-                        }}
-                        className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        title="Data de aniversário"
-                      />
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
-          
-          {clientesAtivos.length === 0 && (
-            <div className="p-12 text-center text-gray-500">
-              <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <h4 className="text-lg font-medium mb-2">Nenhum cliente ativo</h4>
-              <p className="text-sm">Clientes aparecerão aqui quando moverem para "Venda Ganha" no funil.</p>
-            </div>
-          )}
         </div>
       </div>
+      
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+            <h3 className="text-lg font-semibold text-green-600 mb-4">Sucesso!</h3>
+            <p className="text-gray-700 mb-4">Grupos e cotas salvos com sucesso!</p>
+            <button
+              onClick={() => setShowSuccessPopup(false)}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
