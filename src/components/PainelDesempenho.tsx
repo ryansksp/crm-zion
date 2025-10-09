@@ -29,7 +29,7 @@ export function PainelDesempenho() {
 
           return (
             <div key={userId} className="border rounded p-4 mb-6 bg-white shadow">
-              <h3 className="text-xl font-semibold mb-4">{userName}</h3>
+              <h3 className="text-xl font-semibold mb-4">{userName} ({userProfiles[userId]?.accessLevel || 'N/A'})</h3>
               <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
                 <div className="flex items-center space-x-4">
                   <UserX className="w-8 h-8 text-blue-600" />
