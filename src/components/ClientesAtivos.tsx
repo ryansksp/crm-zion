@@ -144,12 +144,7 @@ export function ClientesAtivos() {
     const quotas = editingQuotas[cliente.id];
     if (quotas) {
       const filteredQuotas = quotas.filter(q => q.trim() !== '');
-      try {
-        atualizarCliente(cliente.id, { gruposECotas: filteredQuotas.length > 0 ? filteredQuotas : undefined });
-        console.log('Quotas salvas com sucesso para cliente:', cliente.id);
-      } catch (error) {
-        console.error('Erro ao salvar quotas para cliente:', cliente.id, error);
-      }
+      atualizarCliente(cliente.id, { gruposECotas: filteredQuotas.length > 0 ? filteredQuotas : undefined });
     }
   };
 
@@ -269,68 +264,74 @@ export function ClientesAtivos() {
                       <div>
                         <span className="font-medium">Vendedor:</span> {userProfiles[cliente.userId]?.name || 'Desconhecido'}
                       </div>
-                      <div className="flex flex-wrap items-center space-x-4 mt-1">
-                        <label className="font-medium flex items-center space-x-1">
-                          <span>Grupo:</span>
-                          <input
-                            type="text"
-                            value={editingGroups[cliente.id] || ''}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setEditingGroups(prev => ({ ...prev, [cliente.id]: value }));
-                            }}
-                            className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
-                            placeholder="Grupo"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const groupValue = editingGroups[cliente.id];
-                              atualizarCliente(cliente.id, { grupo: groupValue }).catch(error => {
-                                console.error('Erro ao salvar grupo:', error);
-                              });
-                            }}
-                            className="ml-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-                            title="Salvar Grupo"
-                          >
-                            Salvar
-                          </button>
-                        </label>
-                        <div className="font-medium flex items-center space-x-1">
-                          <span>Cotas:</span>
-                          <div className="inline-flex items-center space-x-2">
-                            {editingQuotas[cliente.id]?.map((quota, index) => (
-                              <div key={index} className="flex items-center space-x-1">
-                                <input
-                                  type="text"
-                                  value={quota}
-                                  onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
-                                  onBlur={() => saveQuotas(cliente)}
-                                  className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
-                                  placeholder="Cota"
-                                />
-                                {editingQuotas[cliente.id].length > 1 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => removeQuotaField(cliente.id, index)}
-                                    className="p-1 rounded bg-red-600 text-white hover:bg-red-700"
-                                    title="Remover cota"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                )}
-                              </div>
-                            ))}
-                            <button
-                              type="button"
-                              onClick={() => addQuotaField(cliente.id)}
-                              className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-                              title="Adicionar cota"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
+                      <div className="mt-1">
+                        <div className="font-medium">
+                          Grupo: {cliente.grupo || 'N/A'}, Cotas: {cliente.gruposECotas?.length || 0}
                         </div>
+                        <details className="mt-2">
+                          <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Editar detalhes</summary>
+                          <div className="mt-2 space-y-2">
+                            <label className="font-medium flex items-center space-x-1">
+                              <span>Grupo:</span>
+                              <input
+                                type="text"
+                                value={editingGroups[cliente.id] || ''}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setEditingGroups(prev => ({ ...prev, [cliente.id]: value }));
+                                }}
+                                className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
+                                placeholder="Grupo"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const groupValue = editingGroups[cliente.id];
+                                  atualizarCliente(cliente.id, { grupo: groupValue });
+                                }}
+                                className="ml-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                                title="Salvar Grupo"
+                              >
+                                Salvar
+                              </button>
+                            </label>
+                            <div className="font-medium flex items-center space-x-1">
+                              <span>Cotas:</span>
+                              <div className="inline-flex items-center space-x-2 flex-wrap">
+                                {editingQuotas[cliente.id]?.map((quota, index) => (
+                                  <div key={index} className="flex items-center space-x-1">
+                                    <input
+                                      type="text"
+                                      value={quota}
+                                      onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
+                                      onBlur={() => saveQuotas(cliente)}
+                                      className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
+                                      placeholder="Cota"
+                                    />
+                                    {editingQuotas[cliente.id].length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => removeQuotaField(cliente.id, index)}
+                                        className="p-1 rounded bg-red-600 text-white hover:bg-red-700"
+                                        title="Remover cota"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() => addQuotaField(cliente.id)}
+                                  className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                                  title="Adicionar cota"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </details>
                       </div>
                       {cliente.dataVenda && (
                         <div>
