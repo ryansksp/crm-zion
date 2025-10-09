@@ -16,3 +16,5 @@
 - [x] Substituir checkbox por select com opções "Pendente", "Pago" e "Atrasado" para maior clareza
 - [x] Atualizar permissões para serem modulares por aba (canViewDashboard, canViewFunil, etc.)
 - [x] Corrigir erro do Firestore removendo valores undefined dos dados enviados
+- [x] Adicionar opção "Atrasado" no select de status das parcelas
+- [x] Atualizar ControleUsuarios para mostrar as novas permissões modulares

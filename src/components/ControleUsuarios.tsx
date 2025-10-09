@@ -4,12 +4,21 @@ import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-rea
 import { collection, getDocs, doc, updateDoc, deleteDoc, getFirestore } from 'firebase/firestore';
 
 interface UserPermissions {
+  canViewDashboard: boolean;
+  canViewFunil: boolean;
+  canViewLeads: boolean;
+  canViewSimulador: boolean;
+  canViewClientesAtivos: boolean;
+  canViewClientesPerdidos: boolean;
+  canViewPagamentos: boolean;
+  canViewDesempenho: boolean;
   canViewAllClients: boolean;
   canViewAllLeads: boolean;
   canViewAllSimulations: boolean;
   canViewAllReports: boolean;
   canManageUsers: boolean;
   canChangeSettings: boolean;
+  canEditProfile: boolean;
 }
 
 interface UserProfile {
@@ -117,12 +126,21 @@ export function ControleUsuarios() {
             email: data.email || '',
             accessLevel: data.accessLevel || 'Operador',
             permissions: data.permissions || {
+              canViewDashboard: true,
+              canViewFunil: data.accessLevel !== 'Operador',
+              canViewLeads: data.accessLevel !== 'Operador',
+              canViewSimulador: data.accessLevel !== 'Operador',
+              canViewClientesAtivos: data.accessLevel !== 'Operador',
+              canViewClientesPerdidos: data.accessLevel !== 'Operador',
+              canViewPagamentos: data.accessLevel !== 'Operador',
+              canViewDesempenho: data.accessLevel !== 'Operador',
               canViewAllClients: data.accessLevel === 'Diretor',
               canViewAllLeads: data.accessLevel === 'Diretor',
               canViewAllSimulations: data.accessLevel === 'Diretor',
               canViewAllReports: data.accessLevel === 'Diretor',
               canManageUsers: data.accessLevel === 'Diretor',
               canChangeSettings: data.accessLevel !== 'Operador',
+              canEditProfile: true,
             },
             createdAt: data.createdAt?.toDate() || new Date(),
             lastLogin: data.lastLogin?.toDate(),
@@ -469,12 +487,21 @@ export function ControleUsuarios() {
                                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
                                 <span className="text-sm text-gray-700">
+                                  {key === 'canViewDashboard' && 'Ver Dashboard'}
+                                  {key === 'canViewFunil' && 'Ver Funil de Vendas'}
+                                  {key === 'canViewLeads' && 'Ver Leads'}
+                                  {key === 'canViewSimulador' && 'Ver Simulador'}
+                                  {key === 'canViewClientesAtivos' && 'Ver Clientes Ativos'}
+                                  {key === 'canViewClientesPerdidos' && 'Ver Clientes Perdidos'}
+                                  {key === 'canViewPagamentos' && 'Ver Pagamentos'}
+                                  {key === 'canViewDesempenho' && 'Ver Desempenho'}
                                   {key === 'canViewAllClients' && 'Ver todos os clientes'}
                                   {key === 'canViewAllLeads' && 'Ver todos os leads'}
                                   {key === 'canViewAllSimulations' && 'Ver todas as simulações'}
                                   {key === 'canViewAllReports' && 'Ver relatórios completos'}
                                   {key === 'canManageUsers' && 'Gerenciar usuários'}
                                   {key === 'canChangeSettings' && 'Alterar configurações'}
+                                  {key === 'canEditProfile' && 'Editar perfil'}
                                 </span>
                               </label>
                             ))}
@@ -510,12 +537,21 @@ export function ControleUsuarios() {
                           >
                             {value ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                             <span>
-                              {key === 'canViewAllClients' && 'Clientes'}
-                              {key === 'canViewAllLeads' && 'Leads'}
-                              {key === 'canViewAllSimulations' && 'Simulações'}
+                              {key === 'canViewDashboard' && 'Dashboard'}
+                              {key === 'canViewFunil' && 'Funil'}
+                              {key === 'canViewLeads' && 'Leads'}
+                              {key === 'canViewSimulador' && 'Simulador'}
+                              {key === 'canViewClientesAtivos' && 'Clientes Ativos'}
+                              {key === 'canViewClientesPerdidos' && 'Clientes Perdidos'}
+                              {key === 'canViewPagamentos' && 'Pagamentos'}
+                              {key === 'canViewDesempenho' && 'Desempenho'}
+                              {key === 'canViewAllClients' && 'Todos Clientes'}
+                              {key === 'canViewAllLeads' && 'Todos Leads'}
+                              {key === 'canViewAllSimulations' && 'Todas Simulações'}
                               {key === 'canViewAllReports' && 'Relatórios'}
                               {key === 'canManageUsers' && 'Usuários'}
                               {key === 'canChangeSettings' && 'Configurações'}
+                              {key === 'canEditProfile' && 'Perfil'}
                             </span>
                           </span>
                         ))}
