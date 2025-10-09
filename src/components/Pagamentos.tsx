@@ -10,8 +10,12 @@ export function Pagamentos() {
   // State to hold editing payments per client
   const [editingPayments, setEditingPayments] = useState<Record<string, { pago: boolean; dataPagamento?: string }[]>>({});
 
+  // State to hold editing due day per client
+  const [editingDueDays, setEditingDueDays] = useState<Record<string, number>>({});
+
   // Refs to track if initialized
   const initializedPayments = useRef<Record<string, boolean>>({});
+  const initializedDueDays = useRef<Record<string, boolean>>({});
 
   // State for seller filter
   const [selectedSeller, setSelectedSeller] = useState<string>('all');
@@ -34,6 +38,18 @@ export function Pagamentos() {
       }
     });
     setEditingPayments(prev => ({ ...prev, ...initialPayments }));
+  }, [clientesAtivos]);
+
+  useEffect(() => {
+    // Initialize editingDueDays state from clientesAtivos, but only if not already initialized
+    const initialDueDays: Record<string, number> = {};
+    clientesAtivos.forEach(cliente => {
+      if (!initializedDueDays.current[cliente.id]) {
+        initialDueDays[cliente.id] = cliente.diaVencimentoPadrao || 10; // Default to 10th
+        initializedDueDays.current[cliente.id] = true;
+      }
+    });
+    setEditingDueDays(prev => ({ ...prev, ...initialDueDays }));
   }, [clientesAtivos]);
 
   // Get unique sellers
@@ -64,6 +80,20 @@ export function Pagamentos() {
     return acc;
   }, { pagas: 0, pendentes: 0, atrasadas: 0, proximas: 0 });
 
+  // Calculate upcoming notifications (due in 10 days)
+  const upcomingNotifications = filteredClientes.filter(cliente => {
+    const payments = editingPayments[cliente.id] || [];
+    return payments.some(payment => {
+      if (payment.pago || !payment.dataPagamento) return false;
+      const paymentDate = new Date(payment.dataPagamento);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tenDaysFromNow = new Date(today);
+      tenDaysFromNow.setDate(today.getDate() + 10);
+      return paymentDate >= today && paymentDate <= tenDaysFromNow;
+    });
+  });
+
   const handlePaymentChange = (clienteId: string, installmentIndex: number, field: 'pago' | 'dataPagamento', value: boolean | string) => {
     setEditingPayments(prev => {
       const payments = prev[clienteId] ? [...prev[clienteId]] : [];
@@ -81,8 +111,9 @@ export function Pagamentos() {
 
   const savePayments = (cliente: Cliente) => {
     const payments = editingPayments[cliente.id];
+    const dueDay = editingDueDays[cliente.id];
     if (payments) {
-      atualizarCliente(cliente.id, { pagamentos: payments });
+      atualizarCliente(cliente.id, { pagamentos: payments, diaVencimentoPadrao: dueDay });
       setShowSuccessPopup(true);
       setTimeout(() => setShowSuccessPopup(false), 3000);
     }
@@ -193,6 +224,46 @@ export function Pagamentos() {
         </div>
       </div>
 
+      {/* Notificações de Vencimento */}
+      {upcomingNotifications.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <AlertTriangle className="w-5 h-5 text-yellow-600" />
+            <h3 className="text-lg font-semibold text-yellow-800">Avisos de Vencimento</h3>
+          </div>
+          <p className="text-yellow-700 mb-3">Clientes com parcelas vencendo nos próximos 10 dias:</p>
+          <div className="space-y-2">
+            {upcomingNotifications.map(cliente => {
+              const payments = editingPayments[cliente.id] || [];
+              const upcomingPayments = payments
+                .map((payment, index) => ({ payment, index }))
+                .filter(({ payment }) => {
+                  if (payment.pago || !payment.dataPagamento) return false;
+                  const paymentDate = new Date(payment.dataPagamento);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const tenDaysFromNow = new Date(today);
+                  tenDaysFromNow.setDate(today.getDate() + 10);
+                  return paymentDate >= today && paymentDate <= tenDaysFromNow;
+                });
+              return (
+                <div key={cliente.id} className="flex items-center justify-between bg-white p-3 rounded border">
+                  <div>
+                    <span className="font-medium">{cliente.nome}</span>
+                    <span className="text-sm text-gray-600 ml-2">
+                      Parcela(s): {upcomingPayments.map(({ index }) => `${index + 1}ª`).join(', ')}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Vence em: {upcomingPayments.map(({ payment }) => new Date(payment.dataPagamento!).toLocaleDateString('pt-BR')).join(', ')}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Lista de Clientes */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b border-gray-200">
@@ -221,6 +292,17 @@ export function Pagamentos() {
                     </div>
                     <div>
                       <span className="font-medium">Vendedor:</span> {userProfiles[cliente.userId]?.name || 'Desconhecido'}
+                    </div>
+                    <div className="col-span-full">
+                      <label className="font-medium">Dia de Vencimento Padrão:</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="31"
+                        value={editingDueDays[cliente.id] || 10}
+                        onChange={(e) => setEditingDueDays(prev => ({ ...prev, [cliente.id]: parseInt(e.target.value) || 10 }))}
+                        className="ml-2 border border-gray-300 rounded px-2 py-1 text-xs w-16"
+                      />
                     </div>
                   </div>
 

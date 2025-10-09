@@ -20,6 +20,7 @@ export interface Cliente {
   aniversario?: string;
   userId: string;
   pagamentos?: { pago: boolean; dataPagamento?: string }[];
+  diaVencimentoPadrao?: number; // Dia do mês para vencimento padrão (1-31)
 }
 
 export interface UserProfile {

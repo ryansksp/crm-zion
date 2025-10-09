@@ -10,3 +10,6 @@
 - [x] Configurar permissões para a nova aba
 - [x] Remover seção de pagamentos de ClientesAtivos.tsx
 - [x] Adicionar resumo geral de pagamentos no topo da página (parcelas pagas, pendentes, em atraso, próximas)
+- [x] Adicionar campo diaVencimentoPadrao para definir dia padrão de vencimento
+- [x] Implementar notificações de vencimento 10 dias antes
+- [x] Implementar função para salvar o dia de vencimento padrão junto com os pagamentos
