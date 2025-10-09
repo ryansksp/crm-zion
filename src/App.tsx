@@ -121,14 +121,21 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
     return allTabs.filter(tab => {
       switch (tab.key) {
         case 'dashboard':
+          return perms.canViewDashboard;
         case 'funil':
+          return perms.canViewFunil;
         case 'leads':
+          return perms.canViewLeads;
         case 'simulador':
+          return perms.canViewSimulador;
         case 'clientes-ativos':
+          return perms.canViewClientesAtivos;
         case 'clientes-perdidos':
+          return perms.canViewClientesPerdidos;
         case 'pagamentos':
+          return perms.canViewPagamentos;
         case 'desempenho':
-          return perms.canViewAllClients || perms.canViewAllLeads || perms.canViewAllSimulations || perms.canViewAllReports;
+          return perms.canViewDesempenho;
         case 'configuracoes':
           return perms.canChangeSettings;
         case 'usuarios':

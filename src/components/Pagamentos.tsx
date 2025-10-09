@@ -320,6 +320,7 @@ export function Pagamentos() {
                                     >
                                       <option value="Pendente">Pendente</option>
                                       <option value="Pago">Pago</option>
+                                      <option value="Atrasado">Atrasado</option>
                                     </select>
                                     <input
                                       type="date"

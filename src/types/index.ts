@@ -34,6 +34,14 @@ export interface UserProfile {
   isMaster?: boolean;
   theme?: 'light' | 'dark';
   permissions?: {
+    canViewDashboard: boolean;
+    canViewFunil: boolean;
+    canViewLeads: boolean;
+    canViewSimulador: boolean;
+    canViewClientesAtivos: boolean;
+    canViewClientesPerdidos: boolean;
+    canViewPagamentos: boolean;
+    canViewDesempenho: boolean;
     canViewAllClients: boolean;
     canViewAllLeads: boolean;
     canViewAllSimulations: boolean;
