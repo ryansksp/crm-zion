@@ -19,6 +19,7 @@ export interface Cliente {
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
   userId: string;
+  pagamentos?: { pago: boolean; dataPagamento?: string }[];
 }
 
 export interface UserProfile {
