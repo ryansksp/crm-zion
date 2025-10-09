@@ -73,19 +73,28 @@ export function PainelDesempenho() {
                 <div className="flex items-center space-x-4">
                   <Target className="w-8 h-8 text-purple-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Meta Mensal</p>
-                    <p className="text-xl font-bold">R$ {metas.mensal.toLocaleString('pt-BR')}</p>
-                    <div className="w-full bg-gray-200 rounded-full h-4 mt-1">
-                      <div
-                        className="bg-blue-600 h-4 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(progressoMeta, 100)}%` }}
-                      ></div>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {progressoMeta.toFixed(1)}% da meta atingida
-                    </p>
+                    <p className="text-sm text-gray-600">Taxa de Conversão</p>
+                    <p className="text-xl font-bold">{(clientes.length > 0 ? (vendas.length / clientes.length) * 100 : 0).toFixed(1)}%</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Meta Mensal */}
+              <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Meta Mensal</h3>
+                <div className="w-full bg-gray-200 rounded-full h-4">
+                  <div
+                    className="bg-blue-600 h-4 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(progressoMeta, 100)}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between mt-2 text-sm text-gray-600">
+                  <span>R$ {totalVendido.toLocaleString('pt-BR')}</span>
+                  <span>R$ {metas.mensal.toLocaleString('pt-BR')}</span>
+                </div>
+                <p className="mt-1 text-sm text-gray-600">
+                  {progressoMeta.toFixed(1)}% da meta atingida
+                </p>
               </div>
             </div>
           );
@@ -98,7 +107,8 @@ export function PainelDesempenho() {
   const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
   const totalVendido = vendas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
   const totalPerdido = perdidos.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
-  const progressoMeta = metas.mensal > 0 ? (totalVendido / metas.mensal) * 100 : 0;
+  const metasUsuario = metasPorUsuario[userProfile.id] || { mensal: 0, vendidoNoMes: 0 };
+  const progressoMeta = metasUsuario.mensal > 0 ? (totalVendido / metasUsuario.mensal) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -169,7 +179,7 @@ export function PainelDesempenho() {
         </div>
         <div className="flex justify-between mt-2 text-sm text-gray-600">
           <span>R$ {totalVendido.toLocaleString('pt-BR')}</span>
-          <span>R$ {metas.mensal.toLocaleString('pt-BR')}</span>
+          <span>R$ {metasUsuario.mensal.toLocaleString('pt-BR')}</span>
         </div>
         <p className="mt-1 text-sm text-gray-600">
           {progressoMeta.toFixed(1)}% da meta atingida

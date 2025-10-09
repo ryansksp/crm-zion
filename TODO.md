@@ -1,14 +1,5 @@
-# TODO: Adicionar filtro por vendedor e corrigir campos de grupo e cotas em Clientes Ativos
-
-## Tarefas
-- [ ] Corrigir campo de entrada para grupo tornando-o não controlado
-- [ ] Corrigir campos de entrada para cotas tornando-os não controlados
-- [ ] Adicionar estado para vendedor selecionado
-- [ ] Adicionar dropdown de filtro por vendedor
-- [ ] Filtrar clientes exibidos com base no vendedor selecionado
-- [ ] Adicionar seção de resumo mostrando vendas por vendedor
-
-## Status
-- [x] Análise concluída
-- [ ] Implementação em andamento
-- [ ] Teste pendente
+- [x] Corrigir meta para usuários regulares: usar metasPorUsuario[userProfile.id] em vez de state.metas
+- [x] Para Diretor/Gerente: alterar o 6º card de "Meta Mensal" para "Taxa de Conversão" por usuário
+- [x] Para Diretor/Gerente: mover a seção "Meta Mensal" para abaixo dos cards, como em usuários regulares
+- [x] Ajustar grid para 6 colunas em ambos os casos
+- [x] Testar cálculos de progresso e taxa de conversão
