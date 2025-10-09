@@ -26,9 +26,7 @@ export class ClienteService {
         throw new Error(`Cliente não encontrado: ${id}`);
       }
 
-      console.log('Atualizando cliente:', id, 'com dados:', cliente);
       await updateDoc(docRef, cliente);
-      console.log('Cliente atualizado com sucesso:', id);
     } catch (error) {
       console.error('Erro ao atualizar cliente:', error);
       throw error;
@@ -120,12 +118,10 @@ export class ClienteService {
         throw new Error(`Cliente não encontrado: ${id}`);
       }
 
-      console.log('Reatribuindo lead:', id, 'para usuário:', novoUserId);
       await updateDoc(docRef, {
         userId: novoUserId,
         dataUltimaInteracao: new Date().toISOString()
       });
-      console.log('Lead reatribuído com sucesso:', id);
     } catch (error) {
       console.error('Erro ao reatribuir lead:', error);
       throw error;

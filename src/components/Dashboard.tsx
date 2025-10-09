@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { formatDateTimeBrasilia } from '../utils/date';
+import { formatDateTimeBrasilia, diasInatividade } from '../utils/date';
 import { TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 
 export function Dashboard() {
@@ -17,10 +17,8 @@ export function Dashboard() {
   });
 
   const clientesInativos = clientes.filter(c => {
-    const diasInatividade = Math.floor(
-      (Date.now() - new Date(c.dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return diasInatividade > 3 && !['Venda Ganha', 'Venda Perdida'].includes(c.etapa);
+    const dias = diasInatividade(c.dataUltimaInteracao);
+    return dias > 3 && !['Venda Ganha', 'Venda Perdida'].includes(c.etapa);
   });
 
   const vendasGanhas = clientes.filter(c => c.etapa === 'Venda Ganha');

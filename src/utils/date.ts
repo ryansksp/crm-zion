@@ -42,3 +42,7 @@ export const formatDateBrasilia = (dateString: string): string => {
     day: '2-digit',
   }).format(date);
 };
+
+export const diasInatividade = (dataUltimaInteracao: string): number => {
+  return Math.floor((Date.now() - new Date(dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24));
+};

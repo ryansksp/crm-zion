@@ -3,7 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User, Clock } from 'lucide-react';
 import type { EtapaFunil } from '../types'; // 👈 importado apenas como tipo
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
-import { formatDateTimeBrasilia, getCurrentDateTimeBrasiliaISO } from '../utils/date';
+import { formatDateTimeBrasilia, getCurrentDateTimeBrasiliaISO, diasInatividade } from '../utils/date';
 
 export function FunilVendas() {
   const { clientes, moverClienteEtapa, adicionarCliente, userProfile, planos } = useApp();
@@ -63,10 +63,6 @@ export function FunilVendas() {
     'Negociação Final': 'bg-purple-100 text-purple-700',
     'Venda Ganha': 'bg-green-100 text-green-700',
     'Venda Perdida': 'bg-red-100 text-red-700'
-  };
-
-  const diasInatividade = (dataUltimaInteracao: string) => {
-    return Math.floor((Date.now() - new Date(dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24));
   };
 
   const handleNovoCliente = (e: React.FormEvent) => {

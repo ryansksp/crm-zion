@@ -191,7 +191,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         planosFirestore.push({ id: docSnap.id, ...docSnap.data() } as PlanoEmbracon);
       });
       dispatch({ type: 'SET_PLANOS', payload: planosFirestore });
-      console.log('Planos data from AppContext:', planosFirestore);
     });
 
     // Simulacoes - Master e Diretores veem todas, outros veem apenas as suas
