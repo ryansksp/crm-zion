@@ -9,3 +9,4 @@
 - [x] Adicionar aba Pagamentos no sidebar
 - [x] Configurar permissões para a nova aba
 - [x] Remover seção de pagamentos de ClientesAtivos.tsx
+- [x] Adicionar resumo geral de pagamentos no topo da página (parcelas pagas, pendentes, em atraso, próximas)

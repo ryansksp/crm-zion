@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Cliente } from '../types';
-import { Users, CheckCircle2, XCircle, Filter } from 'lucide-react';
+import { Users, CheckCircle2, XCircle, Filter, DollarSign, Clock, AlertTriangle } from 'lucide-react';
 
 export function Pagamentos() {
   const { obterClientesAtivos, atualizarCliente, userProfiles } = useApp();
@@ -15,9 +15,6 @@ export function Pagamentos() {
 
   // State for seller filter
   const [selectedSeller, setSelectedSeller] = useState<string>('all');
-
-  // State for action feedback
-  const [actionMessage, setActionMessage] = useState<string>('');
 
   // State for success popup
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -44,6 +41,28 @@ export function Pagamentos() {
 
   // Filter clients based on selected seller
   const filteredClientes = selectedSeller === 'all' ? clientesAtivos : clientesAtivos.filter(c => c.userId === selectedSeller);
+
+  // Calculate payment summary
+  const paymentSummary = filteredClientes.reduce((acc, cliente) => {
+    const payments = editingPayments[cliente.id] || [];
+    payments.forEach(payment => {
+      if (payment.pago) {
+        acc.pagas++;
+      } else if (payment.dataPagamento) {
+        const paymentDate = new Date(payment.dataPagamento);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (paymentDate < today) {
+          acc.atrasadas++;
+        } else {
+          acc.proximas++;
+        }
+      } else {
+        acc.pendentes++;
+      }
+    });
+    return acc;
+  }, { pagas: 0, pendentes: 0, atrasadas: 0, proximas: 0 });
 
   const handlePaymentChange = (clienteId: string, installmentIndex: number, field: 'pago' | 'dataPagamento', value: boolean | string) => {
     setEditingPayments(prev => {
@@ -80,11 +99,6 @@ export function Pagamentos() {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamentos</h2>
         <p className="text-gray-600">Gerencie os pagamentos das parcelas dos clientes</p>
-        {actionMessage && (
-          <div className="mt-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
-            {actionMessage}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -118,6 +132,44 @@ export function Pagamentos() {
               <p className="text-2xl font-bold text-red-600">
                 {clientesAtivos.filter(c => !(editingPayments[c.id] || []).some(p => p.pago)).length}
               </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Resumo de Pagamentos */}
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumo Geral de Parcelas</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="flex items-center space-x-3">
+            <DollarSign className="w-8 h-8 text-green-600" />
+            <div>
+              <p className="text-sm text-gray-600">Pagas</p>
+              <p className="text-xl font-bold text-green-600">{paymentSummary.pagas}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <Clock className="w-8 h-8 text-yellow-600" />
+            <div>
+              <p className="text-sm text-gray-600">Pendentes</p>
+              <p className="text-xl font-bold text-yellow-600">{paymentSummary.pendentes}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <AlertTriangle className="w-8 h-8 text-red-600" />
+            <div>
+              <p className="text-sm text-gray-600">Em Atraso</p>
+              <p className="text-xl font-bold text-red-600">{paymentSummary.atrasadas}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <Clock className="w-8 h-8 text-blue-600" />
+            <div>
+              <p className="text-sm text-gray-600">Próximas</p>
+              <p className="text-xl font-bold text-blue-600">{paymentSummary.proximas}</p>
             </div>
           </div>
         </div>
@@ -175,26 +227,26 @@ export function Pagamentos() {
                   {/* Payments Section */}
                   <div className="border-t border-gray-200 pt-4">
                     <h4 className="font-medium text-sm mb-2">Parcelas (12)</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {editingPayments[cliente.id]?.map((payment, index) => (
-                        <div key={index} className="flex items-center space-x-2 p-2 border border-gray-200 rounded">
-                          <span className="text-xs font-medium w-8">{index + 1}ª</span>
-                          <input
-                            type="checkbox"
-                            checked={payment.pago}
-                            onChange={(e) => handlePaymentChange(cliente.id, index, 'pago', e.target.checked)}
-                            className="w-4 h-4"
-                          />
-                          <input
-                            type="date"
-                            value={payment.dataPagamento || ''}
-                            onChange={(e) => handlePaymentChange(cliente.id, index, 'dataPagamento', e.target.value)}
-                            disabled={!payment.pago}
-                            className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
-                          />
-                        </div>
-                      ))}
-                    </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {editingPayments[cliente.id]?.map((payment, index) => (
+                                  <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${payment.pago ? 'border-green-300 bg-green-50' : 'border-gray-200'}`}>
+                                    <span className="text-xs font-medium w-8">{index + 1}ª</span>
+                                    <input
+                                      type="checkbox"
+                                      checked={payment.pago}
+                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'pago', e.target.checked)}
+                                      className="w-4 h-4"
+                                    />
+                                    <input
+                                      type="date"
+                                      value={payment.dataPagamento || ''}
+                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'dataPagamento', e.target.value)}
+                                      disabled={!payment.pago}
+                                      className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
                     <div className="mt-2">
                       <button
                         type="button"
