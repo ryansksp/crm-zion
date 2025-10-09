@@ -319,9 +319,11 @@ export function ClientesAtivos() {
                         <details
                           className="mt-2"
                           open={openDetails[cliente.id] || false}
-                          onToggle={(e) => setOpenDetails(prev => ({ ...prev, [cliente.id]: e.currentTarget.open }))}
                         >
-                          <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Editar detalhes</summary>
+                          <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800" onClick={(e) => {
+                            e.preventDefault();
+                            setOpenDetails(prev => ({ ...prev, [cliente.id]: !prev[cliente.id] }));
+                          }}>Editar detalhes</summary>
                           <div className="mt-2 space-y-4">
                             {editingGroupsDetailed[cliente.id]?.map((group, groupIndex) => (
                               <div key={groupIndex} className="border border-gray-200 rounded-md p-3 bg-gray-50">
