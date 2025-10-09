@@ -8,5 +8,6 @@
 - [x] Adicionar botão para remover grupo.
 - [x] Atualizar lógica de salvar para persistir o array completo `gruposDetalhados` quando mudanças são feitas.
 - [x] Atualizar a exibição acima dos detalhes para mostrar todos os grupos e total de cotas.
-- [ ] Verificar se a UI permite adicionar/remover grupos e cotas corretamente.
-- [ ] Garantir que os dados sejam salvos corretamente no cliente.
+- [x] Verificar se a UI permite adicionar/remover grupos e cotas corretamente.
+- [x] Garantir que os dados sejam salvos corretamente no cliente.
+- [x] Adicionar popup de sucesso ao salvar e fechar os detalhes.

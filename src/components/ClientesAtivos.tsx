@@ -14,21 +14,18 @@ export function ClientesAtivos() {
   // Refs to track if initialized
   const initializedGroupsDetailed = useRef<Record<string, boolean>>({});
 
-  const [editingGroups, setEditingGroups] = useState<Record<string, string>>({});
-  const [editingQuotas, setEditingQuotas] = useState<Record<string, string[]>>({});
-
-  // Refs to track initialization
-  const initializedGroups = useRef<Record<string, boolean>>({});
-  const initializedQuotas = useRef<Record<string, boolean>>({});
-
   // State for seller filter
   const [selectedSeller, setSelectedSeller] = useState<string>('all');
+
+  // State for success message
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Ref for details element
+  const detailsRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     // Initialize editingGroupsDetailed state from clientesAtivos, but only if not already initialized
     const initialGroupsDetailed: Record<string, { grupo: string; cotas: string[] }[]> = {};
-    const initialGroups: Record<string, string> = {};
-    const initialQuotas: Record<string, string[]> = {};
     clientesAtivos.forEach(cliente => {
       if (!initializedGroupsDetailed.current[cliente.id]) {
         if (cliente.gruposDetalhados) {
@@ -41,18 +38,8 @@ export function ClientesAtivos() {
         }
         initializedGroupsDetailed.current[cliente.id] = true;
       }
-      if (!initializedGroups.current[cliente.id]) {
-        initialGroups[cliente.id] = cliente.grupo || '';
-        initializedGroups.current[cliente.id] = true;
-      }
-      if (!initializedQuotas.current[cliente.id]) {
-        initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
-        initializedQuotas.current[cliente.id] = true;
-      }
     });
     setEditingGroupsDetailed(prev => ({ ...prev, ...initialGroupsDetailed }));
-    setEditingGroups(prev => ({ ...prev, ...initialGroups }));
-    setEditingQuotas(prev => ({ ...prev, ...initialQuotas }));
   }, [clientesAtivos]);
 
   // Get unique sellers
@@ -132,36 +119,7 @@ export function ClientesAtivos() {
     'Cancelado': { bg: 'bg-red-100', text: 'text-red-700', icon: XCircle }
   };
 
-  const handleQuotaChange = (clienteId: string, index: number, value: string) => {
-    setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
-      quotas[index] = value;
-      return { ...prev, [clienteId]: quotas };
-    });
-  };
 
-  const saveQuotas = (cliente: Cliente) => {
-    const quotas = editingQuotas[cliente.id];
-    if (quotas) {
-      atualizarCliente(cliente.id, { gruposECotas: quotas.filter(q => q.trim() !== '') });
-    }
-  };
-
-  const removeQuotaField = (clienteId: string, index: number) => {
-    setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
-      quotas.splice(index, 1);
-      return { ...prev, [clienteId]: quotas };
-    });
-  };
-
-  const addQuotaField = (clienteId: string) => {
-    setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
-      quotas.push('');
-      return { ...prev, [clienteId]: quotas };
-    });
-  };
 
   const handleGroupChange = (clienteId: string, groupIndex: number, field: 'grupo' | 'cotas', value: string | string[]) => {
     setEditingGroupsDetailed(prev => {
@@ -211,6 +169,11 @@ export function ClientesAtivos() {
     const groupsDetailed = editingGroupsDetailed[cliente.id];
     if (groupsDetailed) {
       atualizarCliente(cliente.id, { gruposDetalhados: groupsDetailed });
+      setSuccessMessage('Grupos e cotas salvos com sucesso!');
+      setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
+      if (detailsRef.current) {
+        detailsRef.current.open = false; // Close the details
+      }
     }
   };
 
@@ -219,6 +182,11 @@ export function ClientesAtivos() {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Clientes Ativos</h2>
         <p className="text-gray-600">Gerencie o relacionamento pós-venda</p>
+        {successMessage && (
+          <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+            {successMessage}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -334,7 +302,7 @@ export function ClientesAtivos() {
                         <div className="font-medium">
                           Grupos: {editingGroupsDetailed[cliente.id]?.length || 0}, Total Cotas: {editingGroupsDetailed[cliente.id]?.reduce((total, g) => total + g.cotas.length, 0) || 0}
                         </div>
-                        <details className="mt-2">
+                        <details className="mt-2" ref={detailsRef}>
                           <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Editar detalhes</summary>
                           <div className="mt-2 space-y-4">
                             {editingGroupsDetailed[cliente.id]?.map((group, groupIndex) => (
