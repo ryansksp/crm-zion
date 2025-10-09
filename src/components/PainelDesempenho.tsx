@@ -22,8 +22,8 @@ export function PainelDesempenho() {
           const userName = userProfiles[userId]?.name || userId;
           const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
           const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
-          const totalVendido = vendas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
-          const totalPerdido = perdidos.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+          const totalVendido = vendas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
+          const totalPerdido = perdidos.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
           const progressoMeta = metas.mensal > 0 ? (totalVendido / metas.mensal) * 100 : 0;
 
           return (
@@ -96,8 +96,8 @@ export function PainelDesempenho() {
 
   const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
   const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
-  const totalVendido = vendas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
-  const totalPerdido = perdidos.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const totalVendido = vendas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
+  const totalPerdido = perdidos.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
   const progressoMeta = metas.mensal > 0 ? (totalVendido / metas.mensal) * 100 : 0;
 
   return (
