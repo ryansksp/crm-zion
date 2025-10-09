@@ -13,8 +13,9 @@ export interface Cliente {
   dataVenda?: string;
   dataPerda?: string;
   motivoPerda?: string;
-  gruposECotas?: string[];
-  grupo?: string;
+  gruposECotas?: string[]; // deprecated, use gruposDetalhados
+  grupo?: string; // deprecated, use gruposDetalhados
+  gruposDetalhados?: { grupo: string; cotas: string[] }[];
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
   userId: string;

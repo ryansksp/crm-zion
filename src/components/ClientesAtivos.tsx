@@ -8,34 +8,51 @@ export function ClientesAtivos() {
   const { obterClientesAtivos, atualizarCliente, userProfiles } = useApp();
   const clientesAtivos = obterClientesAtivos();
 
-  // State to hold editing quotas per client
-  const [editingQuotas, setEditingQuotas] = useState<Record<string, string[]>>({});
-  // State to hold editing groups per client
-  const [editingGroups, setEditingGroups] = useState<Record<string, string>>({});
+  // State to hold editing groups detailed per client
+  const [editingGroupsDetailed, setEditingGroupsDetailed] = useState<Record<string, { grupo: string; cotas: string[] }[]>>({});
 
   // Refs to track if initialized
-  const initializedQuotas = useRef<Record<string, boolean>>({});
+  const initializedGroupsDetailed = useRef<Record<string, boolean>>({});
+
+  const [editingGroups, setEditingGroups] = useState<Record<string, string>>({});
+  const [editingQuotas, setEditingQuotas] = useState<Record<string, string[]>>({});
+
+  // Refs to track initialization
   const initializedGroups = useRef<Record<string, boolean>>({});
+  const initializedQuotas = useRef<Record<string, boolean>>({});
 
   // State for seller filter
   const [selectedSeller, setSelectedSeller] = useState<string>('all');
 
   useEffect(() => {
-    // Initialize editingQuotas and editingGroups state from clientesAtivos, but only if not already initialized
-    const initialQuotas: Record<string, string[]> = {};
+    // Initialize editingGroupsDetailed state from clientesAtivos, but only if not already initialized
+    const initialGroupsDetailed: Record<string, { grupo: string; cotas: string[] }[]> = {};
     const initialGroups: Record<string, string> = {};
+    const initialQuotas: Record<string, string[]> = {};
     clientesAtivos.forEach(cliente => {
-      if (!initializedQuotas.current[cliente.id]) {
-        initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
-        initializedQuotas.current[cliente.id] = true;
+      if (!initializedGroupsDetailed.current[cliente.id]) {
+        if (cliente.gruposDetalhados) {
+          initialGroupsDetailed[cliente.id] = cliente.gruposDetalhados.map(g => ({ ...g, cotas: [...g.cotas] }));
+        } else if (cliente.grupo && cliente.gruposECotas) {
+          // Migrate from old structure
+          initialGroupsDetailed[cliente.id] = [{ grupo: cliente.grupo, cotas: [...cliente.gruposECotas] }];
+        } else {
+          initialGroupsDetailed[cliente.id] = [{ grupo: '', cotas: [''] }];
+        }
+        initializedGroupsDetailed.current[cliente.id] = true;
       }
       if (!initializedGroups.current[cliente.id]) {
         initialGroups[cliente.id] = cliente.grupo || '';
         initializedGroups.current[cliente.id] = true;
       }
+      if (!initializedQuotas.current[cliente.id]) {
+        initialQuotas[cliente.id] = cliente.gruposECotas ? [...cliente.gruposECotas] : [''];
+        initializedQuotas.current[cliente.id] = true;
+      }
     });
-    setEditingQuotas(prev => ({ ...prev, ...initialQuotas }));
+    setEditingGroupsDetailed(prev => ({ ...prev, ...initialGroupsDetailed }));
     setEditingGroups(prev => ({ ...prev, ...initialGroups }));
+    setEditingQuotas(prev => ({ ...prev, ...initialQuotas }));
   }, [clientesAtivos]);
 
   // Get unique sellers
@@ -55,7 +72,6 @@ export function ClientesAtivos() {
     };
     return acc;
   }, {} as Record<string, { totalClientes: number; ativos: number; contemplados: number; cancelados: number }>);
-
   const calcularProximaAssembleia = (dataVenda: string) => {
     const venda = new Date(dataVenda);
     const proximaAssembleia = new Date(venda);
@@ -118,24 +134,8 @@ export function ClientesAtivos() {
 
   const handleQuotaChange = (clienteId: string, index: number, value: string) => {
     setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [''];
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
       quotas[index] = value;
-      return { ...prev, [clienteId]: quotas };
-    });
-  };
-
-  const addQuotaField = (clienteId: string) => {
-    setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [''];
-      quotas.push('');
-      return { ...prev, [clienteId]: quotas };
-    });
-  };
-
-  const removeQuotaField = (clienteId: string, index: number) => {
-    setEditingQuotas(prev => {
-      const quotas = prev[clienteId] ? [...prev[clienteId]] : [''];
-      quotas.splice(index, 1);
       return { ...prev, [clienteId]: quotas };
     });
   };
@@ -143,9 +143,24 @@ export function ClientesAtivos() {
   const saveQuotas = (cliente: Cliente) => {
     const quotas = editingQuotas[cliente.id];
     if (quotas) {
-      const filteredQuotas = quotas.filter(q => q.trim() !== '');
-      atualizarCliente(cliente.id, { gruposECotas: filteredQuotas.length > 0 ? filteredQuotas : undefined });
+      atualizarCliente(cliente.id, { gruposECotas: quotas.filter(q => q.trim() !== '') });
     }
+  };
+
+  const removeQuotaField = (clienteId: string, index: number) => {
+    setEditingQuotas(prev => {
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
+      quotas.splice(index, 1);
+      return { ...prev, [clienteId]: quotas };
+    });
+  };
+
+  const addQuotaField = (clienteId: string) => {
+    setEditingQuotas(prev => {
+      const quotas = prev[clienteId] ? [...prev[clienteId]] : [];
+      quotas.push('');
+      return { ...prev, [clienteId]: quotas };
+    });
   };
 
   return (
