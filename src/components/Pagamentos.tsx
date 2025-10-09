@@ -8,7 +8,7 @@ export function Pagamentos() {
   const clientesAtivos = obterClientesAtivos();
 
   // State to hold editing payments per client
-  const [editingPayments, setEditingPayments] = useState<Record<string, { pago: boolean; dataPagamento?: string }[]>>({});
+  const [editingPayments, setEditingPayments] = useState<Record<string, { status: 'Pendente' | 'Pago' | 'Atrasado'; data?: string }[]>>({});
 
   // State to hold editing due day per client
   const [editingDueDays, setEditingDueDays] = useState<Record<string, number>>({});
@@ -25,14 +25,14 @@ export function Pagamentos() {
 
   useEffect(() => {
     // Initialize editingPayments state from clientesAtivos, but only if not already initialized
-    const initialPayments: Record<string, { pago: boolean; dataPagamento?: string }[]> = {};
+    const initialPayments: Record<string, { status: 'Pendente' | 'Pago' | 'Atrasado'; data?: string }[]> = {};
     clientesAtivos.forEach(cliente => {
       if (!initializedPayments.current[cliente.id]) {
         if (cliente.pagamentos) {
           initialPayments[cliente.id] = cliente.pagamentos.map(p => ({ ...p }));
         } else {
-          // Initialize with 12 installments, all unpaid
-          initialPayments[cliente.id] = Array.from({ length: 12 }, () => ({ pago: false }));
+          // Initialize with 12 installments, all pending
+          initialPayments[cliente.id] = Array.from({ length: 12 }, () => ({ status: 'Pendente' as const }));
         }
         initializedPayments.current[cliente.id] = true;
       }
@@ -62,19 +62,23 @@ export function Pagamentos() {
   const paymentSummary = filteredClientes.reduce((acc, cliente) => {
     const payments = editingPayments[cliente.id] || [];
     payments.forEach(payment => {
-      if (payment.pago) {
+      if (payment.status === 'Pago') {
         acc.pagas++;
-      } else if (payment.dataPagamento) {
-        const paymentDate = new Date(payment.dataPagamento);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (paymentDate < today) {
-          acc.atrasadas++;
+      } else if (payment.status === 'Atrasado') {
+        acc.atrasadas++;
+      } else if (payment.status === 'Pendente') {
+        if (payment.data) {
+          const dueDate = new Date(payment.data);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (dueDate < today) {
+            acc.atrasadas++;
+          } else {
+            acc.proximas++;
+          }
         } else {
-          acc.proximas++;
+          acc.pendentes++;
         }
-      } else {
-        acc.pendentes++;
       }
     });
     return acc;
@@ -84,40 +88,59 @@ export function Pagamentos() {
   const upcomingNotifications = filteredClientes.filter(cliente => {
     const payments = editingPayments[cliente.id] || [];
     return payments.some(payment => {
-      if (payment.pago || !payment.dataPagamento) return false;
-      const paymentDate = new Date(payment.dataPagamento);
+      if (payment.status === 'Pago' || !payment.data) return false;
+      const dueDate = new Date(payment.data);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const tenDaysFromNow = new Date(today);
       tenDaysFromNow.setDate(today.getDate() + 10);
-      return paymentDate >= today && paymentDate <= tenDaysFromNow;
+      return dueDate >= today && dueDate <= tenDaysFromNow;
     });
   });
 
-  const handlePaymentChange = (clienteId: string, installmentIndex: number, field: 'pago' | 'dataPagamento', value: boolean | string) => {
+  const handlePaymentChange = (clienteId: string, installmentIndex: number, field: 'status' | 'data', value: string) => {
     setEditingPayments(prev => {
       const payments = prev[clienteId] ? [...prev[clienteId]] : [];
-      if (field === 'pago') {
-        payments[installmentIndex].pago = value as boolean;
-        if (!value) {
-          payments[installmentIndex].dataPagamento = undefined;
+      if (field === 'status') {
+        payments[installmentIndex].status = value as 'Pendente' | 'Pago' | 'Atrasado';
+        if (value !== 'Pago') {
+          payments[installmentIndex].data = undefined;
         }
       } else {
-        payments[installmentIndex].dataPagamento = value as string;
+        payments[installmentIndex].data = value;
       }
       return { ...prev, [clienteId]: payments };
     });
+  };
+
+  const validatePaymentDates = (payments: { status: string; data?: string }[]) => {
+    const paidPayments = payments.filter(p => p.status === 'Pago' && p.data);
+    if (paidPayments.length <= 1) return true; // No need to validate if 0 or 1 payment
+
+    const dates = paidPayments.map(p => new Date(p.data!));
+    for (let i = 1; i < dates.length; i++) {
+      if (dates[i] < dates[i - 1]) {
+        return false; // Date is not in chronological order
+      }
+    }
+    return true;
   };
 
   const savePayments = (cliente: Cliente) => {
     const payments = editingPayments[cliente.id];
     const dueDay = editingDueDays[cliente.id];
     if (payments) {
+      // Validate payment dates are in chronological order
+      if (!validatePaymentDates(payments)) {
+        alert('Erro: As datas dos pagamentos devem estar em ordem cronológica crescente.');
+        return;
+      }
+
       // Clean payments to remove undefined values
       const cleanedPayments = payments.map(p => {
-        const cleaned = { pago: p.pago };
-        if (p.dataPagamento) {
-          cleaned.dataPagamento = p.dataPagamento;
+        const cleaned: any = { status: p.status };
+        if (p.data) {
+          cleaned.data = p.data;
         }
         return cleaned;
       });
@@ -133,7 +156,7 @@ export function Pagamentos() {
 
   const getPaymentStatus = (cliente: Cliente) => {
     const payments = editingPayments[cliente.id] || [];
-    const paidCount = payments.filter(p => p.pago).length;
+    const paidCount = payments.filter(p => p.status === 'Pago').length;
     return `${paidCount}/12 parcelas pagas`;
   };
 
@@ -161,7 +184,7 @@ export function Pagamentos() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Pagamentos Ativos</h3>
               <p className="text-2xl font-bold text-green-600">
-                {clientesAtivos.filter(c => (editingPayments[c.id] || []).some(p => p.pago)).length}
+                {clientesAtivos.filter(c => (editingPayments[c.id] || []).some(p => p.status === 'Pago')).length}
               </p>
             </div>
           </div>
@@ -173,7 +196,7 @@ export function Pagamentos() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Sem Pagamentos</h3>
               <p className="text-2xl font-bold text-red-600">
-                {clientesAtivos.filter(c => !(editingPayments[c.id] || []).some(p => p.pago)).length}
+                {clientesAtivos.filter(c => !(editingPayments[c.id] || []).some(p => p.status === 'Pago')).length}
               </p>
             </div>
           </div>
@@ -250,13 +273,13 @@ export function Pagamentos() {
               const upcomingPayments = payments
                 .map((payment, index) => ({ payment, index }))
                 .filter(({ payment }) => {
-                  if (payment.pago || !payment.dataPagamento) return false;
-                  const paymentDate = new Date(payment.dataPagamento);
+                  if (payment.status === 'Pago' || !payment.data) return false;
+                  const dueDate = new Date(payment.data);
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
                   const tenDaysFromNow = new Date(today);
                   tenDaysFromNow.setDate(today.getDate() + 10);
-                  return paymentDate >= today && paymentDate <= tenDaysFromNow;
+                  return dueDate >= today && dueDate <= tenDaysFromNow;
                 });
               return (
                 <div key={cliente.id} className="flex items-center justify-between bg-white p-3 rounded border">
@@ -267,7 +290,7 @@ export function Pagamentos() {
                     </span>
                   </div>
                   <div className="text-sm text-gray-600">
-                    Vence em: {upcomingPayments.map(({ payment }) => new Date(payment.dataPagamento!).toLocaleDateString('pt-BR')).join(', ')}
+                    Vence em: {upcomingPayments.map(({ payment }) => new Date(payment.data!).toLocaleDateString('pt-BR')).join(', ')}
                   </div>
                 </div>
               );
@@ -323,11 +346,15 @@ export function Pagamentos() {
                     <h4 className="font-medium text-sm mb-2">Parcelas (12)</h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                 {editingPayments[cliente.id]?.map((payment, index) => (
-                                  <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${payment.pago ? 'border-green-300 bg-green-50' : 'border-gray-200'}`}>
+                                  <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${
+                                    payment.status === 'Pago' ? 'border-green-300 bg-green-50' :
+                                    payment.status === 'Atrasado' ? 'border-red-300 bg-red-50' :
+                                    'border-gray-200'
+                                  }`}>
                                     <span className="text-xs font-medium w-8">{index + 1}ª</span>
                                     <select
-                                      value={payment.pago ? 'Pago' : 'Pendente'}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'pago', e.target.value === 'Pago')}
+                                      value={payment.status}
+                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'status', e.target.value)}
                                       className="border border-gray-300 rounded px-2 py-1 text-xs"
                                     >
                                       <option value="Pendente">Pendente</option>
@@ -336,11 +363,11 @@ export function Pagamentos() {
                                     </select>
                                     <input
                                       type="date"
-                                      value={payment.dataPagamento || ''}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'dataPagamento', e.target.value)}
-                                      disabled={!payment.pago}
+                                      value={payment.data || ''}
+                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
+                                      disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
                                       className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
-                                      placeholder="Data do Pagamento"
+                                      placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
                                     />
                                   </div>
                                 ))}

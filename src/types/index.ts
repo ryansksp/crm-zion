@@ -19,7 +19,7 @@ export interface Cliente {
   statusConsorcio?: 'Ativo' | 'Contemplado' | 'Cancelado';
   aniversario?: string;
   userId: string;
-  pagamentos?: { pago: boolean; dataPagamento?: string }[];
+  pagamentos?: { status: 'Pendente' | 'Pago' | 'Atrasado'; data?: string }[];
   diaVencimentoPadrao?: number; // Dia do mês para vencimento padrão (1-31)
 }
 

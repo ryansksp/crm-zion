@@ -2,8 +2,8 @@
 
 ## Passos para Implementar
 - [x] Atualizar interface Cliente em src/types/index.ts para incluir campo pagamentos
-- [x] Modificar src/components/ClientesAtivos.tsx para adicionar UI de edição de pagamentos
-- [x] Testar a funcionalidade de edição e salvamento de pagamentos
+- [x] Modificar src/components/Pagamentos.tsx para adicionar UI de edição de pagamentos
+- [x] Testar a funcionalidade de edição e salvamento de pagamentos (build passou sem erros)
 - [x] Verificar se as datas são válidas e em ordem crescente (opcional: adicionar validação para datas em ordem)
 - [x] Criar nova página Pagamentos.tsx separada
 - [x] Adicionar aba Pagamentos no sidebar
