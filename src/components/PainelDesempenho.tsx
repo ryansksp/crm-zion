@@ -2,7 +2,7 @@ import { useApp } from '../contexts/AppContext';
 import { DollarSign, Target, BarChart3, UserX } from 'lucide-react';
 
 export function PainelDesempenho() {
-  const { clientesPorUsuario, metasPorUsuario, userProfile, userProfiles, clientes, metas, obterTaxaConversao } = useApp();
+  const { clientesPorUsuario, metasPorUsuario, userProfile, userProfiles, clientes, obterTaxaConversao } = useApp();
 
   if (!userProfile) {
     return <div>Carregando...</div>;
@@ -18,7 +18,8 @@ export function PainelDesempenho() {
         </div>
 
         {Object.entries(clientesPorUsuario).map(([userId, clientes]) => {
-          const metas = metasPorUsuario[userId] || { mensal: 0, vendidoNoMes: 0 };
+          const userMetas = metasPorUsuario[userId];
+          const metas = { mensal: userMetas?.mensal || 0, vendidoNoMes: userMetas?.vendidoNoMes || 0 };
           const userName = userProfiles[userId]?.name || userId;
           const vendas = clientes.filter(c => c.etapa === 'Venda Ganha');
           const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
@@ -107,7 +108,8 @@ export function PainelDesempenho() {
   const perdidos = clientes.filter(c => c.etapa === 'Venda Perdida');
   const totalVendido = vendas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
   const totalPerdido = perdidos.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
-  const metasUsuario = metasPorUsuario[userProfile.id] || { mensal: 0, vendidoNoMes: 0 };
+  const userMetas = metasPorUsuario[userProfile.id];
+  const metasUsuario = { mensal: userMetas?.mensal || 0, vendidoNoMes: userMetas?.vendidoNoMes || 0 };
   const progressoMeta = metasUsuario.mensal > 0 ? (totalVendido / metasUsuario.mensal) * 100 : 0;
 
   return (
