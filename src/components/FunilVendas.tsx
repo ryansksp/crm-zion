@@ -39,7 +39,7 @@ export function FunilVendas() {
     };
 
     loadUserNames();
-  }, []);
+  }, [db]);
 
   const filteredClientes = selectedUserId ? clientes.filter(c => c.userId === selectedUserId) : clientes;
 

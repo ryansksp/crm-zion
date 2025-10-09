@@ -93,7 +93,7 @@ export function ControleUsuarios() {
               if (client.etapa === 'Lead') totalLeads++;
               if (client.etapa === 'Venda Ganha') {
                 totalSales++;
-                totalSoldValue += client.valorCredito || 0;
+                totalSoldValue += Number(client.valorCredito || 0);
               }
               if (client.etapa === 'Venda Perdida') totalLost++;
               console.log(`Match encontrado! Total clients: ${totalClients}, Leads: ${totalLeads}, Sales: ${totalSales}`);
@@ -156,7 +156,7 @@ export function ControleUsuarios() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [db]);
 
   useEffect(() => {
     if (podeGerenciarUsuarios()) {

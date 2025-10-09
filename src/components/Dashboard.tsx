@@ -10,7 +10,7 @@ export function Dashboard() {
   // Determine which meta to use based on user level
   const userMeta = (userProfile?.accessLevel === 'Diretor' || userProfile?.accessLevel === 'Gerente')
     ? metas.mensal
-    : (metasPorUsuario[userProfile?.uid || '']?.mensal || 0);
+    : (metasPorUsuario[userProfile?.id || '']?.mensal || 0);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -45,13 +45,13 @@ export function Dashboard() {
     ? vendasPerdidas.filter(c => c.dataPerda && new Date(c.dataPerda) >= startOfMonth && new Date(c.dataPerda) <= endOfMonth)
     : vendasPerdidas;
 
-  const filteredTotalVendido = filteredVendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
-  const filteredTotalPerdido = filteredVendasPerdidas.reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+  const filteredTotalVendido = filteredVendasGanhas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
+  const filteredTotalPerdido = filteredVendasPerdidas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
   const filteredTaxaConversao = filteredClientes.length > 0 ? (filteredVendasGanhas.length / filteredClientes.length) * 100 : 0;
 
   // Calculate selected month sales for meta
   const selectedMonthSales = isMonthly
-    ? filteredVendasGanhas.reduce((sum, c) => sum + (c.valorCredito || 0), 0)
+    ? filteredVendasGanhas.reduce((sum, c) => sum + Number(c.valorCredito || 0), 0)
     : vendasGanhas
         .filter(c => {
           const currentMonth = new Date();
@@ -59,7 +59,7 @@ export function Dashboard() {
           const endOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0, 23, 59, 59);
           return c.dataVenda && new Date(c.dataVenda) >= startOfCurrentMonth && new Date(c.dataVenda) <= endOfCurrentMonth;
         })
-        .reduce((sum, c) => sum + (c.valorCredito || 0), 0);
+        .reduce((sum, c) => sum + Number(c.valorCredito || 0), 0);
 
   const selectedMonthName = isMonthly
     ? new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long' })

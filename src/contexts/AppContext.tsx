@@ -34,6 +34,9 @@ interface AppContextType extends AppState {
 
   isPlanComparisonOpen: boolean;
   setIsPlanComparisonOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -84,6 +87,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
   const [isPlanComparisonOpen, setIsPlanComparisonOpen] = useState(false);
+
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved as 'light' | 'dark') || 'light';
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     if (!user) {
@@ -390,7 +409,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       metasPorUsuario,
       userProfiles,
       isPlanComparisonOpen,
-      setIsPlanComparisonOpen
+      setIsPlanComparisonOpen,
+      theme,
+      toggleTheme
     }}>
       {children}
     </AppContext.Provider>
