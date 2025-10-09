@@ -23,8 +23,8 @@ export function ClientesAtivos() {
   // State for action feedback
   const [actionMessage, setActionMessage] = useState<string>('');
 
-  // Ref for details element
-  const detailsRef = useRef<HTMLDetailsElement>(null);
+  // State for details open/close
+  const [openDetails, setOpenDetails] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Initialize editingGroupsDetailed state from clientesAtivos, but only if not already initialized
@@ -182,9 +182,7 @@ export function ClientesAtivos() {
       atualizarCliente(cliente.id, { gruposDetalhados: groupsDetailed });
       setSuccessMessage('Grupos e cotas salvos com sucesso!');
       setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
-      if (detailsRef.current) {
-        detailsRef.current.open = false; // Close the details
-      }
+      setOpenDetails(prev => ({ ...prev, [cliente.id]: false })); // Close the details
     }
   };
 
@@ -318,7 +316,11 @@ export function ClientesAtivos() {
                         <div className="font-medium">
                           Grupos: {editingGroupsDetailed[cliente.id]?.length || 0}, Total Cotas: {editingGroupsDetailed[cliente.id]?.reduce((total, g) => total + g.cotas.length, 0) || 0}
                         </div>
-                        <details className="mt-2" ref={detailsRef}>
+                        <details
+                          className="mt-2"
+                          open={openDetails[cliente.id] || false}
+                          onToggle={(e) => setOpenDetails(prev => ({ ...prev, [cliente.id]: e.currentTarget.open }))}
+                        >
                           <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Editar detalhes</summary>
                           <div className="mt-2 space-y-4">
                             {editingGroupsDetailed[cliente.id]?.map((group, groupIndex) => (
