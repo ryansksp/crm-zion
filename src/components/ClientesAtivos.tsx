@@ -163,6 +163,57 @@ export function ClientesAtivos() {
     });
   };
 
+  const handleGroupChange = (clienteId: string, groupIndex: number, field: 'grupo' | 'cotas', value: string | string[]) => {
+    setEditingGroupsDetailed(prev => {
+      const groups = prev[clienteId] ? [...prev[clienteId]] : [];
+      if (field === 'grupo') {
+        groups[groupIndex].grupo = value as string;
+      } else {
+        groups[groupIndex].cotas = value as string[];
+      }
+      return { ...prev, [clienteId]: groups };
+    });
+  };
+
+  const addGroup = (clienteId: string) => {
+    setEditingGroupsDetailed(prev => {
+      const groups = prev[clienteId] ? [...prev[clienteId]] : [];
+      groups.push({ grupo: '', cotas: [''] });
+      return { ...prev, [clienteId]: groups };
+    });
+  };
+
+  const removeGroup = (clienteId: string, groupIndex: number) => {
+    setEditingGroupsDetailed(prev => {
+      const groups = prev[clienteId] ? [...prev[clienteId]] : [];
+      groups.splice(groupIndex, 1);
+      return { ...prev, [clienteId]: groups };
+    });
+  };
+
+  const addQuotaToGroup = (clienteId: string, groupIndex: number) => {
+    setEditingGroupsDetailed(prev => {
+      const groups = prev[clienteId] ? [...prev[clienteId]] : [];
+      groups[groupIndex].cotas.push('');
+      return { ...prev, [clienteId]: groups };
+    });
+  };
+
+  const removeQuotaFromGroup = (clienteId: string, groupIndex: number, quotaIndex: number) => {
+    setEditingGroupsDetailed(prev => {
+      const groups = prev[clienteId] ? [...prev[clienteId]] : [];
+      groups[groupIndex].cotas.splice(quotaIndex, 1);
+      return { ...prev, [clienteId]: groups };
+    });
+  };
+
+  const saveGroupsDetailed = (cliente: Cliente) => {
+    const groupsDetailed = editingGroupsDetailed[cliente.id];
+    if (groupsDetailed) {
+      atualizarCliente(cliente.id, { gruposDetalhados: groupsDetailed });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -281,69 +332,88 @@ export function ClientesAtivos() {
                       </div>
                       <div className="mt-1">
                         <div className="font-medium">
-                          Grupo: {cliente.grupo || 'N/A'}, Cotas: {cliente.gruposECotas?.length || 0}
+                          Grupos: {editingGroupsDetailed[cliente.id]?.length || 0}, Total Cotas: {editingGroupsDetailed[cliente.id]?.reduce((total, g) => total + g.cotas.length, 0) || 0}
                         </div>
                         <details className="mt-2">
                           <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Editar detalhes</summary>
-                          <div className="mt-2 space-y-2">
-                            <label className="font-medium flex items-center space-x-1">
-                              <span>Grupo:</span>
-                              <input
-                                type="text"
-                                value={editingGroups[cliente.id] || ''}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  setEditingGroups(prev => ({ ...prev, [cliente.id]: value }));
-                                }}
-                                className="border border-gray-300 rounded-md px-2 py-1 text-sm w-28"
-                                placeholder="Grupo"
-                              />
+                          <div className="mt-2 space-y-4">
+                            {editingGroupsDetailed[cliente.id]?.map((group, groupIndex) => (
+                              <div key={groupIndex} className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <label className="font-medium text-sm">Grupo {groupIndex + 1}:</label>
+                                  {editingGroupsDetailed[cliente.id].length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => removeGroup(cliente.id, groupIndex)}
+                                      className="p-1 rounded bg-red-600 text-white hover:bg-red-700"
+                                      title="Remover grupo"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={group.grupo}
+                                  onChange={(e) => handleGroupChange(cliente.id, groupIndex, 'grupo', e.target.value)}
+                                  className="border border-gray-300 rounded-md px-2 py-1 text-sm w-full mb-2"
+                                  placeholder="Nome do Grupo"
+                                />
+                                <div className="font-medium text-sm mb-1">Cotas:</div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {group.cotas.map((quota, quotaIndex) => (
+                                    <div key={quotaIndex} className="flex items-center space-x-1">
+                                      <input
+                                        type="text"
+                                        value={quota}
+                                        onChange={(e) => {
+                                          const newCotas = [...group.cotas];
+                                          newCotas[quotaIndex] = e.target.value;
+                                          handleGroupChange(cliente.id, groupIndex, 'cotas', newCotas);
+                                        }}
+                                        className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
+                                        placeholder="Cota"
+                                      />
+                                      {group.cotas.length > 1 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => removeQuotaFromGroup(cliente.id, groupIndex, quotaIndex)}
+                                          className="p-1 rounded bg-red-600 text-white hover:bg-red-700"
+                                          title="Remover cota"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  ))}
+                                  <button
+                                    type="button"
+                                    onClick={() => addQuotaToGroup(cliente.id, groupIndex)}
+                                    className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                                    title="Adicionar cota"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="flex items-center space-x-2">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const groupValue = editingGroups[cliente.id];
-                                  atualizarCliente(cliente.id, { grupo: groupValue });
-                                }}
-                                className="ml-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-                                title="Salvar Grupo"
+                                onClick={() => addGroup(cliente.id)}
+                                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                                title="Adicionar grupo"
                               >
-                                Salvar
+                                <Plus className="w-4 h-4 mr-1 inline" /> Adicionar Grupo
                               </button>
-                            </label>
-                            <div className="font-medium flex items-center space-x-1">
-                              <span>Cotas:</span>
-                              <div className="inline-flex items-center space-x-2 flex-wrap">
-                                {editingQuotas[cliente.id]?.map((quota, index) => (
-                                  <div key={index} className="flex items-center space-x-1">
-                                    <input
-                                      type="text"
-                                      value={quota}
-                                      onChange={(e) => handleQuotaChange(cliente.id, index, e.target.value)}
-                                      onBlur={() => saveQuotas(cliente)}
-                                      className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
-                                      placeholder="Cota"
-                                    />
-                                    {editingQuotas[cliente.id].length > 1 && (
-                                      <button
-                                        type="button"
-                                        onClick={() => removeQuotaField(cliente.id, index)}
-                                        className="p-1 rounded bg-red-600 text-white hover:bg-red-700"
-                                        title="Remover cota"
-                                      >
-                                        <X className="w-3 h-3" />
-                                      </button>
-                                    )}
-                                  </div>
-                                ))}
-                                <button
-                                  type="button"
-                                  onClick={() => addQuotaField(cliente.id)}
-                                  className="p-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-                                  title="Adicionar cota"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                              </div>
+                              <button
+                                type="button"
+                                onClick={() => saveGroupsDetailed(cliente)}
+                                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                                title="Salvar grupos e cotas"
+                              >
+                                Salvar Tudo
+                              </button>
                             </div>
                           </div>
                         </details>
