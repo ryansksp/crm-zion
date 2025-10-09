@@ -313,18 +313,21 @@ export function Pagamentos() {
                                 {editingPayments[cliente.id]?.map((payment, index) => (
                                   <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${payment.pago ? 'border-green-300 bg-green-50' : 'border-gray-200'}`}>
                                     <span className="text-xs font-medium w-8">{index + 1}ª</span>
-                                    <input
-                                      type="checkbox"
-                                      checked={payment.pago}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'pago', e.target.checked)}
-                                      className="w-4 h-4"
-                                    />
+                                    <select
+                                      value={payment.pago ? 'Pago' : 'Pendente'}
+                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'pago', e.target.value === 'Pago')}
+                                      className="border border-gray-300 rounded px-2 py-1 text-xs"
+                                    >
+                                      <option value="Pendente">Pendente</option>
+                                      <option value="Pago">Pago</option>
+                                    </select>
                                     <input
                                       type="date"
                                       value={payment.dataPagamento || ''}
                                       onChange={(e) => handlePaymentChange(cliente.id, index, 'dataPagamento', e.target.value)}
                                       disabled={!payment.pago}
                                       className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
+                                      placeholder="Data do Pagamento"
                                     />
                                   </div>
                                 ))}

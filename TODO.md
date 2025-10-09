@@ -13,3 +13,4 @@
 - [x] Adicionar campo diaVencimentoPadrao para definir dia padrão de vencimento
 - [x] Implementar notificações de vencimento 10 dias antes
 - [x] Implementar função para salvar o dia de vencimento padrão junto com os pagamentos
+- [x] Substituir checkbox por select com opções "Pendente" e "Pago" para maior clareza
