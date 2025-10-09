@@ -11,12 +11,8 @@ export function ClientesAtivos() {
   // State to hold editing groups detailed per client
   const [editingGroupsDetailed, setEditingGroupsDetailed] = useState<Record<string, { grupo: string; cotas: string[] }[]>>({});
 
-  // State to hold editing payments per client
-  const [editingPayments, setEditingPayments] = useState<Record<string, { pago: boolean; dataPagamento?: string }[]>>({});
-
   // Refs to track if initialized
   const initializedGroupsDetailed = useRef<Record<string, boolean>>({});
-  const initializedPayments = useRef<Record<string, boolean>>({});
 
   // State for seller filter
   const [selectedSeller, setSelectedSeller] = useState<string>('all');
@@ -49,22 +45,7 @@ export function ClientesAtivos() {
     setEditingGroupsDetailed(prev => ({ ...prev, ...initialGroupsDetailed }));
   }, [clientesAtivos]);
 
-  useEffect(() => {
-    // Initialize editingPayments state from clientesAtivos, but only if not already initialized
-    const initialPayments: Record<string, { pago: boolean; dataPagamento?: string }[]> = {};
-    clientesAtivos.forEach(cliente => {
-      if (!initializedPayments.current[cliente.id]) {
-        if (cliente.pagamentos) {
-          initialPayments[cliente.id] = cliente.pagamentos.map(p => ({ ...p }));
-        } else {
-          // Initialize with 12 installments, all unpaid
-          initialPayments[cliente.id] = Array.from({ length: 12 }, () => ({ pago: false }));
-        }
-        initializedPayments.current[cliente.id] = true;
-      }
-    });
-    setEditingPayments(prev => ({ ...prev, ...initialPayments }));
-  }, [clientesAtivos]);
+
 
   // Get unique sellers
   const uniqueSellers = Array.from(new Set(clientesAtivos.map(c => c.userId)));
@@ -203,28 +184,7 @@ export function ClientesAtivos() {
     }
   };
 
-  const handlePaymentChange = (clienteId: string, installmentIndex: number, field: 'pago' | 'dataPagamento', value: boolean | string) => {
-    setEditingPayments(prev => {
-      const payments = prev[clienteId] ? [...prev[clienteId]] : [];
-      if (field === 'pago') {
-        payments[installmentIndex].pago = value as boolean;
-        if (!value) {
-          payments[installmentIndex].dataPagamento = undefined;
-        }
-      } else {
-        payments[installmentIndex].dataPagamento = value as string;
-      }
-      return { ...prev, [clienteId]: payments };
-    });
-  };
 
-  const savePayments = (cliente: Cliente) => {
-    const payments = editingPayments[cliente.id];
-    if (payments) {
-      atualizarCliente(cliente.id, { pagamentos: payments });
-      setShowSuccessPopup(true);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -439,40 +399,7 @@ export function ClientesAtivos() {
                               </button>
                             </div>
 
-                            {/* Payments Section */}
-                            <div className="border-t border-gray-200 pt-4">
-                              <h4 className="font-medium text-sm mb-2">Pagamentos (12 Parcelas)</h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                {editingPayments[cliente.id]?.map((payment, index) => (
-                                  <div key={index} className="flex items-center space-x-2 p-2 border border-gray-200 rounded">
-                                    <span className="text-xs font-medium w-8">{index + 1}ª</span>
-                                    <input
-                                      type="checkbox"
-                                      checked={payment.pago}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'pago', e.target.checked)}
-                                      className="w-4 h-4"
-                                    />
-                                    <input
-                                      type="date"
-                                      value={payment.dataPagamento || ''}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'dataPagamento', e.target.value)}
-                                      disabled={!payment.pago}
-                                      className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="mt-2">
-                                <button
-                                  type="button"
-                                  onClick={() => savePayments(cliente)}
-                                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-                                  title="Salvar pagamentos"
-                                >
-                                  Salvar Pagamentos
-                                </button>
-                              </div>
-                            </div>
+
                           </div>
                         </details>
                       </div>

@@ -13,6 +13,7 @@ import { Configuracoes } from './components/Configuracoes';
 import { Login } from './components/Login';
 import { Profile } from './components/Profile';
 import { ControleUsuarios } from './components/ControleUsuarios';
+import { Pagamentos } from './components/Pagamentos';
 import PlanComparisonPopup from './components/PlanComparisonPopup';
 
 function AppContent() {
@@ -90,6 +91,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
       { key: 'simulador', label: 'Simulador', icon: '🧮' },
       { key: 'clientes-ativos', label: 'Clientes Ativos', icon: '✅' },
       { key: 'clientes-perdidos', label: 'Clientes Perdidos', icon: '❌' },
+      { key: 'pagamentos', label: 'Pagamentos', icon: '💰' },
       { key: 'desempenho', label: 'Desempenho', icon: '📈' },
       { key: 'configuracoes', label: 'Configurações', icon: '⚙️' },
       { key: 'usuarios', label: 'Controle de Usuários', icon: '👥' },
@@ -103,7 +105,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
       switch (userProfile.accessLevel) {
         case 'Operador':
           return allTabs.filter(tab =>
-            ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos'].includes(tab.key)
+            ['dashboard', 'funil', 'leads', 'simulador', 'clientes-ativos', 'clientes-perdidos', 'pagamentos'].includes(tab.key)
           );
         case 'Gerente':
           return allTabs.filter(tab =>
@@ -124,6 +126,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         case 'simulador':
         case 'clientes-ativos':
         case 'clientes-perdidos':
+        case 'pagamentos':
         case 'desempenho':
           return perms.canViewAllClients || perms.canViewAllLeads || perms.canViewAllSimulations || perms.canViewAllReports;
         case 'configuracoes':
@@ -164,6 +167,8 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         return <ClientesAtivos />;
       case 'clientes-perdidos':
         return <ClientesPerdidos />;
+      case 'pagamentos':
+        return <Pagamentos />;
       case 'desempenho':
         return <PainelDesempenho />;
       case 'configuracoes':
