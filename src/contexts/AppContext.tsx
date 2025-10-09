@@ -36,7 +36,7 @@ interface AppContextType extends AppState {
   setIsPlanComparisonOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
   theme: 'light' | 'dark';
-  toggleTheme: () => void;
+  toggleTheme: () => Promise<void>;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -88,20 +88,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [isPlanComparisonOpen, setIsPlanComparisonOpen] = useState(false);
 
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('theme');
-    return (saved as 'light' | 'dark') || 'light';
-  });
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    if (userProfile?.theme) {
+      setTheme(userProfile.theme);
+    } else {
+      setTheme('light');
+    }
+  }, [userProfile?.theme]);
 
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
-    localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    await atualizarUserProfile({ theme: newTheme });
   };
 
   useEffect(() => {

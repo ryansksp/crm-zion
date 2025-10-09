@@ -29,6 +29,7 @@ export interface UserProfile {
   accessLevel: 'Operador' | 'Gerente' | 'Diretor';
   status?: 'pending' | 'approved' | 'rejected';
   isMaster?: boolean;
+  theme?: 'light' | 'dark';
   permissions?: {
     canViewAllClients: boolean;
     canViewAllLeads: boolean;
