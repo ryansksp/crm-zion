@@ -393,31 +393,33 @@ export function Pagamentos() {
                                   }
                                   const overdueDays = daysDifference(today, dueDate);
                                   return (
-                                    <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${
+                                    <div key={index} className={`p-2 border rounded ${
                                       payment.status === 'Pago' ? 'border-green-300 bg-green-50' :
                                       payment.status === 'Atrasado' ? 'border-red-300 bg-red-50' :
                                       'border-gray-200'
                                     }`}>
-                                      <span className="text-xs font-medium w-8">{index + 1}ª</span>
-                                      <select
-                                        value={payment.status}
-                                        onChange={(e) => handlePaymentChange(cliente.id, index, 'status', e.target.value)}
-                                        className="border border-gray-300 rounded px-2 py-1 text-xs"
-                                      >
-                                        <option value="Pendente">Pendente</option>
-                                        <option value="Pago">Pago</option>
-                                        <option value="Atrasado">Atrasado</option>
-                                      </select>
-                                      <input
-                                        type="date"
-                                        value={payment.data || ''}
-                                        onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
-                                        disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
-                                        className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
-                                        placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
-                                      />
+                                      <div className="flex items-center space-x-2">
+                                        <span className="text-xs font-medium w-8">{index + 1}ª</span>
+                                        <select
+                                          value={payment.status}
+                                          onChange={(e) => handlePaymentChange(cliente.id, index, 'status', e.target.value)}
+                                          className="border border-gray-300 rounded px-2 py-1 text-xs"
+                                        >
+                                          <option value="Pendente">Pendente</option>
+                                          <option value="Pago">Pago</option>
+                                          <option value="Atrasado">Atrasado</option>
+                                        </select>
+                                        <input
+                                          type="date"
+                                          value={payment.data || ''}
+                                          onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
+                                          disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
+                                          className="border border-gray-300 rounded px-2 py-1 text-xs flex-1"
+                                          placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
+                                        />
+                                      </div>
                                       {overdueDays > 0 && payment.status !== 'Pago' && (
-                                        <span className="text-xs text-red-600 ml-2">Atrasado há {overdueDays} dias</span>
+                                        <div className="text-xs text-red-600 mt-1">Atrasado há {overdueDays} dias</div>
                                       )}
                                     </div>
                                   );
