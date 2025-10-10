@@ -4,17 +4,53 @@ import { Plus, Phone, AlertTriangle, ChevronLeft, ChevronRight, DollarSign, User
 import type { EtapaFunil } from '../types'; // 👈 importado apenas como tipo
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
 import { formatDateTimeBrasilia, getCurrentDateTimeBrasiliaISO, diasInatividade } from '../utils/date';
+import { formatPhone } from '../utils/formatters';
 
 export function FunilVendas() {
   const { clientes, moverClienteEtapa, adicionarCliente, userProfile, planos } = useApp();
   const [showNovoCliente, setShowNovoCliente] = useState(false);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    nome: '',
+    telefone: '',
+    email: '',
+    planoInteresse: '',
+    valorCredito: ''
+  });
 
-  const planosPorCategoria = planos.reduce((acc: Record<string, typeof planos>, plano) => {
-    const cat = plano.categoria || 'Outros';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(plano);
+  // Organizar planos por tipo, agrupando por nome e prazo, mostrando faixa de crédito
+  const planosOrganizados = planos.reduce((acc: Record<string, Record<string, { min: number; max: number; planos: typeof planos }>>, plano) => {
+    const tipo = plano.tipo || 'Outros';
+    if (!acc[tipo]) acc[tipo] = {};
+
+    const prazo = plano.prazoMeses || plano.prazo || 0;
+    const key = `${plano.nome}-${prazo}`;
+    if (!acc[tipo][key]) {
+      acc[tipo][key] = { min: plano.credito || 0, max: plano.credito || 0, planos: [] };
+    }
+    acc[tipo][key].min = Math.min(acc[tipo][key].min, plano.credito || 0);
+    acc[tipo][key].max = Math.max(acc[tipo][key].max, plano.credito || 0);
+    acc[tipo][key].planos.push(plano);
+    return acc;
+  }, {});
+
+  // Ordenar tipos e dentro de cada tipo ordenar por prazo
+  const tiposOrdenados = Object.keys(planosOrganizados).sort();
+  const planosPorCategoria = tiposOrdenados.reduce((acc: Record<string, { nome: string; label: string; value: string }[]>, tipo) => {
+    acc[tipo] = Object.entries(planosOrganizados[tipo])
+      .sort(([, a], [, b]) => {
+        const prazoA = a.planos[0]?.prazoMeses || a.planos[0]?.prazo || 0;
+        const prazoB = b.planos[0]?.prazoMeses || b.planos[0]?.prazo || 0;
+        return prazoA - prazoB;
+      })
+      .map(([, data]) => ({
+        nome: data.planos[0].nome,
+        label: data.min === data.max
+          ? `${data.planos[0].nome} (R$ ${data.min.toLocaleString('pt-BR')})`
+          : `${data.planos[0].nome} (R$ ${data.min.toLocaleString('pt-BR')} - R$ ${data.max.toLocaleString('pt-BR')})`,
+        value: data.planos[0].nome
+      }));
     return acc;
   }, {});
 
@@ -65,24 +101,37 @@ export function FunilVendas() {
     'Venda Perdida': 'bg-red-100 text-red-700'
   };
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleNovoCliente = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    
+
     adicionarCliente({
       userId: userProfile?.id || '',
-      nome: formData.get('nome') as string,
-      telefone: formData.get('telefone') as string,
-      email: formData.get('email') as string,
-      planoInteresse: formData.get('planoInteresse') as string,
-      valorCredito: parseFloat(formData.get('valorCredito') as string) || 0,
+      nome: formData.nome,
+      telefone: formData.telefone,
+      email: formData.email,
+      planoInteresse: formData.planoInteresse,
+      valorCredito: parseFloat(formData.valorCredito) || 0,
       etapa: 'Lead',
       dataCriacao: getCurrentDateTimeBrasiliaISO(),
       dataUltimaInteracao: getCurrentDateTimeBrasiliaISO(),
       historico: [],
       simulacoes: []
     });
-    
+
+    setFormData({
+      nome: '',
+      telefone: '',
+      email: '',
+      planoInteresse: '',
+      valorCredito: ''
+    });
     setShowNovoCliente(false);
   };
 
@@ -221,7 +270,8 @@ export function FunilVendas() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
                 <input
                   type="text"
-                  name="nome"
+                  value={formData.nome}
+                  onChange={(e) => handleInputChange('nome', e.target.value)}
                   required
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
@@ -230,7 +280,8 @@ export function FunilVendas() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
                 <input
                   type="tel"
-                  name="telefone"
+                  value={formData.telefone}
+                  onChange={(e) => handleInputChange('telefone', formatPhone(e.target.value))}
                   required
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
@@ -239,7 +290,8 @@ export function FunilVendas() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <input
                   type="email"
-                  name="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
                   required
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
@@ -247,7 +299,8 @@ export function FunilVendas() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plano de Interesse</label>
                 <select
-                  name="planoInteresse"
+                  value={formData.planoInteresse}
+                  onChange={(e) => handleInputChange('planoInteresse', e.target.value)}
                   required
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 >
@@ -255,8 +308,8 @@ export function FunilVendas() {
                   {Object.entries(planosPorCategoria).map(([categoria, planosCategoria]) => (
                     <optgroup key={categoria} label={categoria}>
                       {planosCategoria.map((plano) => (
-                        <option key={plano.id} value={plano.nome}>
-                          {plano.nome}
+                        <option key={plano.value} value={plano.value}>
+                          {plano.label}
                         </option>
                       ))}
                     </optgroup>
@@ -267,7 +320,8 @@ export function FunilVendas() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Valor da Venda</label>
                 <input
                   type="number"
-                  name="valorCredito"
+                  value={formData.valorCredito}
+                  onChange={(e) => handleInputChange('valorCredito', e.target.value)}
                   required
                   min="0"
                   step="0.01"

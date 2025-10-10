@@ -45,3 +45,14 @@ export function formatDate(date?: string | Date | null): string {
 
   return d.toLocaleDateString('pt-BR');
 }
+
+// Formata telefone no padrão brasileiro (DDD) 9 9999-9999
+export function formatPhone(value: string): string {
+  const cleaned = value.replace(/\D/g, '');
+
+  if (cleaned.length === 0) return '';
+  if (cleaned.length <= 2) return `(${cleaned}`;
+  if (cleaned.length <= 6) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+  if (cleaned.length <= 10) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 3)} ${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
+  return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 3)} ${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
+}

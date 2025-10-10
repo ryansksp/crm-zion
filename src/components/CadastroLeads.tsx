@@ -4,6 +4,7 @@ import { Cliente } from '../types';
 import { UserPlus, Save, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { formatPhone } from '../utils/formatters';
 
 interface CadastroLeadsProps {
   onClose?: () => void;
@@ -117,7 +118,7 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
               <input
                 type="tel"
                 value={formData.telefone}
-                onChange={(e) => handleInputChange('telefone', e.target.value)}
+                onChange={(e) => handleInputChange('telefone', formatPhone(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="(11) 99999-9999"
                 required
