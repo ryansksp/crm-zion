@@ -32,8 +32,17 @@ export function Pagamentos() {
         if (cliente.pagamentos) {
           initialPayments[cliente.id] = cliente.pagamentos.map(p => ({ ...p }));
         } else {
-          // Initialize with 12 installments, all pending
-          initialPayments[cliente.id] = Array.from({ length: 12 }, () => ({ status: 'Pendente' as const }));
+          // Initialize with 12 installments
+          if (cliente.etapa === 'Venda Ganha') {
+            // First installment paid on sale date
+            initialPayments[cliente.id] = [
+              { status: 'Pago', data: cliente.dataVenda || new Date().toISOString().split('T')[0] },
+              ...Array.from({ length: 11 }, () => ({ status: 'Pendente' as const }))
+            ];
+          } else {
+            // All pending
+            initialPayments[cliente.id] = Array.from({ length: 12 }, () => ({ status: 'Pendente' as const }));
+          }
         }
         initializedPayments.current[cliente.id] = true;
       }
@@ -44,14 +53,15 @@ export function Pagamentos() {
       const cliente = clientesAtivos.find(c => c.id === clienteId);
       if (cliente) {
         const dueDay = cliente.diaVencimentoPadrao || 10;
+        const startDate = cliente.dataVenda ? new Date(cliente.dataVenda) : new Date();
+        const startMonth = startDate.getMonth();
+        const startYear = startDate.getFullYear();
         const payments = initialPayments[clienteId];
         payments.forEach((payment, index) => {
           if (payment.status === 'Pendente' && !payment.data) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const currentMonth = today.getMonth();
-            const currentYear = today.getFullYear();
-            const dueDate = new Date(currentYear, currentMonth + index - 1, dueDay);
+            const dueDate = new Date(startYear, startMonth + index + 1, dueDay);
             if (dueDate < today) {
               payment.status = 'Atrasado';
             }
@@ -85,6 +95,9 @@ export function Pagamentos() {
   const paymentSummary = filteredClientes.reduce((acc, cliente) => {
     const payments = editingPayments[cliente.id] || [];
     const dueDay = editingDueDays[cliente.id] || 10;
+    const startDate = cliente.dataVenda ? new Date(cliente.dataVenda) : new Date();
+    const startMonth = startDate.getMonth();
+    const startYear = startDate.getFullYear();
     payments.forEach((payment, index) => {
       if (payment.status === 'Pago') {
         acc.pagas++;
@@ -102,10 +115,9 @@ export function Pagamentos() {
           }
         } else {
           // Calculate due date based on dueDay
+          const installmentMonth = new Date(startYear, startMonth + index + 1, dueDay);
           const today = new Date();
-          const currentMonth = today.getMonth();
-          const currentYear = today.getFullYear();
-          const installmentMonth = new Date(currentYear, currentMonth + index - 1, dueDay);
+          today.setHours(0, 0, 0, 0);
 
           if (installmentMonth < today) {
             acc.atrasadas++;
@@ -386,10 +398,11 @@ export function Pagamentos() {
                                   if (payment.data) {
                                     dueDate = new Date(payment.data);
                                   } else {
-                                    const currentMonth = today.getMonth();
-                                    const currentYear = today.getFullYear();
+                                    const startDate = cliente.dataVenda ? new Date(cliente.dataVenda) : new Date();
+                                    const startMonth = startDate.getMonth();
+                                    const startYear = startDate.getFullYear();
                                     const dueDay = editingDueDays[cliente.id] || 10;
-                                    dueDate = new Date(currentYear, currentMonth + index - 1, dueDay);
+                                    dueDate = new Date(startYear, startMonth + index + 1, dueDay);
                                   }
                                   const overdueDays = daysDifference(today, dueDate);
                                   return (
