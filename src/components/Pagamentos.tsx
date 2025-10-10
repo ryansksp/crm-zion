@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Cliente } from '../types';
+import { daysDifference } from '../utils/date';
 import { Users, CheckCircle2, XCircle, Filter, DollarSign, Clock, AlertTriangle } from 'lucide-react';
 
 export function Pagamentos() {
@@ -37,6 +38,28 @@ export function Pagamentos() {
         initializedPayments.current[cliente.id] = true;
       }
     });
+
+    // Automatically set status to 'Atrasado' for overdue payments without data
+    Object.keys(initialPayments).forEach(clienteId => {
+      const cliente = clientesAtivos.find(c => c.id === clienteId);
+      if (cliente) {
+        const dueDay = cliente.diaVencimentoPadrao || 10;
+        const payments = initialPayments[clienteId];
+        payments.forEach((payment, index) => {
+          if (payment.status === 'Pendente' && !payment.data) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            const dueDate = new Date(currentYear, currentMonth + index, dueDay);
+            if (dueDate < today) {
+              payment.status = 'Atrasado';
+            }
+          }
+        });
+      }
+    });
+
     setEditingPayments(prev => ({ ...prev, ...initialPayments }));
   }, [clientesAtivos]);
 
@@ -61,7 +84,8 @@ export function Pagamentos() {
   // Calculate payment summary
   const paymentSummary = filteredClientes.reduce((acc, cliente) => {
     const payments = editingPayments[cliente.id] || [];
-    payments.forEach(payment => {
+    const dueDay = editingDueDays[cliente.id] || 10;
+    payments.forEach((payment, index) => {
       if (payment.status === 'Pago') {
         acc.pagas++;
       } else if (payment.status === 'Atrasado') {
@@ -77,7 +101,17 @@ export function Pagamentos() {
             acc.proximas++;
           }
         } else {
-          acc.pendentes++;
+          // Calculate due date based on dueDay
+          const today = new Date();
+          const currentMonth = today.getMonth();
+          const currentYear = today.getFullYear();
+          const installmentMonth = new Date(currentYear, currentMonth + index, dueDay);
+
+          if (installmentMonth < today) {
+            acc.atrasadas++;
+          } else {
+            acc.proximas++;
+          }
         }
       }
     });
@@ -345,32 +379,52 @@ export function Pagamentos() {
                   <div className="border-t border-gray-200 pt-4">
                     <h4 className="font-medium text-sm mb-2">Parcelas (12)</h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                {editingPayments[cliente.id]?.map((payment, index) => (
-                                  <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${
-                                    payment.status === 'Pago' ? 'border-green-300 bg-green-50' :
-                                    payment.status === 'Atrasado' ? 'border-red-300 bg-red-50' :
-                                    'border-gray-200'
-                                  }`}>
-                                    <span className="text-xs font-medium w-8">{index + 1}ª</span>
-                                    <select
-                                      value={payment.status}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'status', e.target.value)}
-                                      className="border border-gray-300 rounded px-2 py-1 text-xs"
-                                    >
-                                      <option value="Pendente">Pendente</option>
-                                      <option value="Pago">Pago</option>
-                                      <option value="Atrasado">Atrasado</option>
-                                    </select>
-                                    <input
-                                      type="date"
-                                      value={payment.data || ''}
-                                      onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
-                                      disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
-                                      className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
-                                      placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
-                                    />
-                                  </div>
-                                ))}
+                                {editingPayments[cliente.id]?.map((payment, index) => {
+                                  let overdueDays = 0;
+                                  if (payment.status === 'Atrasado') {
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    let dueDate: Date;
+                                    if (payment.data) {
+                                      dueDate = new Date(payment.data);
+                                    } else {
+                                      const currentMonth = today.getMonth();
+                                      const currentYear = today.getFullYear();
+                                      const dueDay = editingDueDays[cliente.id] || 10;
+                                      dueDate = new Date(currentYear, currentMonth + index, dueDay);
+                                    }
+                                    overdueDays = daysDifference(today, dueDate);
+                                  }
+                                  return (
+                                    <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${
+                                      payment.status === 'Pago' ? 'border-green-300 bg-green-50' :
+                                      payment.status === 'Atrasado' ? 'border-red-300 bg-red-50' :
+                                      'border-gray-200'
+                                    }`}>
+                                      <span className="text-xs font-medium w-8">{index + 1}ª</span>
+                                      <select
+                                        value={payment.status}
+                                        onChange={(e) => handlePaymentChange(cliente.id, index, 'status', e.target.value)}
+                                        className="border border-gray-300 rounded px-2 py-1 text-xs"
+                                      >
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Pago">Pago</option>
+                                        <option value="Atrasado">Atrasado</option>
+                                      </select>
+                                      <input
+                                        type="date"
+                                        value={payment.data || ''}
+                                        onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
+                                        disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
+                                        className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
+                                        placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
+                                      />
+                                      {payment.status === 'Atrasado' && overdueDays > 0 && (
+                                        <span className="text-xs text-red-600 ml-2">Atrasado há {overdueDays} dias</span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
                     <div className="mt-2">
                       <button

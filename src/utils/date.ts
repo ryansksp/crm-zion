@@ -46,3 +46,7 @@ export const formatDateBrasilia = (dateString: string): string => {
 export const diasInatividade = (dataUltimaInteracao: string): number => {
   return Math.floor((Date.now() - new Date(dataUltimaInteracao).getTime()) / (1000 * 60 * 60 * 24));
 };
+
+export const daysDifference = (date1: Date, date2: Date): number => {
+  return Math.floor((date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24));
+};
