@@ -187,21 +187,21 @@ export function ControleUsuarios() {
       setEditPhone(user.phone || '');
       setEditAccessLevel(user.accessLevel);
       const defaultPermissions = {
-        canViewDashboard: true,
-        canViewFunil: true,
-        canViewLeads: true,
-        canViewSimulador: true,
-        canViewClientesAtivos: true,
-        canViewClientesPerdidos: true,
-        canViewPagamentos: true,
-        canViewDesempenho: user.accessLevel !== 'Operador',
-        canViewAllClients: user.accessLevel === 'Diretor',
-        canViewAllLeads: user.accessLevel === 'Diretor',
-        canViewAllSimulations: user.accessLevel === 'Diretor',
-        canViewAllReports: user.accessLevel === 'Diretor',
-        canManageUsers: user.accessLevel === 'Diretor',
-        canChangeSettings: user.accessLevel !== 'Operador',
-        canEditProfile: true,
+        canViewDashboard: false,
+        canViewFunil: false,
+        canViewLeads: false,
+        canViewSimulador: false,
+        canViewClientesAtivos: false,
+        canViewClientesPerdidos: false,
+        canViewPagamentos: false,
+        canViewDesempenho: false,
+        canViewAllClients: false,
+        canViewAllLeads: false,
+        canViewAllSimulations: false,
+        canViewAllReports: false,
+        canManageUsers: false,
+        canChangeSettings: false,
+        canEditProfile: false,
       };
       setEditPermissions(user.permissions ? { ...user.permissions } : defaultPermissions);
     } else {
