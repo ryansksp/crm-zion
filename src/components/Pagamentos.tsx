@@ -427,7 +427,7 @@ export function Pagamentos() {
                                           value={payment.data || ''}
                                           onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
                                           disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
-                                          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-xs flex-1 dark:bg-gray-700 dark:text-white"
+                                          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-xs flex-1 dark:bg-gray-700 dark:text-white disabled:dark:bg-gray-600 disabled:dark:text-gray-400"
                                           placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
                                         />
                                       </div>
