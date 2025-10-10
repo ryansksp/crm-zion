@@ -96,7 +96,7 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
   }
 
   // Check if user profile is configured
-  if (userProfile && userProfile.status === 'approved' && (userProfile.accessLevel === 'Operador' || (!userProfile.permissions && userProfile.email !== 'ryanrogeroliveira@gmail.com'))) {
+  if (userProfile && userProfile.status === 'approved' && !userProfile.permissions && userProfile.email !== 'ryanrogeroliveira@gmail.com') {
     return <ProfileConfiguring />;
   }
 
