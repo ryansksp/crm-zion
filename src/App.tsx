@@ -14,6 +14,7 @@ import { Login } from './components/Login';
 import { Profile } from './components/Profile';
 import { ControleUsuarios } from './components/ControleUsuarios';
 import { Pagamentos } from './components/Pagamentos';
+import { ProfileConfiguring } from './components/ProfileConfiguring';
 import PlanComparisonPopup from './components/PlanComparisonPopup';
 
 function AppContent() {
@@ -92,6 +93,11 @@ function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setAc
         </div>
       </div>
     );
+  }
+
+  // Check if user profile is configured
+  if (userProfile && userProfile.status === 'approved' && !userProfile.permissions) {
+    return <ProfileConfiguring />;
   }
 
   // Role-based access control for tabs
