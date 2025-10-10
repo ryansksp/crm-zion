@@ -538,7 +538,7 @@ export function ControleUsuarios() {
                       </div>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(user.permissions).map(([key, value]) => (
+                        {user.permissions && Object.entries(user.permissions).map(([key, value]) => (
                           <span
                             key={key}
                             className={`inline-flex items-center space-x-1 px-2 py-1 text-xs rounded-full ${
@@ -567,6 +567,11 @@ export function ControleUsuarios() {
                             </span>
                           </span>
                         ))}
+                        {!user.permissions && (
+                          <span className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 rounded-full">
+                            <span>Permissões não configuradas</span>
+                          </span>
+                        )}
                         <button
                           onClick={() => handleEditUser(user)}
                           className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
