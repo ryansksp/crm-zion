@@ -66,6 +66,21 @@ export function ControleUsuarios() {
   const [editAccessLevel, setEditAccessLevel] = useState<'Operador' | 'Gerente' | 'Diretor'>('Operador');
   const [editPermissions, setEditPermissions] = useState<UserPermissions | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [visibleEmails, setVisibleEmails] = useState<Set<string>>(new Set());
+
+  const maskEmail = (email: string) => email.replace(/./g, '•');
+
+  const toggleEmailVisibility = (userId: string) => {
+    setVisibleEmails(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
 
   const db = getFirestore();
 
@@ -433,7 +448,17 @@ export function ControleUsuarios() {
                       <Shield className="w-4 h-4 text-purple-600" />
                     )}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-3">{user.email}</p>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {visibleEmails.has(user.id) ? user.email : maskEmail(user.email)}
+                    </p>
+                    <button
+                      onClick={() => toggleEmailVisibility(user.id)}
+                      className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                    >
+                      {visibleEmails.has(user.id) ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
+                  </div>
 
                   {/* Estatísticas */}
                   <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4">
