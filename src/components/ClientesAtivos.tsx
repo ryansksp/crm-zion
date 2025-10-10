@@ -199,21 +199,21 @@ export function ClientesAtivos() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <Users className="w-8 h-8 text-blue-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Total de Clientes</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Total de Clientes</h3>
               <p className="text-2xl font-bold text-blue-600">{clientesAtivos.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Ativos</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Ativos</h3>
               <p className="text-2xl font-bold text-green-600">
                 {clientesAtivos.filter(c => c.statusConsorcio === 'Ativo').length}
               </p>
@@ -221,11 +221,11 @@ export function ClientesAtivos() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <Gift className="w-8 h-8 text-purple-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Contemplados</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Contemplados</h3>
               <p className="text-2xl font-bold text-purple-600">
                 {clientesAtivos.filter(c => c.statusConsorcio === 'Contemplado').length}
               </p>
@@ -235,13 +235,13 @@ export function ClientesAtivos() {
       </div>
 
       {/* Vendas por Vendedor */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Vendas por Vendedor</h3>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vendas por Vendedor</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(vendasPorVendedor).map(([sellerId, stats]) => (
-            <div key={sellerId} className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-900">{userProfiles[sellerId]?.name || 'Desconhecido'}</h4>
-              <div className="mt-2 space-y-1 text-sm text-gray-600">
+            <div key={sellerId} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+              <h4 className="font-medium text-gray-900 dark:text-white">{userProfiles[sellerId]?.name || 'Desconhecido'}</h4>
+              <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <div>Total: {stats.totalClientes}</div>
                 <div>Ativos: {stats.ativos}</div>
                 <div>Contemplados: {stats.contemplados}</div>
@@ -253,14 +253,14 @@ export function ClientesAtivos() {
       </div>
 
       {/* Filtro por Vendedor */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
         <div className="flex items-center space-x-4">
-          <Filter className="w-5 h-5 text-gray-600" />
-          <label className="text-sm font-medium text-gray-700">Filtrar por Vendedor:</label>
+          <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por Vendedor:</label>
           <select
             value={selectedSeller}
             onChange={(e) => setSelectedSeller(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           >
             <option value="all">Todos os Vendedores</option>
             {uniqueSellers.map(sellerId => (
@@ -271,30 +271,30 @@ export function ClientesAtivos() {
       </div>
 
       {/* Lista de Clientes */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Lista de Clientes</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Lista de Clientes</h3>
         </div>
-            
-        <div className="divide-y divide-gray-200">
+
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {filteredClientes.map(cliente => {
             const alertas = obterAlertas(cliente);
             const statusInfo = cliente.statusConsorcio ? statusCores[cliente.statusConsorcio] : statusCores['Ativo'];
             const StatusIcon = statusInfo.icon;
-            
+
             return (
-              <div key={cliente.id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div key={cliente.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h4 className="text-lg font-semibold text-gray-900">{cliente.nome}</h4>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{cliente.nome}</h4>
                       <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${statusInfo.bg} ${statusInfo.text}`}>
                         <StatusIcon className="w-3 h-3" />
                         <span>{cliente.statusConsorcio || 'Ativo'}</span>
                       </div>
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
                       <div>
                         <span className="font-medium">Telefone:</span> {cliente.telefone}
                       </div>
@@ -315,15 +315,15 @@ export function ClientesAtivos() {
                           className="mt-2"
                           open={openDetails[cliente.id] || false}
                         >
-                          <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800" onClick={(e) => {
+                          <summary className="cursor-pointer text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" onClick={(e) => {
                             e.preventDefault();
                             setOpenDetails(prev => ({ ...prev, [cliente.id]: !prev[cliente.id] }));
                           }}>Editar detalhes</summary>
                           <div className="mt-2 space-y-4">
                             {editingGroupsDetailed[cliente.id]?.map((group, groupIndex) => (
-                              <div key={groupIndex} className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                              <div key={groupIndex} className="border border-gray-200 dark:border-gray-600 rounded-md p-3 bg-gray-50 dark:bg-gray-700">
                                 <div className="flex items-center justify-between mb-2">
-                                  <label className="font-medium text-sm">Grupo {groupIndex + 1}:</label>
+                                  <label className="font-medium text-sm text-gray-900 dark:text-white">Grupo {groupIndex + 1}:</label>
                                   {editingGroupsDetailed[cliente.id].length > 1 && (
                                     <button
                                       type="button"
@@ -339,10 +339,10 @@ export function ClientesAtivos() {
                                   type="text"
                                   value={group.grupo}
                                   onChange={(e) => handleGroupChange(cliente.id, groupIndex, 'grupo', e.target.value)}
-                                  className="border border-gray-300 rounded-md px-2 py-1 text-sm w-full mb-2"
+                                  className="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm w-full mb-2 dark:bg-gray-700 dark:text-white"
                                   placeholder="Grupo"
                                 />
-                                <div className="font-medium text-sm mb-1">Cotas:</div>
+                                <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">Cotas:</div>
                                 <div className="flex flex-wrap items-center gap-2">
                                   {group.cotas.map((quota, quotaIndex) => (
                                     <div key={quotaIndex} className="flex items-center space-x-1">
@@ -354,7 +354,7 @@ export function ClientesAtivos() {
                                           newCotas[quotaIndex] = e.target.value;
                                           handleGroupChange(cliente.id, groupIndex, 'cotas', newCotas);
                                         }}
-                                        className="border border-gray-300 rounded-md px-2 py-1 text-sm w-24"
+                                        className="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm w-24 dark:bg-gray-700 dark:text-white"
                                         placeholder="Cota"
                                       />
                                       {group.cotas.length > 1 && (
@@ -441,9 +441,9 @@ export function ClientesAtivos() {
       
       {showSuccessPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
-            <h3 className="text-lg font-semibold text-green-600 mb-4">Sucesso!</h3>
-            <p className="text-gray-700 mb-4">Dados salvos com sucesso!</p>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md">
+            <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-4">Sucesso!</h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">Dados salvos com sucesso!</p>
             <button
               onClick={() => setShowSuccessPopup(false)}
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"

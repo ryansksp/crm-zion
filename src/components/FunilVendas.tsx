@@ -90,15 +90,15 @@ export function FunilVendas() {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Funil de Vendas</h2>
-          <p className="text-gray-600">Gerencie seu pipeline de clientes</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Funil de Vendas</h2>
+          <p className="text-gray-600 dark:text-gray-400">Gerencie seu pipeline de clientes</p>
         </div>
         <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium text-gray-700">Filtrar por Vendedor:</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por Vendedor:</label>
           <select
             value={selectedUserId || ''}
             onChange={(e) => setSelectedUserId(e.target.value ? e.target.value : null)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             <option value="">Todos os Vendedores</option>
             {Object.entries(userNames).map(([id, name]) => (
@@ -115,7 +115,7 @@ export function FunilVendas() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         <div className="grid grid-cols-4 gap-6">
           {etapas.map((etapa, etapaIndex) => {
             const clientesEtapa = filteredClientes.filter(c => c.etapa === etapa);
@@ -124,17 +124,17 @@ export function FunilVendas() {
             return (
               <div
                 key={etapa}
-                className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col max-h-[600px]"
+                className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 flex flex-col max-h-[600px]"
               >
-                <h3 className="font-semibold text-gray-900 text-sm mb-2">{etapa}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">{etapa}</h3>
                 <div className="space-y-1 mb-4">
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Leads:</span>
-                    <span className="font-medium">{clientesEtapa.length}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Leads:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{clientesEtapa.length}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Valor:</span>
-                    <span className="font-medium">R$ {totalValor.toLocaleString('pt-BR')}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Valor:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">R$ {totalValor.toLocaleString('pt-BR')}</span>
                   </div>
                 </div>
 
@@ -146,19 +146,19 @@ export function FunilVendas() {
                     return (
                       <div
                         key={cliente.id}
-                        className="bg-white p-3 rounded-md shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex flex-col"
+                        className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow flex flex-col"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium text-gray-900 text-sm truncate">{cliente.nome}</h4>
+                          <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">{cliente.nome}</h4>
                           {inativo && (
                             <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0" />
                           )}
                         </div>
 
-                        <div className="space-y-1 text-xs text-gray-600 mb-2">
+                        <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400 mb-2">
                           <div className="flex items-center space-x-1">
                             <DollarSign className="w-3 h-3" />
-                            <span className="font-medium">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Phone className="w-3 h-3" />
@@ -175,7 +175,7 @@ export function FunilVendas() {
                         </div>
 
                         {inativo && (
-                          <div className="text-xs text-orange-600 font-medium mb-2">
+                          <div className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-2">
                             {dias} dias sem interação
                           </div>
                         )}
@@ -184,7 +184,7 @@ export function FunilVendas() {
                           <button
                             disabled={etapaIndex === 0}
                             onClick={() => moverClienteEtapa(cliente.id, etapas[etapaIndex - 1])}
-                            className={`p-1 rounded ${etapaIndex > 0 ? 'bg-blue-100 hover:bg-blue-200 text-blue-600' : 'opacity-50 cursor-not-allowed text-gray-400'}`}
+                            className={`p-1 rounded ${etapaIndex > 0 ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400' : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500'}`}
                             title="Mover para etapa anterior"
                           >
                             <ChevronLeft className="w-4 h-4" />
@@ -195,7 +195,7 @@ export function FunilVendas() {
                           <button
                             disabled={etapaIndex === etapas.length - 1}
                             onClick={() => moverClienteEtapa(cliente.id, etapas[etapaIndex + 1])}
-                            className={`p-1 rounded ${etapaIndex < etapas.length - 1 ? 'bg-blue-100 hover:bg-blue-200 text-blue-600' : 'opacity-50 cursor-not-allowed text-gray-400'}`}
+                            className={`p-1 rounded ${etapaIndex < etapas.length - 1 ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400' : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500'}`}
                             title="Mover para próxima etapa"
                           >
                             <ChevronRight className="w-4 h-4" />
@@ -214,42 +214,42 @@ export function FunilVendas() {
       {/* Modal Novo Cliente */}
       {showNovoCliente && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Novo Cliente</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Novo Cliente</h3>
             <form onSubmit={handleNovoCliente} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
                 <input
                   type="text"
                   name="nome"
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
                 <input
                   type="tel"
                   name="telefone"
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Plano de Interesse</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plano de Interesse</label>
                 <select
                   name="planoInteresse"
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Selecione um plano</option>
                   {Object.entries(planosPorCategoria).map(([categoria, planosCategoria]) => (
@@ -264,7 +264,7 @@ export function FunilVendas() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Valor da Venda</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Valor da Venda</label>
                 <input
                   type="number"
                   name="valorCredito"
@@ -272,15 +272,15 @@ export function FunilVendas() {
                   min="0"
                   step="0.01"
                   placeholder="Ex: 10000.00"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
-              
+
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowNovoCliente(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Cancelar
                 </button>

@@ -1,21 +1,27 @@
-# TODO: Implementar Modo Escuro Completo
+# TODO: Fix Dark Mode Issues in Components
 
-## Passos para Implementar Modo Escuro
+## Components to Fix
+- [x] ControleUsuarios.tsx
+- [x] Configuracoes.tsx
+- [x] PainelDesempenho.tsx
+- [x] Pagamentos.tsx
+- [x] ClientesAtivos.tsx
+- [x] PlanComparisonPopup.tsx
+- [x] FunilVendas.tsx
+- [x] CadastroLeads.tsx
+- [x] Leads.tsx
 
-- [x] Atualizar Layout.tsx (corrigir classes dark incompletas)
-- [x] Atualizar Dashboard.tsx (adicionar todas as classes dark)
-- [x] Atualizar Pagamentos.tsx (adicionar todas as classes dark)
-- [x] Atualizar ClientesAtivos.tsx (adicionar todas as classes dark)
-- [x] Atualizar CadastroLeads.tsx
-- [x] Atualizar ClientesPerdidos.tsx
-- [x] Atualizar Configuracoes.tsx
-- [x] Atualizar ControleUsuarios.tsx
-- [x] Atualizar FunilVendas.tsx
-- [x] Atualizar Leads.tsx
-- [x] Atualizar Login.tsx
-- [x] Atualizar PainelDesempenho.tsx
-- [x] Atualizar PlanComparisonPopup.tsx
-- [x] Atualizar Profile.tsx
-- [x] Atualizar Simulador.tsx
-- [x] Atualizar componentes UI: badge.tsx, button.tsx, card.tsx
-- [x] Testar modo escuro alternando o tema
+## Changes Needed
+- Add `dark:bg-gray-800` to `bg-white`
+- Add `dark:text-white` to `text-gray-900`
+- Add `dark:text-gray-400` to `text-gray-600`
+- Add `dark:border-gray-700` to `border-gray-200`
+- Add `dark:bg-gray-700` to `bg-gray-50`
+- Add dark variants to colored backgrounds (e.g., `bg-green-50 dark:bg-green-900`)
+- Update inputs: add `dark:bg-gray-700 dark:border-gray-600 dark:text-white`
+- Update modals and popups
+- Update buttons and hover states if needed
+
+## Testing
+- [ ] Switch to dark mode and check each component for white parts
+- [ ] Ensure readability and contrast in dark mode

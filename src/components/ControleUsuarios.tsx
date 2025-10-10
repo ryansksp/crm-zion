@@ -346,7 +346,7 @@ export function ControleUsuarios() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando usuários...</p>
+          <p className="text-gray-600 dark:text-gray-400">Carregando usuários...</p>
         </div>
       </div>
     );
@@ -379,24 +379,24 @@ export function ControleUsuarios() {
       </div>
 
       <div className="grid gap-6">
-{filteredUsers.map((user) => (
-          <div key={user.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {filteredUsers.map((user) => (
+          <div key={user.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-semibold text-lg">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 dark:text-blue-300 font-semibold text-lg">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</h3>
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       user.accessLevel === 'Diretor'
-                        ? 'bg-purple-100 text-purple-800'
+                        ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300'
                         : user.accessLevel === 'Gerente'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-gray-100 text-gray-800'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                     }`}>
                       {user.accessLevel}
                     </span>
@@ -404,70 +404,70 @@ export function ControleUsuarios() {
                       <Shield className="w-4 h-4 text-purple-600" />
                     )}
                   </div>
-                  <p className="text-gray-600 mb-3">{user.email}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-3">{user.email}</p>
 
                   {/* Estatísticas */}
                   <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="text-2xl font-bold text-blue-600">{user.stats.totalClients}</div>
-                      <div className="text-sm text-gray-600">Clientes</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Clientes</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="text-2xl font-bold text-green-600">{user.stats.totalLeads}</div>
-                      <div className="text-sm text-gray-600">Leads</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Leads</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="text-2xl font-bold text-purple-600">{user.stats.totalSimulations}</div>
-                      <div className="text-sm text-gray-600">Simulações</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Simulações</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="text-2xl font-bold text-orange-600">{user.stats.totalSales}</div>
-                      <div className="text-sm text-gray-600">Vendas</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Vendas</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="text-2xl font-bold text-emerald-600">R$ {user.stats.totalSoldValue.toLocaleString('pt-BR')}</div>
-                      <div className="text-sm text-gray-600">Total Vendido</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Total Vendido</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="text-2xl font-bold text-red-600">{user.stats.totalLost}</div>
-                      <div className="text-sm text-gray-600">Perdidos</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Perdidos</div>
                     </div>
                   </div>
 
                   {/* Permissões */}
                   <div className="space-y-3">
-                    <h4 className="font-medium text-gray-900 flex items-center space-x-2">
+                    <h4 className="font-medium text-gray-900 dark:text-white flex items-center space-x-2">
                       <BarChart3 className="w-4 h-4" />
                       <span>Permissões</span>
                     </h4>
 
-{editingUser === user.id ? (
-                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                    {editingUser === user.id ? (
+                      <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
                             <input
                               type="text"
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefone</label>
                             <input
                               type="text"
                               value={editPhone}
                               onChange={(e) => setEditPhone(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Nível de Acesso</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nível de Acesso</label>
                             <select
                               value={editAccessLevel}
                               onChange={(e) => setEditAccessLevel(e.target.value as 'Operador' | 'Gerente' | 'Diretor')}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                             >
                               <option value="Operador">Operador</option>
                               <option value="Gerente">Gerente</option>
@@ -476,7 +476,7 @@ export function ControleUsuarios() {
                           </div>
                         </div>
                         <div>
-                          <h5 className="text-sm font-medium text-gray-700 mb-2">Permissões</h5>
+                          <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Permissões</h5>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {Object.entries(editPermissions!).map(([key, value]) => (
                               <label key={key} className="flex items-center space-x-3">
@@ -486,7 +486,7 @@ export function ControleUsuarios() {
                                   onChange={(e) => handlePermissionChange(key as keyof UserPermissions, e.target.checked)}
                                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
-                                <span className="text-sm text-gray-700">
+                                <span className="text-sm text-gray-700 dark:text-gray-300">
                                   {key === 'canViewDashboard' && 'Ver Dashboard'}
                                   {key === 'canViewFunil' && 'Ver Funil de Vendas'}
                                   {key === 'canViewLeads' && 'Ver Leads'}
@@ -517,7 +517,7 @@ export function ControleUsuarios() {
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="flex items-center space-x-2 px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                            className="flex items-center space-x-2 px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors dark:bg-gray-600 dark:text-gray-300"
                           >
                             <X className="w-4 h-4" />
                             <span>Cancelar</span>
@@ -531,8 +531,8 @@ export function ControleUsuarios() {
                             key={key}
                             className={`inline-flex items-center space-x-1 px-2 py-1 text-xs rounded-full ${
                               value
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-600'
+                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                             }`}
                           >
                             {value ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
@@ -557,7 +557,7 @@ export function ControleUsuarios() {
                         ))}
                         <button
                           onClick={() => handleEditUser(user)}
-                          className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors"
+                          className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
                         >
                           <Edit className="w-3 h-3" />
                           <span>Editar</span>
@@ -565,14 +565,14 @@ export function ControleUsuarios() {
                         <button
                           onClick={() => toggleUserAccess(user.id, user.active)}
                           className={`inline-flex items-center space-x-1 px-2 py-1 text-xs rounded-full ${
-                            user.active ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                            user.active ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300' : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300'
                           } hover:bg-opacity-80 transition-colors`}
                         >
                           {user.active ? 'Desabilitar' : 'Habilitar'}
                         </button>
                         <button
                           onClick={() => deleteUser(user.id)}
-                          className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors"
+                          className="inline-flex items-center space-x-1 px-2 py-1 text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 rounded-full hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
                         >
                           <X className="w-3 h-3" />
                           <span>Excluir</span>
@@ -589,11 +589,11 @@ export function ControleUsuarios() {
 
       {filteredUsers.length === 0 && (
         <div className="text-center py-12">
-          <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Users className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             {searchTerm ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado'}
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             {searchTerm
               ? 'Tente ajustar os termos de busca'
               : 'Os usuários aparecerão aqui conforme se cadastrarem no sistema'
@@ -605,19 +605,19 @@ export function ControleUsuarios() {
       {/* Lista de usuários pendentes */}
       {pendingUsers.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Usuários Pendentes</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Usuários Pendentes</h2>
           <div className="grid gap-6">
             {pendingUsers.map((user) => (
-              <div key={user.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+              <div key={user.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-semibold text-lg">
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                    <span className="text-gray-600 dark:text-gray-400 font-semibold text-lg">
                       {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
-                    <p className="text-gray-600">{user.email}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
                   </div>
                 </div>
                 <div className="space-x-2">

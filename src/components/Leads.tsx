@@ -67,8 +67,8 @@ export function Leads() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Leads</h2>
-          <p className="text-gray-600">Gerencie todos os seus leads em potencial</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Leads</h2>
+          <p className="text-gray-600 dark:text-gray-400">Gerencie todos os seus leads em potencial</p>
         </div>
         <button
           onClick={() => setShowCadastro(true)}
@@ -80,27 +80,27 @@ export function Leads() {
       </div>
 
       {/* Filtros e Busca */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Buscar por nome, telefone ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
           <div className="md:w-64">
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <select
                 value={filterEtapa}
                 onChange={(e) => setFilterEtapa(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               >
                 <option value="todos">Todas as etapas</option>
                 {etapasUnicas.map(etapa => (
@@ -119,36 +119,36 @@ export function Leads() {
           const userRole = userProfiles[userId]?.accessLevel || 'Desconhecido';
 
           return (
-            <div key={userId} className="bg-white rounded-lg shadow-sm">
-              <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div key={userId} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {userName} ({userRole})
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {userLeads.length} lead{userLeads.length !== 1 ? 's' : ''} atribuído{userLeads.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       Meta diária: 5 leads
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {userLeads.map(cliente => {
                   const dias = diasInatividade(cliente.dataUltimaInteracao);
                   const inativo = dias > 3;
 
                   return (
-                    <div key={cliente.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div key={cliente.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 text-lg">{cliente.nome}</h4>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-lg">{cliente.nome}</h4>
+                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
                             <div className="flex items-center space-x-1">
                               <Phone className="w-4 h-4" />
                               <span>{cliente.telefone}</span>
@@ -162,40 +162,40 @@ export function Leads() {
                         <div className="text-right">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             inativo
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-green-100 text-green-800'
+                              ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                              : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           }`}>
                             {inativo ? 'Inativo' : 'Ativo'}
                           </span>
                           {inativo && (
-                            <p className="text-xs text-red-600 mt-1">{dias} dias sem interação</p>
+                            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{dias} dias sem interação</p>
                           )}
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">Etapa:</span>
-                          <p className="font-medium">{cliente.etapa}</p>
+                          <span className="text-gray-600 dark:text-gray-400">Etapa:</span>
+                          <p className="font-medium text-gray-900 dark:text-white">{cliente.etapa}</p>
                         </div>
                         <div>
-                          <span className="text-gray-600">Plano de Interesse:</span>
-                          <p className="font-medium">{cliente.planoInteresse}</p>
+                          <span className="text-gray-600 dark:text-gray-400">Plano de Interesse:</span>
+                          <p className="font-medium text-gray-900 dark:text-white">{cliente.planoInteresse}</p>
                         </div>
                         <div>
-                          <span className="text-gray-600">Valor do Crédito:</span>
-                          <p className="font-medium">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
+                          <span className="text-gray-600 dark:text-gray-400">Valor do Crédito:</span>
+                          <p className="font-medium text-gray-900 dark:text-white">R$ {cliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
                         </div>
                       </div>
 
                       <div className="flex justify-between items-center mt-4">
-                        <div className="flex items-center space-x-1 text-sm text-gray-600">
+                        <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400">
                           <Calendar className="w-4 h-4" />
                           <span>Última interação: {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}</span>
                         </div>
                         <button
                           onClick={() => setSelectedCliente(cliente)}
-                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors"
+                          className="flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                           <span>Ver Detalhes</span>
@@ -210,13 +210,13 @@ export function Leads() {
         })}
 
         {leads.length === 0 && (
-          <div className="bg-white rounded-lg shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
+              <div className="text-gray-400 dark:text-gray-500 mb-4">
                 <Search className="w-12 h-12 mx-auto" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum lead encontrado</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Nenhum lead encontrado</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 {searchTerm || filterEtapa !== 'todos'
                   ? 'Tente ajustar os filtros de busca'
                   : 'Você ainda não tem leads cadastrados'}
@@ -229,12 +229,12 @@ export function Leads() {
       {/* Modal de Detalhes */}
       {selectedCliente && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Detalhes do Lead</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Detalhes do Lead</h3>
               <button
                 onClick={() => setSelectedCliente(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -243,44 +243,44 @@ export function Leads() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nome</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.nome}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{selectedCliente.nome}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Telefone</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.telefone}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Telefone</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{selectedCliente.telefone}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.email}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{selectedCliente.email}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Vendedor</label>
-                  <p className="mt-1 text-sm text-gray-900">{userProfiles[selectedCliente.userId]?.name || 'Desconhecido'}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vendedor</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{userProfiles[selectedCliente.userId]?.name || 'Desconhecido'}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Etapa</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.etapa}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Etapa</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{selectedCliente.etapa}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Plano de Interesse</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedCliente.planoInteresse}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Plano de Interesse</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{selectedCliente.planoInteresse}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Valor do Crédito</label>
-                  <p className="mt-1 text-sm text-gray-900">R$ {selectedCliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Valor do Crédito</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">R$ {selectedCliente.valorCredito?.toLocaleString('pt-BR') || '0'}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Data de Criação</label>
-                  <p className="mt-1 text-sm text-gray-900">{formatDateTimeBrasilia(selectedCliente.dataCriacao)}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Data de Criação</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{formatDateTimeBrasilia(selectedCliente.dataCriacao)}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Última Interação</label>
-                  <p className="mt-1 text-sm text-gray-900">{formatDateTimeBrasilia(selectedCliente.dataUltimaInteracao)}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Última Interação</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">{formatDateTimeBrasilia(selectedCliente.dataUltimaInteracao)}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <p className="mt-1 text-sm text-gray-900">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
                     {diasInatividade(selectedCliente.dataUltimaInteracao) > 3 ? 'Inativo' : 'Ativo'}
                   </p>
                 </div>
@@ -288,16 +288,16 @@ export function Leads() {
 
               {selectedCliente.historico && selectedCliente.historico.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Histórico de Interações</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Histórico de Interações</label>
                   <div className="space-y-2">
                     {selectedCliente.historico.map((interacao: Interacao, index: number) => (
-                      <div key={index} className="bg-gray-50 p-3 rounded-md">
+                      <div key={index} className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{interacao.tipo}</p>
-                            <p className="text-sm text-gray-600">{interacao.descricao}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{interacao.tipo}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{interacao.descricao}</p>
                           </div>
-                          <p className="text-xs text-gray-500">{formatDateTimeBrasilia(interacao.data)}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDateTimeBrasilia(interacao.data)}</p>
                         </div>
                       </div>
                     ))}
@@ -307,16 +307,16 @@ export function Leads() {
 
               {selectedCliente.simulacoes && selectedCliente.simulacoes.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Simulações</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Simulações</label>
                   <div className="space-y-2">
                     {selectedCliente.simulacoes.map((simulacao: Simulacao, index: number) => (
-                      <div key={index} className="bg-gray-50 p-3 rounded-md">
+                      <div key={index} className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>
-                            <span className="font-medium">Valor do Crédito:</span> R$ {simulacao.valorCredito.toLocaleString('pt-BR')}
+                            <span className="font-medium text-gray-900 dark:text-white">Valor do Crédito:</span> R$ {simulacao.valorCredito.toLocaleString('pt-BR')}
                           </div>
                           <div>
-                            <span className="font-medium">Parcela:</span> R$ {simulacao.parcela.toLocaleString('pt-BR')}
+                            <span className="font-medium text-gray-900 dark:text-white">Parcela:</span> R$ {simulacao.parcela.toLocaleString('pt-BR')}
                           </div>
                         </div>
                       </div>
@@ -327,13 +327,13 @@ export function Leads() {
 
               {/* Reatribuição de Lead - Apenas para Diretores */}
               {userProfile?.accessLevel === 'Diretor' && (
-                <div className="border-t pt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Reatribuir Lead</label>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reatribuir Lead</label>
                   <div className="flex gap-2">
                     <select
                       value={novoUserId}
                       onChange={(e) => setNovoUserId(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="">Selecione um usuário</option>
                       {Object.values(userProfiles).map(user => (
@@ -345,7 +345,7 @@ export function Leads() {
                     <button
                       onClick={handleReatribuirLead}
                       disabled={!novoUserId}
-                      className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
                     >
                       <UserCheck className="w-4 h-4" />
                       Reatribuir

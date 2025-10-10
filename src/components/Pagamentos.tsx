@@ -250,13 +250,13 @@ export function Pagamentos() {
       </div>
 
       {/* Resumo de Pagamentos */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumo Geral de Parcelas</h3>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resumo Geral de Parcelas</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="flex items-center space-x-3">
             <DollarSign className="w-8 h-8 text-green-600" />
             <div>
-              <p className="text-sm text-gray-600">Pagas</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pagas</p>
               <p className="text-xl font-bold text-green-600">{paymentSummary.pagas}</p>
             </div>
           </div>
@@ -264,7 +264,7 @@ export function Pagamentos() {
           <div className="flex items-center space-x-3">
             <Clock className="w-8 h-8 text-yellow-600" />
             <div>
-              <p className="text-sm text-gray-600">Pendentes</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pendentes</p>
               <p className="text-xl font-bold text-yellow-600">{paymentSummary.pendentes}</p>
             </div>
           </div>
@@ -272,7 +272,7 @@ export function Pagamentos() {
           <div className="flex items-center space-x-3">
             <AlertTriangle className="w-8 h-8 text-red-600" />
             <div>
-              <p className="text-sm text-gray-600">Em Atraso</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Em Atraso</p>
               <p className="text-xl font-bold text-red-600">{paymentSummary.atrasadas}</p>
             </div>
           </div>
@@ -280,7 +280,7 @@ export function Pagamentos() {
           <div className="flex items-center space-x-3">
             <Clock className="w-8 h-8 text-blue-600" />
             <div>
-              <p className="text-sm text-gray-600">Próximas</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Próximas</p>
               <p className="text-xl font-bold text-blue-600">{paymentSummary.proximas}</p>
             </div>
           </div>
@@ -288,14 +288,14 @@ export function Pagamentos() {
       </div>
 
       {/* Filtro por Vendedor */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
         <div className="flex items-center space-x-4">
-          <Filter className="w-5 h-5 text-gray-600" />
-          <label className="text-sm font-medium text-gray-700">Filtrar por Vendedor:</label>
+          <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por Vendedor:</label>
           <select
             value={selectedSeller}
             onChange={(e) => setSelectedSeller(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           >
             <option value="all">Todos os Vendedores</option>
             {uniqueSellers.map(sellerId => (
@@ -307,12 +307,12 @@ export function Pagamentos() {
 
       {/* Notificações de Vencimento */}
       {upcomingNotifications.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
           <div className="flex items-center space-x-2 mb-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-600" />
-            <h3 className="text-lg font-semibold text-yellow-800">Avisos de Vencimento</h3>
+            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+            <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-300">Avisos de Vencimento</h3>
           </div>
-          <p className="text-yellow-700 mb-3">Clientes com parcelas vencendo nos próximos 10 dias:</p>
+          <p className="text-yellow-700 dark:text-yellow-300 mb-3">Clientes com parcelas vencendo nos próximos 10 dias:</p>
           <div className="space-y-2">
             {upcomingNotifications.map(cliente => {
               const payments = editingPayments[cliente.id] || [];
@@ -328,14 +328,14 @@ export function Pagamentos() {
                   return dueDate >= today && dueDate <= tenDaysFromNow;
                 });
               return (
-                <div key={cliente.id} className="flex items-center justify-between bg-white p-3 rounded border">
+                <div key={cliente.id} className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
                   <div>
-                    <span className="font-medium">{cliente.nome}</span>
-                    <span className="text-sm text-gray-600 ml-2">
+                    <span className="font-medium text-gray-900 dark:text-white">{cliente.nome}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
                       Parcela(s): {upcomingPayments.map(({ index }) => `${index + 1}ª`).join(', ')}
                     </span>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Vence em: {upcomingPayments.map(({ payment }) => new Date(payment.data!).toLocaleDateString('pt-BR')).join(', ')}
                   </div>
                 </div>
@@ -346,22 +346,22 @@ export function Pagamentos() {
       )}
 
       {/* Lista de Clientes */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Lista de Clientes</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Lista de Clientes</h3>
         </div>
 
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {filteredClientes.map(cliente => (
-            <div key={cliente.id} className="p-6 hover:bg-gray-50 transition-colors">
+            <div key={cliente.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h4 className="text-lg font-semibold text-gray-900">{cliente.nome}</h4>
-                    <span className="text-sm text-gray-600">{getPaymentStatus(cliente)}</span>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{cliente.nome}</h4>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{getPaymentStatus(cliente)}</span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
                     <div>
                       <span className="font-medium">Telefone:</span> {cliente.telefone}
                     </div>
@@ -382,14 +382,14 @@ export function Pagamentos() {
                         max="31"
                         value={editingDueDays[cliente.id] || 10}
                         onChange={(e) => setEditingDueDays(prev => ({ ...prev, [cliente.id]: parseInt(e.target.value) || 10 }))}
-                        className="ml-2 border border-gray-300 rounded px-2 py-1 text-xs w-16"
+                        className="ml-2 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-xs w-16 dark:bg-gray-700 dark:text-white"
                       />
                     </div>
                   </div>
 
                   {/* Payments Section */}
-                  <div className="border-t border-gray-200 pt-4">
-                    <h4 className="font-medium text-sm mb-2">Parcelas (12)</h4>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-2">Parcelas (12)</h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                 {editingPayments[cliente.id]?.map((payment, index) => {
                                   const today = new Date();
@@ -407,16 +407,16 @@ export function Pagamentos() {
                                   const overdueDays = daysDifference(today, dueDate);
                                   return (
                                     <div key={index} className={`p-2 border rounded ${
-                                      payment.status === 'Pago' ? 'border-green-300 bg-green-50' :
-                                      payment.status === 'Atrasado' ? 'border-red-300 bg-red-50' :
-                                      'border-gray-200'
+                                      payment.status === 'Pago' ? 'border-green-300 bg-green-50 dark:bg-green-900 dark:border-green-700' :
+                                      payment.status === 'Atrasado' ? 'border-red-300 bg-red-50 dark:bg-red-900 dark:border-red-700' :
+                                      'border-gray-200 dark:border-gray-600'
                                     }`}>
                                       <div className="flex items-center space-x-2">
-                                        <span className="text-xs font-medium w-8">{index + 1}ª</span>
+                                        <span className="text-xs font-medium w-8 text-gray-900 dark:text-white">{index + 1}ª</span>
                                         <select
                                           value={payment.status}
                                           onChange={(e) => handlePaymentChange(cliente.id, index, 'status', e.target.value)}
-                                          className="border border-gray-300 rounded px-2 py-1 text-xs"
+                                          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-xs dark:bg-gray-700 dark:text-white"
                                         >
                                           <option value="Pendente">Pendente</option>
                                           <option value="Pago">Pago</option>
@@ -427,7 +427,7 @@ export function Pagamentos() {
                                           value={payment.data || ''}
                                           onChange={(e) => handlePaymentChange(cliente.id, index, 'data', e.target.value)}
                                           disabled={payment.status !== 'Pago' && payment.status !== 'Pendente' && payment.status !== 'Atrasado'}
-                                          className="border border-gray-300 rounded px-2 py-1 text-xs flex-1"
+                                          className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-xs flex-1 dark:bg-gray-700 dark:text-white"
                                           placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
                                         />
                                       </div>
@@ -458,9 +458,9 @@ export function Pagamentos() {
 
       {showSuccessPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
-            <h3 className="text-lg font-semibold text-green-600 mb-4">Sucesso!</h3>
-            <p className="text-gray-700 mb-4">Pagamentos salvos com sucesso!</p>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md">
+            <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-4">Sucesso!</h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">Pagamentos salvos com sucesso!</p>
             <button
               onClick={() => setShowSuccessPopup(false)}
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"

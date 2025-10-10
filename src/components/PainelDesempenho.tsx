@@ -13,8 +13,8 @@ export function PainelDesempenho() {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Painel de Desempenho</h2>
-          <p className="text-gray-600">Acompanhe suas métricas e performance por usuário</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Painel de Desempenho</h2>
+          <p className="text-gray-600 dark:text-gray-400">Acompanhe suas métricas e performance por usuário</p>
         </div>
 
         {Object.entries(clientesPorUsuario).map(([userId, clientes]) => {
@@ -28,72 +28,72 @@ export function PainelDesempenho() {
           const progressoMeta = metas.mensal > 0 ? (totalVendido / metas.mensal) * 100 : 0;
 
           return (
-            <div key={userId} className="border rounded p-4 mb-6 bg-white shadow">
-              <h3 className="text-xl font-semibold mb-4">{userName} ({userProfiles[userId]?.accessLevel || 'N/A'})</h3>
+            <div key={userId} className="border border-gray-200 dark:border-gray-700 rounded p-4 mb-6 bg-white dark:bg-gray-800 shadow">
+              <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">{userName} ({userProfiles[userId]?.accessLevel || 'N/A'})</h3>
               <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
                 <div className="flex items-center space-x-4">
                   <UserX className="w-8 h-8 text-blue-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Total de Leads</p>
-                    <p className="text-xl font-bold">{clientes.filter(c => c.etapa === 'Lead').length}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Total de Leads</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{clientes.filter(c => c.etapa === 'Lead').length}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <BarChart3 className="w-8 h-8 text-green-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Vendas no Mês</p>
-                    <p className="text-xl font-bold">{vendas.length}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Vendas no Mês</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{vendas.length}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <DollarSign className="w-8 h-8 text-green-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Valor Total Vendido</p>
-                    <p className="text-xl font-bold">R$ {totalVendido.toLocaleString('pt-BR')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Valor Total Vendido</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">R$ {totalVendido.toLocaleString('pt-BR')}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <UserX className="w-8 h-8 text-red-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Leads Perdidos</p>
-                    <p className="text-xl font-bold">{perdidos.length}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Leads Perdidos</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{perdidos.length}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <DollarSign className="w-8 h-8 text-red-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Valor Total Perdido</p>
-                    <p className="text-xl font-bold">R$ {totalPerdido.toLocaleString('pt-BR')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Valor Total Perdido</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">R$ {totalPerdido.toLocaleString('pt-BR')}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <Target className="w-8 h-8 text-purple-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Taxa de Conversão</p>
-                    <p className="text-xl font-bold">{(clientes.length > 0 ? (vendas.length / clientes.length) * 100 : 0).toFixed(1)}%</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Taxa de Conversão</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{(clientes.length > 0 ? (vendas.length / clientes.length) * 100 : 0).toFixed(1)}%</p>
                   </div>
                 </div>
               </div>
 
               {/* Meta Mensal */}
-              <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Meta Mensal</h3>
-                <div className="w-full bg-gray-200 rounded-full h-4">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mt-6 border border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meta Mensal</h3>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                   <div
                     className="bg-blue-600 h-4 rounded-full transition-all duration-300"
                     style={{ width: `${Math.min(progressoMeta, 100)}%` }}
                   ></div>
                 </div>
-                <div className="flex justify-between mt-2 text-sm text-gray-600">
+                <div className="flex justify-between mt-2 text-sm text-gray-600 dark:text-gray-400">
                   <span>R$ {totalVendido.toLocaleString('pt-BR')}</span>
                   <span>R$ {metas.mensal.toLocaleString('pt-BR')}</span>
                 </div>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   {progressoMeta.toFixed(1)}% da meta atingida
                 </p>
               </div>
@@ -115,75 +115,75 @@ export function PainelDesempenho() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Painel de Desempenho</h2>
-        <p className="text-gray-600">Acompanhe suas métricas e performance</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Painel de Desempenho</h2>
+        <p className="text-gray-600 dark:text-gray-400">Acompanhe suas métricas e performance</p>
       </div>
 
       {/* Cards Principais */}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm flex items-center space-x-4">
           <UserX className="w-8 h-8 text-blue-600" />
           <div>
-            <p className="text-sm text-gray-600">Total de Leads</p>
-            <p className="text-xl font-bold">{clientes.filter(c => c.etapa === 'Lead').length}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Total de Leads</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{clientes.filter(c => c.etapa === 'Lead').length}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm flex items-center space-x-4">
           <BarChart3 className="w-8 h-8 text-green-600" />
           <div>
-            <p className="text-sm text-gray-600">Vendas no Mês</p>
-            <p className="text-xl font-bold">{vendas.length}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Vendas no Mês</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{vendas.length}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm flex items-center space-x-4">
           <DollarSign className="w-8 h-8 text-green-600" />
           <div>
-            <p className="text-sm text-gray-600">Valor Total Vendido</p>
-            <p className="text-xl font-bold">R$ {totalVendido.toLocaleString('pt-BR')}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Valor Total Vendido</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">R$ {totalVendido.toLocaleString('pt-BR')}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm flex items-center space-x-4">
           <UserX className="w-8 h-8 text-red-600" />
           <div>
-            <p className="text-sm text-gray-600">Leads Perdidos</p>
-            <p className="text-xl font-bold">{perdidos.length}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Leads Perdidos</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{perdidos.length}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm flex items-center space-x-4">
           <DollarSign className="w-8 h-8 text-red-600" />
           <div>
-            <p className="text-sm text-gray-600">Valor Total Perdido</p>
-            <p className="text-xl font-bold">R$ {totalPerdido.toLocaleString('pt-BR')}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Valor Total Perdido</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">R$ {totalPerdido.toLocaleString('pt-BR')}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm flex items-center space-x-4">
           <Target className="w-8 h-8 text-purple-600" />
           <div>
-            <p className="text-sm text-gray-600">Taxa de Conversão</p>
-            <p className="text-xl font-bold">{obterTaxaConversao().toFixed(1)}%</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Taxa de Conversão</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{obterTaxaConversao().toFixed(1)}%</p>
           </div>
         </div>
       </div>
 
       {/* Meta Mensal */}
-      <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Meta Mensal</h3>
-        <div className="w-full bg-gray-200 rounded-full h-4">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mt-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meta Mensal</h3>
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
           <div
             className="bg-blue-600 h-4 rounded-full transition-all duration-300"
             style={{ width: `${Math.min(progressoMeta, 100)}%` }}
           ></div>
         </div>
-        <div className="flex justify-between mt-2 text-sm text-gray-600">
+        <div className="flex justify-between mt-2 text-sm text-gray-600 dark:text-gray-400">
           <span>R$ {totalVendido.toLocaleString('pt-BR')}</span>
           <span>R$ {metasUsuario.mensal.toLocaleString('pt-BR')}</span>
         </div>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           {progressoMeta.toFixed(1)}% da meta atingida
         </p>
       </div>
