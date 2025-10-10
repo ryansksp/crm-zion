@@ -23,6 +23,10 @@
 - Update modals and popups
 - Update buttons and hover states if needed
 
+## Additional Fixes
+- [x] Fix flash of dashboard before pending approval screen for new users
+
 ## Testing
 - [ ] Switch to dark mode and check each component for white parts
 - [ ] Ensure readability and contrast in dark mode
+- [ ] Test new user login flow to ensure no flash of dashboard

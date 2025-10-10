@@ -64,7 +64,19 @@ function AppContent() {
 }
 
 function AppContentInner({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
-  const { userProfile, setIsPlanComparisonOpen } = useApp();
+  const { userProfile, userProfileLoading, setIsPlanComparisonOpen } = useApp();
+
+  // Show loading while user profile is loading
+  if (userProfileLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Check if user is approved
   if (userProfile && userProfile.status !== 'approved') {

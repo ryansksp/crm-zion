@@ -37,6 +37,8 @@ interface AppContextType extends AppState {
 
   theme: 'light' | 'dark';
   toggleTheme: () => Promise<void>;
+
+  userProfileLoading: boolean;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -80,6 +82,7 @@ import { SimulacaoService } from '../services/simulacaoService';
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfileLoading, setUserProfileLoading] = useState(true);
   const { user } = useAuth();
 
   const [clientesPorUsuario, setClientesPorUsuario] = useState<Record<string, Cliente[]>>({});
@@ -126,6 +129,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           isMaster: data.isMaster || false,
         };
         setUserProfile(userProfileData);
+        setUserProfileLoading(false);
       } else {
         const defaultProfile: UserProfile = {
           id: user.uid,
@@ -137,6 +141,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
         setDoc(docRef, defaultProfile);
         setUserProfile(defaultProfile);
+        setUserProfileLoading(false);
       }
     });
 
@@ -263,6 +268,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Se o nível de acesso foi alterado, atualizar as permissões padrão
     if (profile.accessLevel) {
       let newPermissions: UserProfile['permissions'] = {
+        canViewDashboard: false,
+        canViewFunil: false,
+        canViewLeads: false,
+        canViewSimulador: false,
+        canViewClientesAtivos: false,
+        canViewClientesPerdidos: false,
+        canViewPagamentos: false,
+        canViewDesempenho: false,
         canViewAllClients: false,
         canViewAllLeads: false,
         canViewAllSimulations: false,
@@ -274,6 +287,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (profile.accessLevel === 'Diretor') {
         newPermissions = {
+          canViewDashboard: true,
+          canViewFunil: true,
+          canViewLeads: true,
+          canViewSimulador: true,
+          canViewClientesAtivos: true,
+          canViewClientesPerdidos: true,
+          canViewPagamentos: true,
+          canViewDesempenho: true,
           canViewAllClients: true,
           canViewAllLeads: true,
           canViewAllSimulations: true,
@@ -284,6 +305,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
       } else if (profile.accessLevel === 'Gerente') {
         newPermissions = {
+          canViewDashboard: true,
+          canViewFunil: true,
+          canViewLeads: true,
+          canViewSimulador: true,
+          canViewClientesAtivos: true,
+          canViewClientesPerdidos: true,
+          canViewPagamentos: true,
+          canViewDesempenho: true,
           canViewAllClients: false,
           canViewAllLeads: false,
           canViewAllSimulations: false,
@@ -291,6 +320,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
           canManageUsers: false,
           canChangeSettings: true,
           canEditProfile: true,
+        };
+      } else if (profile.accessLevel === 'Operador') {
+        newPermissions = {
+          canViewDashboard: true,
+          canViewFunil: true,
+          canViewLeads: true,
+          canViewSimulador: true,
+          canViewClientesAtivos: true,
+          canViewClientesPerdidos: true,
+          canViewPagamentos: true,
+          canViewDesempenho: false,
+          canViewAllClients: false,
+          canViewAllLeads: false,
+          canViewAllSimulations: false,
+          canViewAllReports: false,
+          canManageUsers: false,
+          canChangeSettings: false,
+          canEditProfile: false,
         };
       }
 
@@ -416,7 +463,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       isPlanComparisonOpen,
       setIsPlanComparisonOpen,
       theme,
-      toggleTheme
+      toggleTheme,
+      userProfileLoading
     }}>
       {children}
     </AppContext.Provider>
