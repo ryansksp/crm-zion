@@ -186,7 +186,24 @@ export function ControleUsuarios() {
       setEditName(user.name);
       setEditPhone(user.phone || '');
       setEditAccessLevel(user.accessLevel);
-      setEditPermissions({ ...user.permissions });
+      const defaultPermissions = {
+        canViewDashboard: true,
+        canViewFunil: true,
+        canViewLeads: true,
+        canViewSimulador: true,
+        canViewClientesAtivos: true,
+        canViewClientesPerdidos: true,
+        canViewPagamentos: true,
+        canViewDesempenho: user.accessLevel !== 'Operador',
+        canViewAllClients: user.accessLevel === 'Diretor',
+        canViewAllLeads: user.accessLevel === 'Diretor',
+        canViewAllSimulations: user.accessLevel === 'Diretor',
+        canViewAllReports: user.accessLevel === 'Diretor',
+        canManageUsers: user.accessLevel === 'Diretor',
+        canChangeSettings: user.accessLevel !== 'Operador',
+        canEditProfile: true,
+      };
+      setEditPermissions(user.permissions ? { ...user.permissions } : defaultPermissions);
     } else {
       alert('Apenas usuários com nível Diretor podem editar usuários.');
     }
