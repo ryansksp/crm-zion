@@ -51,7 +51,7 @@ export function Layout({ children, activeTab, onTabChange, availableTabs }: Layo
               <Crown className="w-8 h-8 text-blue-600" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Zion CRM</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">CRM Embracon</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Gestão de Carteira</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
