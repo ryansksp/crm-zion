@@ -209,26 +209,26 @@ export function Pagamentos() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamentos</h2>
-        <p className="text-gray-600">Gerencie os pagamentos das parcelas dos clientes</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Pagamentos</h2>
+        <p className="text-gray-600 dark:text-gray-400">Gerencie os pagamentos das parcelas dos clientes</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <Users className="w-8 h-8 text-blue-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Total de Clientes</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Total de Clientes</h3>
               <p className="text-2xl font-bold text-blue-600">{clientesAtivos.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Pagamentos Ativos</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Pagamentos Ativos</h3>
               <p className="text-2xl font-bold text-green-600">
                 {clientesAtivos.filter(c => (editingPayments[c.id] || []).some(p => p.status === 'Pago')).length}
               </p>
@@ -236,11 +236,11 @@ export function Pagamentos() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <XCircle className="w-8 h-8 text-red-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Sem Pagamentos</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Sem Pagamentos</h3>
               <p className="text-2xl font-bold text-red-600">
                 {clientesAtivos.filter(c => !(editingPayments[c.id] || []).some(p => p.status === 'Pago')).length}
               </p>

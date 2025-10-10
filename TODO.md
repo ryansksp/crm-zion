@@ -1,20 +1,21 @@
-# TODO: Sistema de Rastreamento de Pagamentos
+# TODO: Implementar Modo Escuro Completo
 
-## Passos para Implementar
-- [x] Atualizar interface Cliente em src/types/index.ts para incluir campo pagamentos
-- [x] Modificar src/components/Pagamentos.tsx para adicionar UI de edição de pagamentos
-- [x] Testar a funcionalidade de edição e salvamento de pagamentos (build passou sem erros)
-- [x] Verificar se as datas são válidas e em ordem crescente (opcional: adicionar validação para datas em ordem)
-- [x] Criar nova página Pagamentos.tsx separada
-- [x] Adicionar aba Pagamentos no sidebar
-- [x] Configurar permissões para a nova aba
-- [x] Remover seção de pagamentos de ClientesAtivos.tsx
-- [x] Adicionar resumo geral de pagamentos no topo da página (parcelas pagas, pendentes, em atraso, próximas)
-- [x] Adicionar campo diaVencimentoPadrao para definir dia padrão de vencimento
-- [x] Implementar notificações de vencimento 10 dias antes
-- [x] Implementar função para salvar o dia de vencimento padrão junto com os pagamentos
-- [x] Substituir checkbox por select com opções "Pendente", "Pago" e "Atrasado" para maior clareza
-- [x] Atualizar permissões para serem modulares por aba (canViewDashboard, canViewFunil, etc.)
-- [x] Corrigir erro do Firestore removendo valores undefined dos dados enviados
-- [x] Adicionar opção "Atrasado" no select de status das parcelas
-- [x] Atualizar ControleUsuarios para mostrar as novas permissões modulares
+## Passos para Implementar Modo Escuro
+
+- [x] Atualizar Layout.tsx (corrigir classes dark incompletas)
+- [x] Atualizar Dashboard.tsx (adicionar todas as classes dark)
+- [x] Atualizar Pagamentos.tsx (adicionar todas as classes dark)
+- [x] Atualizar ClientesAtivos.tsx (adicionar todas as classes dark)
+- [x] Atualizar CadastroLeads.tsx
+- [x] Atualizar ClientesPerdidos.tsx
+- [x] Atualizar Configuracoes.tsx
+- [x] Atualizar ControleUsuarios.tsx
+- [x] Atualizar FunilVendas.tsx
+- [x] Atualizar Leads.tsx
+- [x] Atualizar Login.tsx
+- [x] Atualizar PainelDesempenho.tsx
+- [x] Atualizar PlanComparisonPopup.tsx
+- [x] Atualizar Profile.tsx
+- [x] Atualizar Simulador.tsx
+- [x] Atualizar componentes UI: badge.tsx, button.tsx, card.tsx
+- [x] Testar modo escuro alternando o tema

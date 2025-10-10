@@ -189,10 +189,10 @@ export function ClientesAtivos() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Clientes Ativos</h2>
-        <p className="text-gray-600">Gerencie o relacionamento pós-venda</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Clientes Ativos</h2>
+        <p className="text-gray-600 dark:text-gray-400">Gerencie o relacionamento pós-venda</p>
         {actionMessage && (
-          <div className="mt-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
+          <div className="mt-4 p-3 bg-blue-100 dark:bg-blue-900 border border-blue-400 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded">
             {actionMessage}
           </div>
         )}

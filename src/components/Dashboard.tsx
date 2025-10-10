@@ -132,8 +132,8 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Dashboard</h2>
-        <p className="text-gray-600">Visão geral da sua performance de vendas</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h2>
+        <p className="text-gray-600 dark:text-gray-400">Visão geral da sua performance de vendas</p>
 
         {/* Seletor de Período */}
         <div className="flex space-x-2 mt-4">
@@ -142,7 +142,7 @@ export function Dashboard() {
             className={`px-4 py-2 rounded-md transition-colors ${
               selectedPeriod === 'monthly'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             }`}
           >
             Mensal
@@ -152,7 +152,7 @@ export function Dashboard() {
             className={`px-4 py-2 rounded-md transition-colors ${
               selectedPeriod === 'all'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             }`}
           >
             Todo Período
@@ -161,7 +161,7 @@ export function Dashboard() {
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="ml-4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="ml-4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             >
               {monthOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -178,13 +178,13 @@ export function Dashboard() {
         {filteredEstatisticas.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.titulo}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.valor}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{stat.titulo}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.valor}</p>
                 </div>
-                <div className={`p-3 rounded-full ${stat.bgCor}`}>
+                <div className={`p-3 rounded-full ${stat.bgCor} dark:bg-gray-700`}>
                   <Icon className={`w-6 h-6 ${stat.cor}`} />
                 </div>
               </div>
@@ -194,14 +194,14 @@ export function Dashboard() {
       </div>
 
       {/* Progress da Meta */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Meta Mensal ({capitalizedMonthName})</h3>
-          <span className="text-sm text-gray-500">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Meta Mensal ({capitalizedMonthName})</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             R$ {selectedMonthSales.toLocaleString('pt-BR')} / R$ {userMeta.toLocaleString('pt-BR')}
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
           <div
             className="bg-blue-600 h-3 rounded-full transition-all duration-300"
             style={{
@@ -209,7 +209,7 @@ export function Dashboard() {
             }}
           ></div>
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           {((selectedMonthSales / (userMeta || 1)) * 100).toFixed(1)}% da meta atingida
         </p>
       </div>
@@ -217,21 +217,21 @@ export function Dashboard() {
 
       {/* Alertas de Clientes Inativos */}
       {clientesInativos.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+        <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 p-4 rounded-lg">
           <div className="flex items-start space-x-3">
             <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5" />
             <div>
-              <h3 className="text-sm font-medium text-orange-800 mb-1">
+              <h3 className="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">
                 Atenção: {clientesInativos.length} cliente(s) sem interação há mais de 3 dias
               </h3>
               <div className="space-y-1">
                 {clientesInativos.slice(0, 3).map(cliente => (
-                  <p key={cliente.id} className="text-sm text-orange-700">
+                  <p key={cliente.id} className="text-sm text-orange-700 dark:text-orange-300">
                     • {cliente.nome} - {cliente.etapa}
                   </p>
                 ))}
                 {clientesInativos.length > 3 && (
-                  <p className="text-sm text-orange-700">
+                  <p className="text-sm text-orange-700 dark:text-orange-300">
                     ... e mais {clientesInativos.length - 3} cliente(s)
                   </p>
                 )}
@@ -242,18 +242,18 @@ export function Dashboard() {
       )}
 
       {/* Atividades Recentes */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {isMonthly ? 'Atividades Recentes (Mês)' : 'Atividades Recentes'}
         </h3>
         <div className="space-y-3">
           {filteredAtividades.map(cliente => (
-            <div key={cliente.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+            <div key={cliente.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
               <div>
-                <p className="font-medium text-gray-900">{cliente.nome}</p>
-                <p className="text-sm text-gray-500">{cliente.etapa}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{cliente.nome}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{cliente.etapa}</p>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {formatDateTimeBrasilia(cliente.dataUltimaInteracao)}
               </p>
             </div>

@@ -42,18 +42,18 @@ export function ClientesPerdidos() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Clientes Perdidos</h2>
-        <p className="text-gray-600">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Clientes Perdidos</h2>
+        <p className="text-gray-600 dark:text-gray-400">
           Gerencie clientes perdidos para possível reativação
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <Users className="w-8 h-8 text-red-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Total de Clientes Perdidos
               </h3>
               <p className="text-2xl font-bold text-red-600">
@@ -65,33 +65,33 @@ export function ClientesPerdidos() {
       </div>
 
       {/* Lista de Clientes Perdidos */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Lista de Clientes Perdidos</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Lista de Clientes Perdidos</h3>
         </div>
 
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {clientesPerdidos.map(cliente => {
             const alertas = obterAlertas(cliente);
 
             return (
               <div
                 key={cliente.id}
-                className="p-6 hover:bg-gray-50 transition-colors"
+                className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h4 className="text-lg font-semibold text-gray-900">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {cliente.nome}
                       </h4>
-                      <div className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                      <div className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
                         <XCircle className="w-3 h-3" />
                         <span>Perdido</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
                       <div>
                         <span className="font-medium">Telefone:</span>{' '}
                         {cliente.telefone}
@@ -159,7 +159,7 @@ export function ClientesPerdidos() {
                       onBlur={e =>
                         atualizarCliente(cliente.id, { motivoPerda: e.target.value })
                       }
-                      className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                     <input
                       type="date"
@@ -172,7 +172,7 @@ export function ClientesPerdidos() {
                       onChange={e =>
                         atualizarCliente(cliente.id, { dataPerda: e.target.value })
                       }
-                      className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       title="Data da Perda"
                     />
                   </div>
@@ -182,8 +182,8 @@ export function ClientesPerdidos() {
           })}
 
           {clientesPerdidos.length === 0 && (
-            <div className="p-12 text-center text-gray-500">
-              <XCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <div className="p-12 text-center text-gray-500 dark:text-gray-400">
+              <XCircle className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
               <h4 className="text-lg font-medium mb-2">Nenhum cliente perdido</h4>
               <p className="text-sm">
                 Clientes perdidos aparecerão aqui para possível reativação.
