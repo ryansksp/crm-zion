@@ -10,6 +10,7 @@
 - [x] FunilVendas.tsx
 - [x] CadastroLeads.tsx
 - [x] Leads.tsx
+- [x] Profile.tsx
 
 ## Changes Needed
 - Add `dark:bg-gray-800` to `bg-white`
