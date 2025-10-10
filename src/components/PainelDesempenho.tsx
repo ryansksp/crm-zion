@@ -10,12 +10,21 @@ export function PainelDesempenho() {
 
   // Se for Diretor ou Gerente, mostrar dados por usuário
   if (userProfile.accessLevel === 'Diretor' || userProfile.accessLevel === 'Gerente') {
+    const hasData = Object.keys(clientesPorUsuario).length > 0;
+
     return (
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Painel de Desempenho</h2>
           <p className="text-gray-600 dark:text-gray-400">Acompanhe suas métricas e performance por usuário</p>
         </div>
+
+        {!hasData && (
+          <div className="text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400">Nenhum dado de performance disponível no momento.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Os dados aparecerão quando houver leads cadastrados.</p>
+          </div>
+        )}
 
         {Object.entries(clientesPorUsuario).map(([userId, clientes]) => {
           const userMetas = metasPorUsuario[userId];
