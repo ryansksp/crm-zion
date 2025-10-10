@@ -50,3 +50,19 @@ export const diasInatividade = (dataUltimaInteracao: string): number => {
 export const daysDifference = (date1: Date, date2: Date): number => {
   return Math.floor((date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24));
 };
+
+export const parseDate = (dateString: string): Date => {
+  if (!dateString) return new Date();
+  if (dateString.includes('T')) {
+    return new Date(dateString);
+  }
+  if (dateString.includes('-')) {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  if (dateString.includes('/')) {
+    const [day, month, year] = dateString.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  return new Date(dateString);
+};

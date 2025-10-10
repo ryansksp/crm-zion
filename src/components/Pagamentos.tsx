@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Cliente } from '../types';
-import { daysDifference } from '../utils/date';
+import { daysDifference, parseDate } from '../utils/date';
 import { Users, CheckCircle2, XCircle, Filter, DollarSign, Clock, AlertTriangle } from 'lucide-react';
 
 export function Pagamentos() {
@@ -53,7 +53,7 @@ export function Pagamentos() {
       const cliente = clientesAtivos.find(c => c.id === clienteId);
       if (cliente) {
         const dueDay = cliente.diaVencimentoPadrao || 10;
-        const startDate = cliente.dataVenda ? new Date(cliente.dataVenda) : new Date();
+        const startDate = cliente.dataVenda ? parseDate(cliente.dataVenda) : new Date();
         const startMonth = startDate.getMonth();
         const startYear = startDate.getFullYear();
         const payments = initialPayments[clienteId];
@@ -95,7 +95,7 @@ export function Pagamentos() {
   const paymentSummary = filteredClientes.reduce((acc, cliente) => {
     const payments = editingPayments[cliente.id] || [];
     const dueDay = editingDueDays[cliente.id] || 10;
-    const startDate = cliente.dataVenda ? new Date(cliente.dataVenda) : new Date();
+    const startDate = cliente.dataVenda ? parseDate(cliente.dataVenda) : new Date();
     const startMonth = startDate.getMonth();
     const startYear = startDate.getFullYear();
     payments.forEach((payment, index) => {
@@ -394,11 +394,11 @@ export function Pagamentos() {
                                 {editingPayments[cliente.id]?.map((payment, index) => {
                                   const today = new Date();
                                   today.setHours(0, 0, 0, 0);
-                                  let dueDate: Date;
+                                  let dueDate: Date = new Date();
                                   if (payment.data) {
                                     dueDate = new Date(payment.data);
                                   } else {
-                                    const startDate = cliente.dataVenda ? new Date(cliente.dataVenda) : new Date();
+                                    const startDate = cliente.dataVenda ? parseDate(cliente.dataVenda) : new Date();
                                     const startMonth = startDate.getMonth();
                                     const startYear = startDate.getFullYear();
                                     const dueDay = editingDueDays[cliente.id] || 10;
