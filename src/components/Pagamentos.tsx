@@ -61,7 +61,7 @@ export function Pagamentos() {
           if (payment.status === 'Pendente' && !payment.data) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const dueDate = new Date(startYear, startMonth + index + 1, dueDay);
+            const dueDate = new Date(startYear, startMonth + index, dueDay);
             if (dueDate < today) {
               payment.status = 'Atrasado';
             }
