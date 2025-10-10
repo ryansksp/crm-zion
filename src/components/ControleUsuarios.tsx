@@ -58,6 +58,7 @@ export function ControleUsuarios() {
 
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [rejectedUsers, setRejectedUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -76,6 +77,7 @@ export function ControleUsuarios() {
 
       const usersData: UserProfile[] = [];
       const pendingUsersData: PendingUser[] = [];
+      const rejectedUsersData: PendingUser[] = [];
       for (const docSnap of querySnapshot.docs) {
         const data = docSnap.data();
         const userId = docSnap.id; // Use document ID as UID
@@ -163,11 +165,21 @@ export function ControleUsuarios() {
             createdAt: data.createdAt?.toDate() || new Date(),
             status: 'pending',
           });
+        } else if (data.status === 'rejected') {
+          rejectedUsersData.push({
+            id: docSnap.id,
+            uid: userId,
+            name: data.name || '',
+            email: data.email || '',
+            createdAt: data.createdAt?.toDate() || new Date(),
+            status: 'rejected',
+          });
         }
       }
 
       setUsers(usersData);
       setPendingUsers(pendingUsersData);
+      setRejectedUsers(rejectedUsersData);
       console.log('Usuários carregados:', usersData.map(u => ({ name: u.name, stats: u.stats })));
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
@@ -338,6 +350,22 @@ export function ControleUsuarios() {
     } catch (error) {
       console.error('Erro ao rejeitar usuário:', error);
       alert('Erro ao rejeitar usuário. Tente novamente.');
+    }
+  };
+
+  const handleReactivateUser = async (userId: string) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        status: 'pending',
+        updatedAt: new Date(),
+      });
+      // Atualizar localmente para refletir a mudança
+      setRejectedUsers(rejectedUsers.filter(user => user.id !== userId));
+      await loadUsers();
+    } catch (error) {
+      console.error('Erro ao reativar usuário:', error);
+      alert('Erro ao reativar usuário. Tente novamente.');
     }
   };
 
@@ -632,6 +660,47 @@ export function ControleUsuarios() {
                     className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                   >
                     Rejeitar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Lista de usuários rejeitados */}
+      {rejectedUsers.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Usuários Rejeitados</h2>
+          <div className="grid gap-6">
+            {rejectedUsers.map((user) => (
+              <div key={user.id} className="bg-red-50 dark:bg-red-900/20 rounded-lg shadow-sm border border-red-200 dark:border-red-700 p-6 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-red-200 dark:bg-red-800 rounded-full flex items-center justify-center">
+                    <span className="text-red-600 dark:text-red-400 font-semibold text-lg">
+                      {user.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-red-900 dark:text-red-100">{user.name}</h3>
+                    <p className="text-red-600 dark:text-red-400">{user.email}</p>
+                    <p className="text-sm text-red-500 dark:text-red-300 mt-1">
+                      Rejeitado - pode ser reativado se necessário
+                    </p>
+                  </div>
+                </div>
+                <div className="space-x-2">
+                  <button
+                    onClick={() => handleReactivateUser(user.id)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    Reativar
+                  </button>
+                  <button
+                    onClick={() => deleteUser(user.id)}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    Excluir
                   </button>
                 </div>
               </div>
