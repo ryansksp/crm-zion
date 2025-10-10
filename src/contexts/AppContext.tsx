@@ -121,15 +121,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const docRef = doc(db, 'users', user.uid);
 
     // Real-time listener to user profile document
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+    const unsubscribe = onSnapshot(docRef, async (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         const userProfileData: UserProfile = {
           ...(data as UserProfile),
+          photoURL: data.photoURL || user.photoURL || '',
           isMaster: data.isMaster || false,
         };
         setUserProfile(userProfileData);
         setUserProfileLoading(false);
+        // Update photoURL in Firestore if it's missing or different
+        if (user.photoURL && userProfileData.photoURL !== user.photoURL) {
+          await updateDoc(docRef, { photoURL: user.photoURL });
+        }
       } else {
         const defaultProfile: UserProfile = {
           id: user.uid,
