@@ -51,7 +51,7 @@ export function Pagamentos() {
             today.setHours(0, 0, 0, 0);
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
-            const dueDate = new Date(currentYear, currentMonth + index, dueDay);
+            const dueDate = new Date(currentYear, currentMonth + index - 1, dueDay);
             if (dueDate < today) {
               payment.status = 'Atrasado';
             }
@@ -105,7 +105,7 @@ export function Pagamentos() {
           const today = new Date();
           const currentMonth = today.getMonth();
           const currentYear = today.getFullYear();
-          const installmentMonth = new Date(currentYear, currentMonth + index, dueDay);
+          const installmentMonth = new Date(currentYear, currentMonth + index - 1, dueDay);
 
           if (installmentMonth < today) {
             acc.atrasadas++;
@@ -380,21 +380,18 @@ export function Pagamentos() {
                     <h4 className="font-medium text-sm mb-2">Parcelas (12)</h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                 {editingPayments[cliente.id]?.map((payment, index) => {
-                                  let overdueDays = 0;
-                                  if (payment.status === 'Atrasado') {
-                                    const today = new Date();
-                                    today.setHours(0, 0, 0, 0);
-                                    let dueDate: Date;
-                                    if (payment.data) {
-                                      dueDate = new Date(payment.data);
-                                    } else {
-                                      const currentMonth = today.getMonth();
-                                      const currentYear = today.getFullYear();
-                                      const dueDay = editingDueDays[cliente.id] || 10;
-                                      dueDate = new Date(currentYear, currentMonth + index, dueDay);
-                                    }
-                                    overdueDays = daysDifference(today, dueDate);
+                                  const today = new Date();
+                                  today.setHours(0, 0, 0, 0);
+                                  let dueDate: Date;
+                                  if (payment.data) {
+                                    dueDate = new Date(payment.data);
+                                  } else {
+                                    const currentMonth = today.getMonth();
+                                    const currentYear = today.getFullYear();
+                                    const dueDay = editingDueDays[cliente.id] || 10;
+                                    dueDate = new Date(currentYear, currentMonth + index - 1, dueDay);
                                   }
+                                  const overdueDays = daysDifference(today, dueDate);
                                   return (
                                     <div key={index} className={`flex items-center space-x-2 p-2 border rounded ${
                                       payment.status === 'Pago' ? 'border-green-300 bg-green-50' :
@@ -419,7 +416,7 @@ export function Pagamentos() {
                                         className="border border-gray-300 rounded px-2 py-1 text-xs w-full"
                                         placeholder={payment.status === 'Pago' ? 'Data do Pagamento' : 'Data de Vencimento'}
                                       />
-                                      {payment.status === 'Atrasado' && overdueDays > 0 && (
+                                      {overdueDays > 0 && payment.status !== 'Pago' && (
                                         <span className="text-xs text-red-600 ml-2">Atrasado há {overdueDays} dias</span>
                                       )}
                                     </div>
