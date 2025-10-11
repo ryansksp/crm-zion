@@ -310,7 +310,7 @@ export function ControleUsuarios() {
     setEditPhone('');
     setEditAccessLevel('Operador');
     setEditPermissions(null);
-    setEditMeta(0);
+    setEditMeta('');
   };
 
   const handlePermissionChange = (permission: keyof UserPermissions, value: boolean) => {
