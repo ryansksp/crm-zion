@@ -66,7 +66,7 @@ export function ControleUsuarios() {
   const [editPhone, setEditPhone] = useState('');
   const [editAccessLevel, setEditAccessLevel] = useState<'Operador' | 'Gerente' | 'Diretor'>('Operador');
   const [editPermissions, setEditPermissions] = useState<UserPermissions | null>(null);
-  const [editMeta, setEditMeta] = useState(0);
+  const [editMeta, setEditMeta] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleEmails, setVisibleEmails] = useState<Set<string>>(new Set());
 
@@ -203,7 +203,7 @@ export function ControleUsuarios() {
       setEditName(user.name);
       setEditPhone(user.phone || '');
       setEditAccessLevel(user.accessLevel);
-      setEditMeta(metasPorUsuario[user.id]?.mensal || 0);
+      setEditMeta(metasPorUsuario[user.id]?.mensal?.toString() || '');
       const defaultPermissions = {
         canViewDashboard: false,
         canViewFunil: false,
@@ -239,7 +239,7 @@ export function ControleUsuarios() {
       });
 
       // Atualizar meta
-      await atualizarMetaUsuario(userId, { mensal: editMeta });
+      await atualizarMetaUsuario(userId, { mensal: editMeta ? Number(editMeta) : 0 });
 
       // Atualizar estado local
       setUsers(users.map(user =>
@@ -259,7 +259,7 @@ export function ControleUsuarios() {
       setEditPhone('');
       setEditAccessLevel('Operador');
       setEditPermissions(null);
-      setEditMeta(0);
+      setEditMeta('');
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
       alert('Erro ao salvar usuário. Tente novamente.');
@@ -539,13 +539,11 @@ export function ControleUsuarios() {
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Meta Mensal (R$)</label>
                             <input
-                              type="number"
+                              type="text"
                               value={editMeta}
-                              onChange={(e) => setEditMeta(Number(e.target.value))}
+                              onChange={(e) => setEditMeta(e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                               placeholder="0"
-                              min="0"
-                              step="1000"
                             />
                           </div>
                         </div>
