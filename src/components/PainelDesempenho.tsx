@@ -1,8 +1,18 @@
+import { useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { DollarSign, Target, BarChart3, UserX } from 'lucide-react';
+import { auditLogger } from '../utils/logger';
+import { useAuth } from '../contexts/AuthContext';
 
 export function PainelDesempenho() {
   const { clientesPorUsuario, metasPorUsuario, userProfile, userProfiles, clientes, obterTaxaConversao } = useApp();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && userProfile) {
+      auditLogger.logAction(user.uid, 'REPORTS', 'VIEW_PERFORMANCE', 'Acesso ao painel de desempenho');
+    }
+  }, [user, userProfile]);
 
   if (!userProfile) {
     return <div>Carregando...</div>;

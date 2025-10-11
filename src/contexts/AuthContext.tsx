@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { auditLogger } from '../utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -17,13 +18,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [idleTimeout, setIdleTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [loginAttempts, setLoginAttempts] = useState<{ count: number; lastAttempt: number }>({ count: 0, lastAttempt: 0 });
 
   const clearError = () => setError(null);
+
+  const resetIdleTimer = () => {
+    if (idleTimeout) clearTimeout(idleTimeout);
+    if (user) {
+      setIdleTimeout(setTimeout(async () => {
+        await logout();
+        alert('Sessão expirada por inatividade.');
+      }, 30 * 60 * 1000)); // 30 minutes
+    }
+  };
+
+  const handleActivity = () => {
+    resetIdleTimer();
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user) => {
+      async (user) => {
+        if (user) {
+          await auditLogger.logAuth(user.uid, 'LOGIN', `Usuário ${user.email} fez login`);
+          resetIdleTimer();
+        } else {
+          if (idleTimeout) clearTimeout(idleTimeout);
+          await auditLogger.log('unknown', 'AUTH_LOGOUT', 'Usuário fez logout');
+        }
         setUser(user);
         setLoading(false);
         setError(null);
@@ -35,14 +59,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    return unsubscribe;
+    // Add activity listeners
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, handleActivity, true);
+    });
+
+    return () => {
+      unsubscribe();
+      events.forEach(event => {
+        document.removeEventListener(event, handleActivity, true);
+      });
+      if (idleTimeout) clearTimeout(idleTimeout);
+    };
   }, []);
 
   const loginWithGoogle = async () => {
     setError(null);
+
+    // Rate limiting: 5 attempts per 15 minutes
+    const now = Date.now();
+    const timeWindow = 15 * 60 * 1000; // 15 minutes
+    if (loginAttempts.count >= 5 && now - loginAttempts.lastAttempt < timeWindow) {
+      setError('Muitas tentativas de login. Tente novamente em 15 minutos.');
+      return;
+    }
+
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      // Reset attempts on success
+      setLoginAttempts({ count: 0, lastAttempt: 0 });
     } catch (error: unknown) {
       console.error('Erro no login com Google:', error);
       const err = error as { code?: string };
@@ -53,6 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setError('Erro ao fazer login. Tente novamente.');
       }
+      // Increment attempts on failure
+      setLoginAttempts(prev => ({ count: prev.count + 1, lastAttempt: now }));
       throw error;
     }
   };

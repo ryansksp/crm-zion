@@ -1,0 +1,16 @@
+{
+  "name": "CRM Zion",
+  "short_name": "CRM Zion",
+  "description": "Sistema de CRM seguro para gestão de leads e vendas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}
