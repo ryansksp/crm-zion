@@ -11,12 +11,48 @@ interface CadastroLeadsProps {
 }
 
 export function CadastroLeads({ onClose }: CadastroLeadsProps) {
-  const { adicionarCliente, userProfiles, userProfile } = useApp();
+  const { adicionarCliente, userProfiles, userProfile, planos } = useApp();
+
+  // Organizar planos por tipo, agrupando por nome e prazo, mostrando faixa de crédito
+  const planosOrganizados = planos.reduce((acc: Record<string, Record<string, { min: number; max: number; planos: typeof planos }>>, plano) => {
+    const tipo = plano.tipo || 'Outros';
+    if (!acc[tipo]) acc[tipo] = {};
+
+    const prazo = plano.prazoMeses || plano.prazo || 0;
+    const key = `${plano.nome}-${prazo}`;
+    if (!acc[tipo][key]) {
+      acc[tipo][key] = { min: plano.credito || 0, max: plano.credito || 0, planos: [] };
+    }
+    acc[tipo][key].min = Math.min(acc[tipo][key].min, plano.credito || 0);
+    acc[tipo][key].max = Math.max(acc[tipo][key].max, plano.credito || 0);
+    acc[tipo][key].planos.push(plano);
+    return acc;
+  }, {});
+
+  // Ordenar tipos e dentro de cada tipo ordenar por prazo
+  const tiposOrdenados = Object.keys(planosOrganizados).sort();
+  const planosPorCategoria = tiposOrdenados.reduce((acc: Record<string, { nome: string; label: string; value: string }[]>, tipo) => {
+    acc[tipo] = Object.entries(planosOrganizados[tipo])
+      .sort(([, a], [, b]) => {
+        const prazoA = a.planos[0]?.prazoMeses || a.planos[0]?.prazo || 0;
+        const prazoB = b.planos[0]?.prazoMeses || b.planos[0]?.prazo || 0;
+        return prazoA - prazoB;
+      })
+      .map(([, data]) => ({
+        nome: data.planos[0].nome,
+        label: data.min === data.max
+          ? `${data.planos[0].nome} (R$ ${data.min.toLocaleString('pt-BR')})`
+          : `${data.planos[0].nome} (R$ ${data.min.toLocaleString('pt-BR')} - R$ ${data.max.toLocaleString('pt-BR')})`,
+        value: data.planos[0].nome
+      }));
+    return acc;
+  }, {});
+
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
     email: '',
-    planoInteresse: 'Automóvel',
+    planoInteresse: '',
     valorCredito: '',
     userId: ''
   });
@@ -64,7 +100,7 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
         nome: '',
         telefone: '',
         email: '',
-        planoInteresse: 'Automóvel',
+        planoInteresse: '',
         valorCredito: '',
         userId: ''
       });
@@ -148,11 +184,16 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
                 onChange={(e) => handleInputChange('planoInteresse', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
-                <option value="Automóvel">Automóvel</option>
-                <option value="Imóvel">Imóvel</option>
-                <option value="Moto">Moto</option>
-                <option value="Caminhão">Caminhão</option>
-                <option value="Serviços">Serviços</option>
+                <option value="">Selecione um plano</option>
+                {Object.entries(planosPorCategoria).map(([categoria, planosCategoria]) => (
+                  <optgroup key={categoria} label={categoria}>
+                    {planosCategoria.map((plano) => (
+                      <option key={plano.value} value={plano.value}>
+                        {plano.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
             </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Shield, Users, Edit, Save, X, Eye, EyeOff, BarChart3 } from 'lucide-react';
 import { collection, getDocs, doc, updateDoc, deleteDoc, getFirestore } from 'firebase/firestore';
+import { formatPhone } from '../utils/formatters';
 
 interface UserPermissions {
   canViewDashboard: boolean;
@@ -512,7 +513,7 @@ export function ControleUsuarios() {
                             <input
                               type="text"
                               value={editPhone}
-                              onChange={(e) => setEditPhone(e.target.value)}
+                              onChange={(e) => setEditPhone(formatPhone(e.target.value))}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                             />
                           </div>

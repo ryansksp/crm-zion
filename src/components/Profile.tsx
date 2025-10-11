@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { Shield, AlertTriangle } from 'lucide-react';
+import { formatPhone } from '../utils/formatters';
 
 export function Profile() {
   const { userProfile, atualizarUserProfile, podeAlterarPermissao } = useApp();
@@ -27,7 +28,8 @@ export function Profile() {
   }, [userProfile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const value = e.target.name === 'phone' ? formatPhone(e.target.value) : e.target.value;
+    setFormData(prev => ({ ...prev, [e.target.name]: value }));
   };
 
   const handleSave = async () => {
