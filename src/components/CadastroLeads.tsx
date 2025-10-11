@@ -12,6 +12,15 @@ interface CadastroLeadsProps {
 
 export function CadastroLeads({ onClose }: CadastroLeadsProps) {
   const { adicionarCliente, userProfiles, userProfile, planos } = useApp();
+  const [formData, setFormData] = useState({
+    nome: '',
+    telefone: '',
+    email: '',
+    planoInteresse: '',
+    valorCredito: '',
+    userId: ''
+  });
+  const [loading, setLoading] = useState(false);
 
   // Organizar planos por tipo, agrupando por nome e prazo, mostrando faixa de crédito
   const planosOrganizados = planos.reduce((acc: Record<string, Record<string, { min: number; max: number; planos: typeof planos }>>, plano) => {
@@ -47,16 +56,6 @@ export function CadastroLeads({ onClose }: CadastroLeadsProps) {
       }));
     return acc;
   }, {});
-
-  const [formData, setFormData] = useState({
-    nome: '',
-    telefone: '',
-    email: '',
-    planoInteresse: '',
-    valorCredito: '',
-    userId: ''
-  });
-  const [loading, setLoading] = useState(false);
 
   // Get users: Directors can assign to anyone, others only to Operador or Gerente
   const colaboradores = Object.values(userProfiles).filter(user =>

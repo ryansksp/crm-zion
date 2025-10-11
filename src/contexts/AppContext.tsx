@@ -21,6 +21,7 @@ interface AppContextType extends AppState {
   adicionarPlano: (plano: Omit<PlanoEmbracon, 'id' | 'userId'>) => Promise<void>;
   atualizarPlano: (id: string, plano: Partial<PlanoEmbracon>) => Promise<void>;
   atualizarMetas: (metas: Partial<Meta>) => Promise<void>;
+  atualizarMetaUsuario: (userId: string, meta: Partial<Meta>) => Promise<void>;
   adicionarSimulacao: (simulacao: Omit<Simulacao, 'id'>) => Promise<void>;
   obterClientesAtivos: () => Cliente[];
   obterTaxaConversao: () => number;
@@ -402,6 +403,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const atualizarMetaUsuario = async (userId: string, meta: Partial<Meta>) => {
+    try {
+      const docRef = doc(db, 'metas', userId);
+      await setDoc(docRef, meta, { merge: true });
+    } catch (error) {
+      console.error('Erro ao atualizar meta do usuário:', error);
+      throw error;
+    }
+  };
+
   const adicionarSimulacao = async (simulacao: Omit<Simulacao, 'id'>) => {
     if (!user) return;
     await SimulacaoService.adicionarSimulacao({ ...simulacao, userId: user.uid });
@@ -457,6 +468,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       adicionarPlano,
       atualizarPlano,
       atualizarMetas,
+      atualizarMetaUsuario,
       adicionarSimulacao,
       obterClientesAtivos,
       obterTaxaConversao,
