@@ -2,21 +2,21 @@
 
 const CACHE_NAME = 'crm-zion-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/src/main.tsx',
-  '/src/index.css',
-  // Add other critical assets
+  '/manifest.json',
+  '/favicon.png'
 ];
 
-// Install event - cache resources
+// Install event - cache resources safely
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache);
+        return Promise.allSettled(
+          urlsToCache.map(url => cache.add(url).catch(err => console.log(`Failed to cache ${url}:`, err)))
+        );
       })
   );
+  self.skipWaiting();
 });
 
 // Fetch event - serve from cache if available, else fetch
