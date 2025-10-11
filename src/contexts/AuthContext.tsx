@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [idleTimeout, setIdleTimeout] = useState<NodeJS.Timeout | null>(null);
   const [loginAttempts, setLoginAttempts] = useState<{ count: number; lastAttempt: number }>({ count: 0, lastAttempt: 0 });
+  const [lastUserId, setLastUserId] = useState<string>('unknown');
 
   const clearError = () => setError(null);
 
@@ -42,11 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       auth,
       async (user) => {
         if (user) {
+          setLastUserId(user.uid);
           await auditLogger.logAuth(user.uid, 'LOGIN', `Usuário ${user.email} fez login`);
           resetIdleTimer();
         } else {
           if (idleTimeout) clearTimeout(idleTimeout);
-          await auditLogger.log('unknown', 'AUTH_LOGOUT', 'Usuário fez logout');
+          await auditLogger.log(lastUserId, 'AUTH_LOGOUT', 'Usuário fez logout');
         }
         setUser(user);
         setLoading(false);

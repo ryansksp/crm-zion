@@ -38,7 +38,12 @@ export class AuditLogger {
         timestamp: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Erro ao salvar log de auditoria:', error);
+      // Handle Firestore permission errors gracefully
+      if (error.code === 'permission-denied') {
+        console.warn('Auditoria Firestore indisponível (permissões), usando apenas console');
+      } else {
+        console.error('Erro ao salvar log de auditoria:', error);
+      }
     }
   }
 
